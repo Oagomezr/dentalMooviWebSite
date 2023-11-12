@@ -1,0 +1,6 @@
+mailHost: smtp.example.com
+email: example@mail.com
+mailPassword: passwordExample
+jwtSecret: jwtSecretExample
+dataBasePasswordPostgres: passwordExample #it don't used, but can be used if want to use postgres
+dataBasePasswordMySQL: passwordExample
