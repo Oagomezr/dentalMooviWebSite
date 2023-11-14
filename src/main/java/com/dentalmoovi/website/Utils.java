@@ -1,12 +1,18 @@
 package com.dentalmoovi.website;
 
+import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Categories;
+import com.dentalmoovi.website.models.entities.Images;
 import com.dentalmoovi.website.models.entities.Products;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.enums.GenderList;
 import com.dentalmoovi.website.models.enums.RolesList;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 
 public class Utils {
@@ -51,5 +57,34 @@ public class Utils {
         Roles role = new Roles();
         role.setRole(roleType);
         return role;
+    }
+
+    public static byte[] loadImageData(String imagePath) {
+        try {
+            Path path = Paths.get(imagePath);
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new RuntimeException("Error to load the image: " + imagePath, e);
+        }
+    }
+
+    public static UserDTO setUserDTO(String name, String lastName, String email, String celPhone, GenderList gender, LocalDate birthdate){
+        UserDTO userDTO = new UserDTO();
+        userDTO.setFirstName(name);
+        userDTO.setLastName(lastName);
+        userDTO.setEmail(email);
+        userDTO.setCelPhone(celPhone);
+        userDTO.setGender(gender);
+        userDTO.setBirthdate(birthdate);
+        return userDTO;
+    }
+
+    public static Images setImage(String name, String contentType, byte[] data, Products product){
+        Images img = new Images();
+        img.setName(name);
+        img.setContentType(contentType);
+        img.setData(data);
+        img.setProduct(product);
+        return img;
     }
 }

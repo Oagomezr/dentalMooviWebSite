@@ -40,7 +40,7 @@ public class Users {
     @EqualsAndHashCode.Include
     private String email;
 
-    @Column(nullable = false, length = 12)
+    @Column(nullable = false, length = 13)
     private String celPhone;
 
     @Column(nullable = true)

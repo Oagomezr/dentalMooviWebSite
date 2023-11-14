@@ -15,7 +15,7 @@ spring:
             ddl-auto: create-drop
 
     datasource:
-        url: jdbc:mysql://localhost:3306/dental_moovi
+        url: jdbc:mysql://localhost:3306/dentalmoovi_test
         username: root
         password: ${dataBasePasswordMySQL}
         driver-class-name: com.mysql.cj.jdbc.Driver
@@ -32,7 +32,3 @@ spring:
                     auth: true
                     starttls:
                         enable: true
-
-logging:
-    level:
-        '[org.hibernate.SQL]': DEBUG
