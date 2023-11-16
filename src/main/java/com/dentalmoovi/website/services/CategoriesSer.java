@@ -3,6 +3,7 @@ package com.dentalmoovi.website.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.dentalmoovi.website.models.dtos.CategoriesDTO;
@@ -18,6 +19,7 @@ public class CategoriesSer {
         this.categoriesRep = categoriesRep;
     }
 
+    @Cacheable(cacheNames = "getAllCategories")
     public CategoriesResponse getAllCategories(){
         List<Categories> parentCategories = categoriesRep.findByParentCategoryIsNullOrderByName();
         List<CategoriesDTO> parentCategoriesDTO = new ArrayList<>();
@@ -28,10 +30,6 @@ public class CategoriesSer {
             parentCategoriesDTO.add(parentCategoryDTO);
         });
         return setCategoriesResponse(parentCategoriesDTO);
-    }
-
-    public String checkUpdate(){
-        return String.valueOf(categoriesRep.findMaxId() + categoriesRep.countUpdates());
     }
 
     private List<CategoriesDTO> getSubCategories(Categories parentCategory, List<String> parents) {

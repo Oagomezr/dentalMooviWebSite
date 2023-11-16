@@ -39,13 +39,6 @@ class CategoriesSerIntegrationTest {
         testSubCategories(resultParents);
     }
 
-    @Test
-    void checkUpdateTest(){
-        String expected = String.valueOf(categoriesRep.findMaxId() + categoriesRep.countUpdates());
-        String result = categoriesSer.checkUpdate();
-        assertEquals(expected, result);
-    }
-
     private void testSubCategories(List<CategoriesDTO> parents){
         if(parents.size() == 0) return;
         parents.stream().forEach(parentCategoryDTO ->{

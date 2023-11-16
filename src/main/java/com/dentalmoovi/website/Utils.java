@@ -8,6 +8,8 @@ import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.enums.GenderList;
 import com.dentalmoovi.website.models.enums.RolesList;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -86,5 +88,19 @@ public class Utils {
         img.setData(data);
         img.setProduct(product);
         return img;
+    }
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static String transformToJSON(Object object) {
+        try {
+            return objectMapper.writeValueAsString(object)
+                    .replaceAll("[áÁäÄâÂàÀãÃ]", "Ã")
+                    .replaceAll("[éÉëËêÊèÈẽẼ]", "Ã")
+                    .replaceAll("[íÍïÏîÎìÌĩĨ]", "Ã")
+                    .replaceAll("[óÓöÖôÔòÒõÕ]", "Ã")
+                    .replaceAll("[úÚüÜûÛùÙũŨ]", "Ã");
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error al convertir a JSON: " + e.getMessage());
+        }
     }
 }

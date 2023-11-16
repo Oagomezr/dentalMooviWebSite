@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.dentalmoovi.website.models.dtos.ImagesDTO;
@@ -26,6 +27,7 @@ public class ProductsSer {
         this.categoriesRep = categoriesRep;
     }
 
+    @Cacheable(cacheNames = "productsByCategory")
     public ProductsResponse getProductsByCategory(String parentCategoryName, int currentPage, int productsPerPage){
         class GetProductsByCategory{
             ProductsResponse getProductsByCategory() {
@@ -85,6 +87,7 @@ public class ProductsSer {
         return innerClass.getProductsByCategory();
     }
 
+    @Cacheable(cacheNames = "getProduct")
     public ProductsDTO getProduct(String name){
 
         class GetProduct{
@@ -121,6 +124,7 @@ public class ProductsSer {
         return innerClass.getProduct();
     }
 
+    @Cacheable(cacheNames = "getProducsByContaining")
     public ProductsResponse getProductsByContaining(String name, boolean limit, int currentPage, int productsPerPage){
         List<Products> productsFound;
 
