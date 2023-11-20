@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,7 +54,7 @@ class UserSetUnitTest {
 
     @BeforeEach
     void beforeEach(){
-        when(userRep.existsByEmail(Mockito.any())).thenAnswer(invocation -> {
+        lenient().when(userRep.existsByEmail(Mockito.any())).thenAnswer(invocation -> {
             String email = invocation.getArgument(0);
             switch (email) {
                 case "test@exist.com":
@@ -85,9 +86,11 @@ class UserSetUnitTest {
     @Test
     void createUserTest(){
 
-        UserDTO userDTO1 = Utils.setUserDTO("userDTO1", "DTO", "test@exist.co", "333-3333-3333", GenderList.UNDEFINED, null);
-        UserDTO userDTO2 = Utils.setUserDTO("userDTO2", "DTO", "testno@exist.co", "222-2222-2222", GenderList.UNDEFINED, null);
-        Roles defaultRole = Utils.setRole(RolesList.USER_ROLE);
+        UserDTO userDTO1 = Utils.setUserDTO("userDTO1", "DTO", "test@exist.co", "333-3333-3333", GenderList.UNDEFINED, null, "123456", "password");
+        UserDTO userDTO2 = Utils.setUserDTO("userDTO2", "DTO", "testno@exist.co", "222-2222-2222", GenderList.UNDEFINED, null, "654321", "password");
+        Roles defaultRole = new Roles();
+        defaultRole.setId(1L);
+        defaultRole.setRole(RolesList.USER_ROLE);
 
         when(cacheSer.getFromRegistrationCache(Mockito.any())).thenAnswer(invocation -> {
             String email = invocation.getArgument(0);
@@ -101,12 +104,13 @@ class UserSetUnitTest {
 
         when(rolesRep.findByRole(RolesList.USER_ROLE)).thenReturn(Optional.of(defaultRole));
 
-        assertThrows(RuntimeException.class, () -> userSer.createUser(userDTO1, "123456", "password"));
-        assertThrows(RuntimeException.class, () -> userSer.createUser(userDTO2, "654321", "password"));
-        assertDoesNotThrow(() -> userSer.createUser(userDTO2, "123456", "password"));
+        assertThrows(RuntimeException.class, () -> userSer.createUser(userDTO1));
+        assertThrows(RuntimeException.class, () -> userSer.createUser(userDTO2));
+        userDTO2.setCode("123456");
+        assertDoesNotThrow(() -> userSer.createUser(userDTO2));
 
         verify(userRep, times(1)).save(any());
 
-        assertEquals("User Created", userSer.createUser(userDTO2, "123456", "password"));
+        assertEquals("User Created", userSer.createUser(userDTO2));
     }
 }

@@ -20,4 +20,6 @@ public class UserDTO {
     private LocalDate birthdate;
     private GenderList gender;
     private Set<RoleDTO> roles = new HashSet<>();
+    private String code; 
+    private String password; 
 }

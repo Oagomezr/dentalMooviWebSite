@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Roles;
-import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.enums.RolesList;
 import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
@@ -32,7 +31,9 @@ public class UserSer {
     }
 
     public void sendEmailNotification(String email) {
-        
+        String retrictReplay = cacheSer.getFromReplayCodeRestrict(email);
+        if (retrictReplay !=null && retrictReplay.equals(email)) return;
+
         //Generate randomNumber
         int randomNumber = random.nextInt(1000000);
 
@@ -44,6 +45,7 @@ public class UserSer {
                         "El codigo de confirmación es: "+ formattedNumber;
         
         cacheSer.addToOrUpdateRegistrationCache(email, formattedNumber);
+        cacheSer.addToOrUpdateReplayCodeRestrict(email, email);
 
         try {
             emailSer.sendEmail(email, subject, body);
@@ -53,7 +55,7 @@ public class UserSer {
         }
     }
 
-    public String createUser(UserDTO userDTO, String codeSended, String password) throws RuntimeException {
+    public String createUser(UserDTO userDTO) throws RuntimeException {
 
         class CreateUser{
 
@@ -67,7 +69,7 @@ public class UserSer {
                 String code = cacheSer.getFromRegistrationCache(userDTO.getEmail());
 
                 //verify if code sended is equals the verification code
-                if(!codeSended.equals(code)) 
+                if(!userDTO.getCode().equals(code)) 
                     throw new RuntimeException("That code is incorrect");
 
                 //create default role
@@ -75,17 +77,11 @@ public class UserSer {
                     .orElseThrow(() -> new RuntimeException("Role not found"));
 
                 //encrypt the password
-                String hashedPassword = new BCryptPasswordEncoder().encode(password); 
+                String hashedPassword = new BCryptPasswordEncoder().encode(userDTO.getPassword()); 
 
-                //set user without foreign key data
-                Users newUser = Utils.setUser(userDTO.getFirstName(), userDTO.getLastName(), 
-                    userDTO.getEmail(), userDTO.getCelPhone(), userDTO.getGender(), hashedPassword, userDTO.getBirthdate());
-
-                //set default role to user
-                newUser.getRoles().add(defaultRole);
-
-                userRep.save(newUser); // add complete user to the database
-                userRep.flush(); //add to database inmediatly
+                //set and save user
+                Utils.setUser(userDTO.getFirstName(), userDTO.getLastName(), 
+                    userDTO.getEmail(), userDTO.getCelPhone(), userDTO.getGender(), hashedPassword, userDTO.getBirthdate(), defaultRole, userRep);
 
                 return "User Created";
             }

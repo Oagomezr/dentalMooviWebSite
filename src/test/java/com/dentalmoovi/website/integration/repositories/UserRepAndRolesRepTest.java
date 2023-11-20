@@ -4,15 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.entities.Roles;
@@ -22,12 +18,10 @@ import com.dentalmoovi.website.models.enums.RolesList;
 import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
 
-import jakarta.annotation.PostConstruct;
-
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 
-@DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
+@SpringBootTest
 class UserRepAndRolesRepTest {
     
     @Autowired
@@ -37,43 +31,20 @@ class UserRepAndRolesRepTest {
     private RolesRep rolesRep;
 
     //set roles
-    private static Roles userRole = Utils.setRole(RolesList.USER_ROLE);
-    private static Roles adminRole = Utils.setRole(RolesList.ADMIN_ROLE);
-
-    //define the USER role
-    private static Set<Roles> defaultRole = new HashSet<>(List.of(userRole));
+    private static Roles userRole;
+    private static Roles adminRole;
 
     //set users
-    private static Users user1 = Utils.setUser("one", "number", "one@mail.com", "0123456789", GenderList.FEMALE, "12345", null);
-    private static Users user2 = Utils.setUser("two", "number", "two@mail.com", "9876543210", GenderList.MALE, "12345", null);
+    private static Users user1;
+    private static Users user2;
 
-    @TestConfiguration
-    static class TestConfig {
+    @BeforeAll
+    static void setUp(@Autowired UserRep usersRep, @Autowired RolesRep rolesRep){
+        userRole = Utils.setRole(RolesList.USER_ROLE, rolesRep);
+        adminRole = Utils.setRole(RolesList.ADMIN_ROLE, rolesRep);
 
-        @Autowired
-        private UserRep usersRep;
-
-        @Autowired
-        private RolesRep rolesRep;
-
-        //Execute before all test
-        @PostConstruct
-        void init() {
-            //set
-            user1.setRoles(defaultRole);
-            user2.setRoles(defaultRole);
-            
-            //create roles to database
-            rolesRep.save(userRole);
-            rolesRep.save(adminRole);
-
-            //create users to database
-            usersRep.save(user1);
-            usersRep.save(user2);
-
-            //put in database immediately
-            usersRep.flush();
-        }
+        user1 = Utils.setUser("one", "number", "one@mail.com", "0123456789", GenderList.FEMALE, "12345", null, userRole, usersRep);
+        user2 = Utils.setUser("two", "number", "two@mail.com", "9876543210", GenderList.MALE, "12345", null, userRole, usersRep);
     }
 
     @Test

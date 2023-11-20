@@ -21,7 +21,7 @@ public class CategoriesSer {
 
     @Cacheable(cacheNames = "getAllCategories")
     public CategoriesResponse getAllCategories(){
-        List<Categories> parentCategories = categoriesRep.findByParentCategoryIsNullOrderByName();
+        List<Categories> parentCategories = categoriesRep.findParentCategories();
         List<CategoriesDTO> parentCategoriesDTO = new ArrayList<>();
         parentCategories.stream().forEach(parentCategory -> {
             List<String> itself = List.of(parentCategory.getName());
@@ -33,7 +33,7 @@ public class CategoriesSer {
     }
 
     private List<CategoriesDTO> getSubCategories(Categories parentCategory, List<String> parents) {
-        List<Categories> subCategories = categoriesRep.findByParentCategoryOrderByName(parentCategory);
+        List<Categories> subCategories = categoriesRep.findByParentCategory(parentCategory.getId());
         List<CategoriesDTO> subCategoriesDTO = new ArrayList<>();
         if(subCategories.isEmpty()) return subCategoriesDTO;  
 

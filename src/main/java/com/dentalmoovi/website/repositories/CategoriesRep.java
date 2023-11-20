@@ -3,20 +3,21 @@ package com.dentalmoovi.website.repositories;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.dentalmoovi.website.models.entities.Categories;
 
-public interface CategoriesRep extends JpaRepository<Categories, Long>{
-    List<Categories> findByParentCategoryIsNullOrderByName();
-    List<Categories> findByParentCategoryOrderByName(@Param("parent_category") Categories parentCategory);
-    Optional<Categories> findByName(@Param("name") String name);
-    
-    @Query("SELECT MAX(e.id) FROM Categories e")
-    long findMaxId();
+@Repository
+public interface CategoriesRep extends CrudRepository<Categories, Long>{
+    @Query("SELECT * FROM categories WHERE id_parent_category IS NULL ORDER BY name")
+    List<Categories> findParentCategories();
 
-    @Query("SELECT SUM(e.numberUpdates) FROM Categories e")
-    long countUpdates();
+    @Query("SELECT * FROM categories WHERE id_parent_category = :parentCategoryId ORDER BY name")
+    List<Categories> findByParentCategory(@Param("parentCategoryId") Long parentCategoryId);
+
+    @Query("SELECT * FROM categories WHERE name = :name")
+    Optional<Categories> findByName(@Param("name") String name);
 }

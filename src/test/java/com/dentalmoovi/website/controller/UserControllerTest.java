@@ -33,7 +33,7 @@ class UserControllerTest {
 
     @Test
     void createUserTest() throws Exception{
-        UserDTO userDTO = Utils.setUserDTO("example", "test", "example@test.com", "333-3333-3333", GenderList.UNDEFINED, null);
+        UserDTO userDTO = Utils.setUserDTO("example", "test", "example@test.com", "333-3333-3333", GenderList.UNDEFINED, null, "123456", "password");
 
         String userJson = objectMapper.writeValueAsString(userDTO);
 
@@ -41,16 +41,12 @@ class UserControllerTest {
 
         mockMvc.perform(post("/public/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(userJson)
-                .param("code", "123456")
-                .param("password", "123456"))
+                .content(userJson))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/public/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(userJson)
-                .param("code", "654321")
-                .param("password", "123456"))
+                .content(userJson))
                 .andExpect(status().isBadRequest());
     }
 

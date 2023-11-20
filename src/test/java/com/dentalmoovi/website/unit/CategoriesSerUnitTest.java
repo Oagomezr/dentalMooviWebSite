@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.CategoriesDTO;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.responses.CategoriesResponse;
@@ -31,22 +30,39 @@ class CategoriesSerUnitTest {
 
     @Test
     void getAllCategoriesTest(){
-        Categories parentCategoryX = Utils.setCategory("parent1", null);
-        Categories parentCategoryY = Utils.setCategory("parent2", null);
-        Categories subCategoryX1 = Utils.setCategory("subCategoryX1", parentCategoryX);
-        Categories subCategoryX2 = Utils.setCategory("subCategoryX2", parentCategoryX);
-        Categories subCategoryY1 = Utils.setCategory("subCategoryY1", parentCategoryY);
-        Categories subSubCategoryX2 = Utils.setCategory("subSubCategoryX2", subCategoryX2);
+        Categories parentCategoryX = new Categories();
+        parentCategoryX.setId(1L);
+        parentCategoryX.setName("parent1");
+        Categories parentCategoryY = new Categories();
+        parentCategoryY.setId(2L);
+        parentCategoryY.setName("parent2");
+        Categories subCategoryX1 = new Categories();
+        subCategoryX1.setId(3L);
+        subCategoryX1.setName("subCategoryX1");
+        subCategoryX1.setIdParentCategory(parentCategoryX.getId());
+        Categories subCategoryX2 = new Categories();
+        subCategoryX2.setId(4L);
+        subCategoryX2.setName("subCategoryX2");
+        subCategoryX1.setIdParentCategory(parentCategoryX.getId());
+        Categories subCategoryY1 = new Categories();
+        subCategoryY1.setId(5L);
+        subCategoryY1.setName("subCategoryY1");
+        subCategoryX1.setIdParentCategory(parentCategoryY.getId());
+        Categories subSubCategoryX2 = new Categories();
+        subSubCategoryX2.setId(6L);
+        subSubCategoryX2.setName("subSubCategoryX2");
+        subCategoryX1.setIdParentCategory(subCategoryX2.getId());
 
-        when(categoriesRep.findByParentCategoryIsNullOrderByName()).thenReturn(List.of(parentCategoryX, parentCategoryY));
-        when(categoriesRep.findByParentCategoryOrderByName(Mockito.any())).thenAnswer(invocation -> {
-            Categories parentCategory = invocation.getArgument(0);
-            switch (parentCategory.getName()) {
-                case "parent1":
+        when(categoriesRep.findParentCategories()).thenReturn(List.of(parentCategoryX, parentCategoryY));
+        when(categoriesRep.findByParentCategory(Mockito.any())).thenAnswer(invocation -> {
+            Long idCategory = invocation.getArgument(0);
+            int intIdCategory = idCategory.intValue();
+            switch (intIdCategory) {
+                case 1:
                     return List.of(subCategoryX1, subCategoryX2);
-                case "parent2":
+                case 2:
                     return List.of(subCategoryY1);
-                case "subCategoryX2":
+                case 4:
                     return List.of(subSubCategoryX2);
                 default:
                     return List.of();

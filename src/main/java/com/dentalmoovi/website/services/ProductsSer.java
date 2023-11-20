@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import com.dentalmoovi.website.models.dtos.ImagesDTO;
 import com.dentalmoovi.website.models.dtos.ProductsDTO;
 import com.dentalmoovi.website.models.entities.Categories;
+import com.dentalmoovi.website.models.entities.Images;
 import com.dentalmoovi.website.models.entities.Products;
 import com.dentalmoovi.website.models.responses.ProductsResponse;
 import com.dentalmoovi.website.repositories.CategoriesRep;
+import com.dentalmoovi.website.repositories.ImgRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
 
 @Service
@@ -21,10 +23,13 @@ public class ProductsSer {
     
     private final ProductsRep productsRep;
     private final CategoriesRep categoriesRep;
+    private final ImgRep imagesRep;
+    private String categoryNotFound = "Category not found";
 
-    public ProductsSer(ProductsRep productsRep, CategoriesRep categoriesRep){
+    public ProductsSer(ProductsRep productsRep, CategoriesRep categoriesRep, ImgRep imagesRep){
         this.productsRep = productsRep;
         this.categoriesRep = categoriesRep;
+        this.imagesRep = imagesRep;
     }
 
     @Cacheable(cacheNames = "productsByCategory")
@@ -34,7 +39,7 @@ public class ProductsSer {
 
                 //Search category inside database
                 Categories parentCategory = categoriesRep.findByName(parentCategoryName)
-                        .orElseThrow(() -> new RuntimeException("Category not found"));
+                        .orElseThrow(() -> new RuntimeException(categoryNotFound));
             
                 //prepare the list of products
                 List<Products> allProducts = new ArrayList<>();
@@ -73,7 +78,7 @@ public class ProductsSer {
 
             //Get all subcategories
             private List<String> getNamesCategories(Categories parentCategory) {
-                List<Categories> subCategories = categoriesRep.findByParentCategoryOrderByName(parentCategory);
+                List<Categories> subCategories = categoriesRep.findByParentCategory(parentCategory.getId());
                 List<String> subcategoriesNames = new ArrayList<>();
                 subCategories.stream().forEach(subCategory ->{
                     subcategoriesNames.add(subCategory.getName());
@@ -97,7 +102,8 @@ public class ProductsSer {
                 Products product = productsRep.findByName(name)
                     .orElseThrow(() -> new RuntimeException("Product not found"));
                 //Get product's category
-                Categories category = product.getCategory();
+                Categories category = categoriesRep.findById(product.getIdCategory())
+                    .orElseThrow(() -> new RuntimeException(categoryNotFound));
 
                 //Get location producto since parent category until its subcategory
                 List<String> location = getLocationProduct(category);
@@ -115,7 +121,12 @@ public class ProductsSer {
             //It's a function with the aim of find the location products inside the categories
             private List<String> getLocationProduct(Categories category){
                 List<String> location = new ArrayList<>(List.of(category.getName()));
-                if(category.getParentCategory() != null) location.addAll(getLocationProduct(category.getParentCategory()));
+                if(category.getIdParentCategory() != null) 
+                    location.addAll(getLocationProduct(
+                        categoriesRep.findById(category.getIdParentCategory())
+                        .orElseThrow(() -> new RuntimeException(categoryNotFound))
+                    )
+                );
                 return location;
             }
         }
@@ -132,7 +143,7 @@ public class ProductsSer {
         if(limit){
 
             //Get the first 7 query results from database
-            productsFound = productsRep.findTop7ByNameContainingIgnoreCase(name);
+            productsFound = productsRep.findByNameContaining(name,7,0);
 
             //Convert those results in DTOs
             List<ProductsDTO> productsDTO = convertToProductsDTOList(productsFound);
@@ -147,19 +158,14 @@ public class ProductsSer {
         }
 
         //Get all query results
-        List<Products> allProductsFound = productsRep.findByNameContainingIgnoreCase(name);
-
-        //Do pagination
-        int startIndex = (currentPage - 1) * productsPerPage;
-        int endIndex = Math.min(startIndex + productsPerPage, allProductsFound.size());
-        productsFound = allProductsFound.subList(startIndex, endIndex);
+        List<Products> allProductsFound = productsRep.findByNameContaining(name, productsPerPage, ((currentPage-1)*productsPerPage));
 
         //Convert those results in DTOs
-        List<ProductsDTO> productsDTO = convertToProductsDTOList(productsFound);
+        List<ProductsDTO> productsDTO = convertToProductsDTOList(allProductsFound);
 
         //Put the DTOs inside the Object
         ProductsResponse productsResponse = new ProductsResponse();
-        productsResponse.setTotalProducts(allProductsFound.size());
+        productsResponse.setTotalProducts(productsRep.countProductsByContaining(name));
         productsResponse.setPaginatedProducts(productsDTO.size());
         productsResponse.setData(productsDTO);
         return productsResponse;
@@ -184,24 +190,29 @@ public class ProductsSer {
     //This function allow us to find one or all product images
     private List<ImagesDTO> getProductImages(Products product, boolean allImages){
         List<ImagesDTO> productImagesDTO = new ArrayList<>();
-        if(product.getMainImage() == null) return productImagesDTO;
+        if(product.getIdMainImage() == null) return productImagesDTO;
+
+        Images mainImage = imagesRep.findById(product.getIdMainImage())
+                .orElseThrow(() -> new RuntimeException("Image not found"));
 
         if(allImages){
-            product.getImages().stream().forEach(productImage ->{
+            List<Images> productImages = imagesRep.findByIdProduct(product.getId());
+            
+            productImages.stream().forEach(productImage ->{
                 String imgName = productImage.getName();
                 String contentType = productImage.getContentType();
                 String base64Image = Base64.getEncoder().encodeToString(productImage.getData());
                 ImagesDTO imageDTO = setImageDTO(imgName, contentType, base64Image);
 
-                if (product.getMainImage() == productImage) productImagesDTO.add(0, imageDTO);
+                if (mainImage == productImage) productImagesDTO.add(0, imageDTO);
                 else productImagesDTO.add(imageDTO);
             });
             return productImagesDTO;
         }
 
-        String imgName = product.getMainImage().getName();
-        String contentType = product.getMainImage().getContentType();
-        String base64Image = Base64.getEncoder().encodeToString(product.getMainImage().getData());
+        String imgName = mainImage.getName();
+        String contentType = mainImage.getContentType();
+        String base64Image = Base64.getEncoder().encodeToString(mainImage.getData());
         ImagesDTO imageDTO = setImageDTO(imgName, contentType, base64Image);
         productImagesDTO.add(imageDTO);
         return productImagesDTO;

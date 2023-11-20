@@ -25,9 +25,9 @@ public class UserController {
     }
 
     @PostMapping("/public/create")
-    public ResponseEntity<Void> createUser(@RequestBody UserDTO userDTO, String code, String password ){
+    public ResponseEntity<Void> createUser(@RequestBody UserDTO userDTO){
         try {
-            userSer.createUser(userDTO, code, password);
+            userSer.createUser(userDTO);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

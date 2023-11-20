@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.ProductsDTO;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Products;
@@ -33,28 +32,28 @@ class ProductsSerUnitTest {
     @Mock
     private CategoriesRep categoriesRep;
 
-    private Categories parentCategoryX = Utils.setCategory("parent1", null);
-    private Categories parentCategoryY = Utils.setCategory("parent2", null);
-    private Categories subCategoryX1 = Utils.setCategory("subCategoryX1", parentCategoryX);
-    private Categories subCategoryX2 = Utils.setCategory("subCategoryX2", parentCategoryX);
-    private Categories subCategoryY1 = Utils.setCategory("subCategoryY1", parentCategoryY);
-    private Categories subSubCategoryX2 = Utils.setCategory("subSubCategoryX2", subCategoryX2);
+    private static Categories parentCategoryX = setCategory(1L, "parent1", null);
+    private static Categories parentCategoryY = setCategory(2L, "parent2", null);
+    private static Categories subCategoryX1 = setCategory(3L, "subCategoryX1", parentCategoryX.getId());
+    private static Categories subCategoryX2 = setCategory(4L, "subCategoryX2", parentCategoryX.getId());
+    private static Categories subCategoryY1 = setCategory(5L, "subCategoryY1", parentCategoryY.getId());
+    private static Categories subSubCategoryX2 = setCategory(6L, "subSubCategoryX2", subCategoryX2.getId());
 
-    private Products productosubX1one = Utils.setProduct("productosubX1one",  "description productosubX1one", 4, 1, subCategoryX1, true);
-    private Products productosubX1two = Utils.setProduct("productosubX1two", "description productosubX1two", 4, 1, subCategoryX1, true);
-    private Products productosubX1three = Utils.setProduct("productosubX1three", "description productosubX1three", 4, 1, subCategoryX1, true);
-    private Products productosubX1four = Utils.setProduct("productosubX1four", "description productosubX1four", 4, 1, subCategoryX1, true);
-    private Products productosubX1five = Utils.setProduct("productosubX1five", "description productosubX1five", 4, 1, subCategoryX1, true);
-    private Products productosubX1six = Utils.setProduct("productosubX1six", "description productosubX1six", 4, 1, subCategoryX1, true);
-    private Products productosubX2one = Utils.setProduct("productosubX2one", "description productosubX2one", 4, 1, subCategoryX2, true);
-    private Products productosubX2two = Utils.setProduct("productosubX2two", "description productosubX2two", 4, 1, subCategoryX2, true);
-    private Products productosubX2three = Utils.setProduct("productosubX2three",  "description productosubX2three", 4, 1, subCategoryX2, true);
-    private Products productosubY1one = Utils.setProduct("productosubY1one", "description productosubY1one", 4, 1, subCategoryY1, true);
-    private Products productosubY1two = Utils.setProduct("productosubY1two", "description productosubY1two", 4, 1, subCategoryY1, true);
-    private Products productosubY1three = Utils.setProduct("productosubY1three",  "description productosubY1three", 4, 1, subCategoryY1, true);
-    private Products productosubY1four = Utils.setProduct("productosubY1four", "description productosubY1four", 4, 1, subCategoryY1, true);
-    private Products productosubSubX1one = Utils.setProduct("productosubSubX1one",  "description productosubSubX1one", 4, 1, subSubCategoryX2, true);
-    private Products productosubSubX1two = Utils.setProduct("productosubSubX1two", "description productosubSubX1two", 4, 1, subSubCategoryX2, true);
+    private static Products productosubX1one = setProduct(1L,"productosubX1one",  "description productosubX1one", 4, 1, subCategoryX1.getId(), true);
+    private static Products productosubX1two = setProduct(2L,"productosubX1two", "description productosubX1two", 4, 1, subCategoryX1.getId(), true);
+    private static Products productosubX1three = setProduct(3L,"productosubX1three", "description productosubX1three", 4, 1, subCategoryX1.getId(), true);
+    private static Products productosubX1four = setProduct(4L,"productosubX1four", "description productosubX1four", 4, 1, subCategoryX1.getId(), true);
+    private static Products productosubX1five = setProduct(5L,"productosubX1five", "description productosubX1five", 4, 1, subCategoryX1.getId(), true);
+    private static Products productosubX1six = setProduct(6L,"productosubX1six", "description productosubX1six", 4, 1, subCategoryX1.getId(), true);
+    private static Products productosubX2one = setProduct(7L,"productosubX2one", "description productosubX2one", 4, 1, subCategoryX2.getId(), true);
+    private static Products productosubX2two = setProduct(8L,"productosubX2two", "description productosubX2two", 4, 1, subCategoryX2.getId(), true);
+    private static Products productosubX2three = setProduct(9L,"productosubX2three",  "description productosubX2three", 4, 1, subCategoryX2.getId(), true);
+    private static Products productosubY1one = setProduct(10L,"productosubY1one", "description productosubY1one", 4, 1, subCategoryY1.getId(), true);
+    private static Products productosubY1two = setProduct(11L,"productosubY1two", "description productosubY1two", 4, 1, subCategoryY1.getId(), true);
+    private static Products productosubY1three = setProduct(12L,"productosubY1three",  "description productosubY1three", 4, 1, subCategoryY1.getId(), true);
+    private static Products productosubY1four = setProduct(13L,"productosubY1four", "description productosubY1four", 4, 1, subCategoryY1.getId(), true);
+    private static Products productosubSubX1one = setProduct(14L,"productosubSubX1one",  "description productosubSubX1one", 4, 1, subSubCategoryX2.getId(), true);
+    private static Products productosubSubX1two = setProduct(15L,"productosubSubX1two", "description productosubSubX1two", 4, 1, subSubCategoryX2.getId(), true);
 
     @Test
     void getProductsByCategoryTest(){
@@ -78,14 +77,15 @@ class ProductsSerUnitTest {
             }
         });
 
-        when(categoriesRep.findByParentCategoryOrderByName(Mockito.any())).thenAnswer(invocation -> {
-            Categories parentCategory = invocation.getArgument(0);
-            switch (parentCategory.getName()) {
-                case "parent1":
+        when(categoriesRep.findByParentCategory(Mockito.any())).thenAnswer(invocation -> {
+            Long idCategory = invocation.getArgument(0);
+            int intIdCategory = idCategory.intValue();
+            switch (intIdCategory) {
+                case 1:
                     return List.of(subCategoryX1, subCategoryX2);
-                case "parent2":
+                case 2:
                     return List.of(subCategoryY1);
-                case "subCategoryX2":
+                case 4:
                     return List.of(subSubCategoryX2);
                 default:
                     return List.of();
@@ -139,6 +139,27 @@ class ProductsSerUnitTest {
             }
         });
 
+        when(categoriesRep.findById(Mockito.any())).thenAnswer(invocation -> {
+            Long idCategory = invocation.getArgument(0);
+            int intIdCategory = idCategory.intValue();
+            switch (intIdCategory) {
+                case 1:
+                    return Optional.of(parentCategoryX);
+                case 2:
+                    return Optional.of(parentCategoryY);
+                case 3:
+                    return Optional.of(subCategoryX1);
+                case 4:
+                    return Optional.of(subCategoryX2);
+                case 5:
+                    return Optional.of(subCategoryY1);
+                case 6:
+                    return Optional.of(subSubCategoryX2);
+                default:
+                    return null;
+            }
+        });
+
         List<Products> productsTest = List.of(productosubX1one, productosubX2one, productosubY1one, productosubSubX1one);
 
         productsTest.stream().forEach(productTest ->{
@@ -149,36 +170,40 @@ class ProductsSerUnitTest {
 
     @Test
     void getProductsByContainingTest(){
-        when(productsRep.findTop7ByNameContainingIgnoreCase(Mockito.any())).thenAnswer(invocation -> {
+        when(productsRep.findByNameContaining(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenAnswer(invocation -> {
+            if (!invocation.getArgument(2).equals(0)) return null;
             String categoryName = invocation.getArgument(0);
-            switch (categoryName) {
-                case "prod":
-                    return List.of(productosubX1one, productosubX1two, productosubX1three, productosubX1four, productosubX1five, productosubX1six, productosubX2one);
-                case "productosubX1":
-                    return List.of(productosubX1one, productosubX1two, productosubX1three, productosubX1four, productosubX1five, productosubX1six);
-                case "productosubX1t":
-                    return List.of(productosubX1two, productosubX1three);
-                case "productosubX1th":
-                    return List.of(productosubX1three);
-                default:
-                    return null;
-            }
-        });
-
-        when(productsRep.findByNameContainingIgnoreCase(Mockito.any())).thenAnswer(invocation -> {
-            String categoryName = invocation.getArgument(0);
-            switch (categoryName) {
-                case "prod":
-                    return List.of(productosubX1one, productosubX1two, productosubX1three, productosubX1four, 
-                                    productosubX1five, productosubX1six, productosubX2one, productosubX2two,
-                                    productosubX2three, productosubY1one, productosubY1two, productosubY1three,
-                                    productosubY1four, productosubSubX1one, productosubSubX1two);
-                case "productosubX1":
-                    return List.of(productosubX1one, productosubX1two, productosubX1three, productosubX1four, productosubX1five, productosubX1six);
-                case "productosubX1t":
-                    return List.of(productosubX1two, productosubX1three);
-                case "productosubX1th":
-                    return List.of(productosubX1three);
+            int limit = invocation.getArgument(1);
+            switch (limit) {
+                case 7:
+                    switch (categoryName) {
+                        case "prod":
+                            return List.of(productosubX1one, productosubX1two, productosubX1three, productosubX1four, productosubX1five, productosubX1six, productosubX2one);
+                        case "productosubX1":
+                            return List.of(productosubX1one, productosubX1two, productosubX1three, productosubX1four, productosubX1five, productosubX1six);
+                        case "productosubX1t":
+                            return List.of(productosubX1two, productosubX1three);
+                        case "productosubX1th":
+                            return List.of(productosubX1three);
+                        default:
+                            return null;
+                    }
+                case 9:
+                    switch (categoryName) {
+                        case "prod":
+                            return List.of(productosubX1one, productosubX1two, productosubX1three, productosubX1four, 
+                                            productosubX1five, productosubX1six, productosubX2one, productosubX2two,
+                                            productosubX2three, productosubY1one, productosubY1two, productosubY1three,
+                                            productosubY1four, productosubSubX1one, productosubSubX1two);
+                        case "productosubX1":
+                            return List.of(productosubX1one, productosubX1two, productosubX1three, productosubX1four, productosubX1five, productosubX1six);
+                        case "productosubX1t":
+                            return List.of(productosubX1two, productosubX1three);
+                        case "productosubX1th":
+                            return List.of(productosubX1three);
+                        default:
+                            return null;
+                    }
                 default:
                     return null;
             }
@@ -189,10 +214,30 @@ class ProductsSerUnitTest {
         List<Integer> expected2 = List.of(15,6,2,1);
 
         for(int i=0; i<keyWordsForSearch.size(); i++){
-            int response1 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), true, 1, 9).getTotalProducts();
+            int response1 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), true, 1, 7).getTotalProducts();
             int response2 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), false, 1, 9).getTotalProducts();
             assertEquals(expected1.get(i), response1);
             assertEquals(expected2.get(i), response2);
         }
+    }
+
+    private static Categories setCategory(Long id, String name, Long idparentCategory){
+        Categories category = new Categories();
+        category.setId(id);
+        category.setName(name);
+        category.setIdParentCategory(idparentCategory);
+        return category;
+    }
+
+    private static Products setProduct(Long id, String name, String description, double unitprice, int stock, Long idCategory, boolean openToPublic){
+        Products product = new Products();
+        product.setId(id);
+        product.setName(name);
+        product.setDescription(description);
+        product.setUnitPrice(unitprice);
+        product.setStock(stock);
+        product.setIdCategory(idCategory);
+        product.setOpenToPublic(openToPublic);
+        return product;
     }
 }

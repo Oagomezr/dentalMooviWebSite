@@ -19,4 +19,12 @@ public class CacheConfig {
                 .maximumSize(1000) // Set the max cache's size
                 .build();
     }
+
+    @Bean
+    public Cache<String, String> replayCodeRestrict() {
+        return Caffeine.newBuilder()
+                .expireAfterWrite(50, TimeUnit.SECONDS) // Set expiration time
+                .maximumSize(1000) // Set the max cache's size
+                .build();
+    }
 }

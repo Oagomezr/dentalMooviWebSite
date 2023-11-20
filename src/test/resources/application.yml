@@ -7,18 +7,16 @@ spring:
         #change the extraInfoExample to extraInfo with its credentials
         import: optional:extraInfo.yml 
 
-    jpa:
-        database: MYSQL
-        database-platform: org.hibernate.dialect.MySQLDialect
-        show-sql: true
-        hibernate:
-            ddl-auto: create-drop
-
     datasource:
         url: jdbc:mysql://localhost:3306/dentalmoovi_test
         username: root
         password: ${dataBasePasswordMySQL}
         driver-class-name: com.mysql.cj.jdbc.Driver
+
+    sql:
+        init:
+            mode: always
+            continue-on-error: false
 
     mail:
         host: ${mailHost}

@@ -1,4 +1,4 @@
-package com.dentalmoovi.website.integration.Services;
+package com.dentalmoovi.website.integration.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,7 +33,7 @@ class CategoriesSerIntegrationTest {
         //Test parent categories first
         CategoriesResponse response = categoriesSer.getAllCategories();
         List<CategoriesDTO> resultParents = response.getData();
-        List<Categories> expectedParents = categoriesRep.findByParentCategoryIsNullOrderByName();
+        List<Categories> expectedParents = categoriesRep.findParentCategories();
         assertEquals(expectedParents.size(), resultParents.size());
         //Test subcategories
         testSubCategories(resultParents);
@@ -45,7 +45,7 @@ class CategoriesSerIntegrationTest {
             String nameParentCategory = parentCategoryDTO.getCategoryAndParents().get(0);
             Categories parentCategory = categoriesRep.findByName(nameParentCategory)
                                         .orElseThrow(() -> new RuntimeException("Category not found"));
-            List<Categories> expected = categoriesRep.findByParentCategoryOrderByName(parentCategory);
+            List<Categories> expected = categoriesRep.findByParentCategory(parentCategory.getId());
             List<CategoriesDTO> result = parentCategoryDTO.getChildrenCategories();
             assertEquals(expected.size(), result.size());
             //Test sub-Subcategories
