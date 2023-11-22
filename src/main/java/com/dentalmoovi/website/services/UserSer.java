@@ -2,15 +2,21 @@ package com.dentalmoovi.website.services;
 
 import java.util.Random;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Roles;
+import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.enums.RolesList;
 import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
+import com.dentalmoovi.website.security.MainUser;
 import com.dentalmoovi.website.services.cache.CacheSer;
 
 @Service
@@ -30,7 +36,7 @@ public class UserSer {
         this.rolesRep = rolesRep;
     }
 
-    public void sendEmailNotification(String email) {
+    public void sendEmailNotification(String email, String subject, String body) {
         String retrictReplay = cacheSer.getFromReplayCodeRestrict(email);
         if (retrictReplay !=null && retrictReplay.equals(email)) return;
 
@@ -40,9 +46,7 @@ public class UserSer {
         //generate a format to add zeros to the left in case randomNumber < 100000
         String formattedNumber = String.format("%06d", randomNumber);
 
-        String subject = "Codigo de confirmación";
-        String body = "Dental Moovi recibió una solicitud de registro.\n\n"+
-                        "El codigo de confirmación es: "+ formattedNumber;
+        body += formattedNumber;
         
         cacheSer.addToOrUpdateRegistrationCache(email, formattedNumber);
         cacheSer.addToOrUpdateReplayCodeRestrict(email, email);
@@ -96,4 +100,28 @@ public class UserSer {
         return userRep.existsByEmail(value);
     }
 
+    @Cacheable(cacheNames = "getUserAuthenticated")
+    public UserDTO getUserAuthenticated(){
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String userName = userDetails.getUsername();
+        Users user= this.userRep.findByEmail(userName)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return Utils.setUserDTO(user.getFirstName(), user.getLastName(), user.getEmail(), user.getCelPhone(), user.getGender(), user.getBirthdate(), null, null);
+    }
+
+    public MainUser getMainUser(String email){
+        Users user = userRep.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return MainUser.build(user, rolesRep);
+    }
+
+    public boolean isAdmin(String email){
+        MainUser mainUser = getMainUser(email);
+        return mainUser.getAuthorities().stream()
+            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
+                .equals(RolesList.ADMIN_ROLE.name()));
+    }
 }

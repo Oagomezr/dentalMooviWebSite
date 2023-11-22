@@ -36,11 +36,25 @@ public class UserController {
 
     @PostMapping("/public/sendEmail")
     public void sendMessage(@RequestBody String email){
-        userSer.sendEmailNotification(email);
+        String subject = "Codigo de confirmación";
+        String body = "Dental Moovi recibió una solicitud de registro.\n\n"+
+                        "El codigo de confirmación es: ";
+        userSer.sendEmailNotification(email, subject, body);
     }
 
     @GetMapping("/public/{email}")
     public boolean checkEmailExists(@PathVariable String email) {
         return userSer.checkEmailExists(email);
+    }
+
+    
+    @GetMapping("/user/getUser")
+    public ResponseEntity<UserDTO> getUserAuthenticated(){
+        try {
+            UserDTO userDTO= userSer.getUserAuthenticated();
+            return ResponseEntity.ok(userDTO);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 }

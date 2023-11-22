@@ -68,7 +68,7 @@ class UserSetUnitTest {
     @Test
     void testSendEmailNotification() {
         //call the sendEmailNotification with fake email
-        userSer.sendEmailNotification("test@example.com");
+        userSer.sendEmailNotification("test@example.com", "test@example.com", "test@example.com");
 
         //verify addToOrUpdateRegistrationCache had been called with correct parameters
         verify(cacheSer, times(1)).addToOrUpdateRegistrationCache(eq("test@example.com"), anyString());

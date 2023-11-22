@@ -16,16 +16,42 @@ import com.dentalmoovi.website.repositories.UserRep;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 
+import org.springframework.cache.annotation.CacheEvict;
+
 public class Utils {
 
     private Utils() {
         throw new IllegalStateException("Utility class");
+    }
+
+    public static void createCookie(HttpServletResponse hsr, String name, String value, 
+        Boolean secure, Integer maxAge, String domain){
+            Cookie cookie = new Cookie(name, value);
+            cookie.setSecure(secure);
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge(maxAge);
+            cookie.setDomain(domain);
+            cookie.setPath("/");
+            hsr.addCookie(cookie);
+    }
+
+    @CacheEvict(cacheNames = "getUserAuthenticated", allEntries = true)
+    public static void clearCookie(HttpServletResponse hsr, String name){
+        Cookie cookie = new Cookie(name, null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(1);
+        cookie.setDomain("localhost");
+        hsr.addCookie(cookie);
     }
 
     public static Categories setCategory(String name, Long idParentCategory, CategoriesRep repository){

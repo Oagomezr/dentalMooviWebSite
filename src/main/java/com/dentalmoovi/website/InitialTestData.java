@@ -5,34 +5,41 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Images;
 import com.dentalmoovi.website.models.entities.Products;
 import com.dentalmoovi.website.models.entities.Roles;
+import com.dentalmoovi.website.models.entities.Users;
+import com.dentalmoovi.website.models.enums.GenderList;
 import com.dentalmoovi.website.models.enums.RolesList;
 import com.dentalmoovi.website.repositories.CategoriesRep;
 import com.dentalmoovi.website.repositories.ImgRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
 import com.dentalmoovi.website.repositories.RolesRep;
+import com.dentalmoovi.website.repositories.UserRep;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class InitialTestData {
     private final CategoriesRep categoriesRep;
     private final ProductsRep productsRep;
     private final ImgRep imagesRep;
     private final RolesRep rolesRep;
-    
-    public InitialTestData(CategoriesRep categoriesRep, ProductsRep productsRep,
-            ImgRep imagesRep, RolesRep rolesRep) {
-        this.categoriesRep = categoriesRep;
-        this.productsRep = productsRep;
-        this.imagesRep = imagesRep;
-        this.rolesRep = rolesRep;
-    }
+    private final UserRep userRep;
+
+    @Value("${spring.mail.otherPassword}")
+    private String password;
+
+    @Value("${spring.mail.username}")
+    private String email;
 
     @PostConstruct
     public void init(){
@@ -49,6 +56,23 @@ public class InitialTestData {
         rolesSet.add( admin );
         rolesRep.saveAll(rolesSet);
 
+        //User Part ---------------------------------------------------------------
+        UserDTO dentalMooviDTO = Utils.setUserDTO("Dental", "Moovi", email, "314-453-6435", GenderList.UNDEFINED, null, "123456", password);
+
+            //create admin role
+            Roles adminRole = rolesRep.findByRole(RolesList.ADMIN_ROLE)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+            Roles userRole = rolesRep.findByRole(RolesList.USER_ROLE)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+            //encrypt the password
+            String hashedPassword = new BCryptPasswordEncoder().encode(dentalMooviDTO.getPassword()); 
+
+            //set and save user
+            Users adminUser = Utils.setUser(dentalMooviDTO.getFirstName(), dentalMooviDTO.getLastName(), 
+                dentalMooviDTO.getEmail(), dentalMooviDTO.getCelPhone(), dentalMooviDTO.getGender(), hashedPassword, dentalMooviDTO.getBirthdate(), adminRole, userRep);
+            adminUser.addRole(userRole);
+            adminUser = userRep.save(adminUser);
 
         // Parent categories
         Categories desechables = Utils.setCategory("DESECHABLES", null, categoriesRep);
