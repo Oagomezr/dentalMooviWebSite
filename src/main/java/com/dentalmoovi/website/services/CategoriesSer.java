@@ -3,10 +3,13 @@ package com.dentalmoovi.website.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.CategoriesDTO;
+import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.responses.CategoriesResponse;
 import com.dentalmoovi.website.repositories.CategoriesRep;
@@ -19,6 +22,8 @@ public class CategoriesSer {
         this.categoriesRep = categoriesRep;
     }
 
+    private String categoryNotFound = "Category not found";
+
     @Cacheable(cacheNames = "getAllCategories")
     public CategoriesResponse getAllCategories(){
         List<Categories> parentCategories = categoriesRep.findParentCategories();
@@ -30,6 +35,50 @@ public class CategoriesSer {
             parentCategoriesDTO.add(parentCategoryDTO);
         });
         return setCategoriesResponse(parentCategoriesDTO);
+    }
+
+    @CacheEvict(cacheNames = {"getAllCategories", "productsByCategory"}, allEntries = true)
+    public MessageDTO updateCategoryName(String categoryName, String newName){
+        Categories category = categoriesRep.findByName(categoryName)
+            .orElseThrow(() -> new RuntimeException(categoryNotFound));
+        category.setName(newName);
+        categoriesRep.save(category);
+        return new MessageDTO("Category updated");
+    }
+
+    @CacheEvict(cacheNames = {"getAllCategories", "productsByCategory"}, allEntries = true)
+    public MessageDTO updateCategoryPosition(String categoryName, String newPosition){
+        Categories category = categoriesRep.findByName(categoryName)
+            .orElseThrow(() -> new RuntimeException(categoryNotFound));
+        if (newPosition.equals("-")) {
+            category.setIdParentCategory(null);
+        }else{
+            Categories newParentCategory = categoriesRep.findByName(newPosition)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+            category.setIdParentCategory(newParentCategory.getId());
+        }
+        categoriesRep.save(category);
+        return new MessageDTO("Category updated");
+    }
+
+    @CacheEvict(cacheNames = {"getAllCategories", "productsByCategory"}, allEntries = true)
+    public MessageDTO addCategory(String parentCategoryName, String newCategoryName){
+        if (parentCategoryName.equals("-")) {
+            Utils.setCategory(newCategoryName, null, categoriesRep);
+        }else{
+            Categories parentCategory = categoriesRep.findByName(parentCategoryName)
+                .orElseThrow(() -> new RuntimeException(categoryNotFound));
+            Utils.setCategory(newCategoryName, parentCategory.getId(), categoriesRep);
+        }
+        return new MessageDTO("Category created");
+    }
+
+    @CacheEvict(cacheNames = {"getAllCategories", "productsByCategory"}, allEntries = true)
+    public MessageDTO deleteCategory(String categoryName){
+        Categories category = categoriesRep.findByName(categoryName)
+            .orElseThrow(() -> new RuntimeException(categoryNotFound));
+        categoriesRep.delete(category);
+        return new MessageDTO("Category deleted");
     }
 
     private List<CategoriesDTO> getSubCategories(Categories parentCategory, List<String> parents) {
@@ -59,4 +108,6 @@ public class CategoriesSer {
         categoriesResponse.setData(data);
         return categoriesResponse;
     }
+
+
 }

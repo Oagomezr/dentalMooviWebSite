@@ -9,8 +9,8 @@ CREATE TABLE categories (
 
 CREATE TABLE images (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(70) NOT NULL UNIQUE,
-    content_type VARCHAR(30),
+    name VARCHAR(70) NOT NULL,
+    content_type VARCHAR(10),
     data LONGBLOB,
     id_product BIGINT
 );
@@ -18,7 +18,8 @@ CREATE TABLE images (
 CREATE TABLE products (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(70) NOT NULL UNIQUE,
-    description VARCHAR(70),
+    description VARCHAR(255),
+    short_description VARCHAR(70),
     unit_price DECIMAL(10,2),
     stock INT,
     open_to_public BOOLEAN,
@@ -47,9 +48,7 @@ CREATE TABLE roles(
 CREATE TABLE users_roles(
     id_user BIGINT,
     id_role BIGINT,
-    PRIMARY KEY (id_user, id_role)--,
-    --FOREIGN KEY (id_user) REFERENCES users(id),
-    --FOREIGN KEY (id_role) REFERENCES roles(id)
+    PRIMARY KEY (id_user, id_role)
 );
 
 ALTER TABLE images

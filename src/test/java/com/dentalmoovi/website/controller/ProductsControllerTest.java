@@ -33,7 +33,7 @@ class ProductsControllerTest {
     @Test
     void getProductsByCategoryTest() throws Exception{
         
-        expectedResponse = productsSer.getProductsByCategory("ORTODONCIA", 1, 9);
+        expectedResponse = productsSer.getProductsByCategory("ORTODONCIA", 1, 9, false);
 
         String expectedJsonResponse = Utils.transformToJSON(expectedResponse);
 
@@ -46,8 +46,8 @@ class ProductsControllerTest {
     @Test
     void getProductsByContainingTest() throws Exception{
         
-        expectedResponse = productsSer.getProductsByContaining("ar", true, 1, 9);
-        ProductsResponse expectedResponse2 = productsSer.getProductsByContaining("ar", false, 1, 9);
+        expectedResponse = productsSer.getProductsByContaining("ar", true, 1, 9, false);
+        ProductsResponse expectedResponse2 = productsSer.getProductsByContaining("ar", false, 1, 9, false);
 
         String expectedJsonResponse1 = Utils.transformToJSON(expectedResponse);
         String expectedJsonResponse2 = Utils.transformToJSON(expectedResponse2);
@@ -66,7 +66,7 @@ class ProductsControllerTest {
     @Test
     void getProductTest() throws Exception{
         
-        ProductsDTO expectedResponse = productsSer.getProduct("pinzaOrtodoncia1");
+        ProductsDTO expectedResponse = productsSer.getProduct("pinzaOrtodoncia1", false);
 
         String expectedJsonResponse = Utils.transformToJSON(expectedResponse);
 

@@ -29,6 +29,8 @@ import org.springframework.cache.annotation.CacheEvict;
 
 public class Utils {
 
+    
+
     private Utils() {
         throw new IllegalStateException("Utility class");
     }
@@ -62,11 +64,12 @@ public class Utils {
         return category;
     }
 
-    public static Products setProduct(String name, String description, double unitPrice, int stock, 
+    public static Products setProduct(String name, String description, String shortDescription, double unitPrice, int stock, 
                                         Long idCategory, boolean openToPublic, ProductsRep repository){
         Products product = new Products();
         product.setName(name);
         product.setDescription(description);
+        product.setShortDescription(shortDescription);
         product.setUnitPrice(unitPrice);
         product.setStock(stock);
         product.setIdCategory(idCategory);

@@ -21,4 +21,6 @@ public interface ProductsRep extends CrudRepository<Products,Long>{
 
     @Query("SELECT count(*) FROM products WHERE UPPER(name) LIKE UPPER(CONCAT('%', :name, '%'))")
     int countProductsByContaining(@Param("name") String name);
+
+    boolean existsByName(@Param("name") String name);
 }

@@ -11,5 +11,5 @@ public class CategoriesDTO {
 
     private List<String> categoryAndParents;
     private List<CategoriesDTO> childrenCategories;
-
+    
 }

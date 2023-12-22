@@ -13,6 +13,7 @@ public class Products {
     @EqualsAndHashCode.Include
     private String name;
     private String description;
+    private String shortDescription;
     private double unitPrice;
     private int stock;
     private boolean openToPublic;

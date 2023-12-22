@@ -1,11 +1,19 @@
 package com.dentalmoovi.website.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.responses.CategoriesResponse;
 import com.dentalmoovi.website.services.CategoriesSer;
 
@@ -23,6 +31,42 @@ public class CategoriesController {
     public ResponseEntity<CategoriesResponse> getAllCategories() {
         try{
             return ResponseEntity.ok(categoriesSer.getAllCategories());
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/admin/categories/updateName/{categoryName}")
+    public ResponseEntity<MessageDTO> updateCategoryName(@PathVariable String categoryName, @RequestBody String newName) {
+        try{
+            return ResponseEntity.ok(categoriesSer.updateCategoryName(categoryName, newName));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @PutMapping("/admin/categories/updateLocation/{categoryName}")
+    public ResponseEntity<MessageDTO> updateCategoryLocation(@PathVariable String categoryName, @RequestBody String newName) {
+        try{
+            return ResponseEntity.ok(categoriesSer.updateCategoryPosition(categoryName, newName));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/admin/categories/create/{parentCategory}")
+    public ResponseEntity<MessageDTO> createCategory(@PathVariable String parentCategory, @RequestBody String newCategoryName) {
+        try{
+            return ResponseEntity.ok(categoriesSer.addCategory(parentCategory, newCategoryName));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/admin/categories/delete/{category}")
+    public ResponseEntity<MessageDTO> deleteCategory(@PathVariable String category) {
+        try{
+            return ResponseEntity.ok(categoriesSer.deleteCategory(category));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }

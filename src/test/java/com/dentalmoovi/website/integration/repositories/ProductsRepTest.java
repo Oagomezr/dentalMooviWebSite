@@ -35,16 +35,16 @@ class ProductsRepTest {
         categoryX = Utils.setCategory("categoryX", null, categoriesRep);
         categoryY = Utils.setCategory("categoryY", null, categoriesRep);
 
-        productX1 = Utils.setProduct("productX1", "description productX1", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX2", "description productX2", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX3", "description productX3", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX4", "description productX4", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX5", "description productX5", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX6", "description productX6", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productY1", "description productY1", 1200, 4, categoryY.getId(), true, productsRep);
-        Utils.setProduct("productY2", "description productY2", 1200, 4, categoryY.getId(), true, productsRep);
-        Utils.setProduct("productY3", "description productY3", 1200, 4, categoryY.getId(), true, productsRep);
-        Utils.setProduct("productY4", "description productY4", 1200, 4, categoryY.getId(), true, productsRep);
+        productX1 = Utils.setProduct("productX1", "description productX1","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
+        Utils.setProduct("productX2", "description productX2","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
+        Utils.setProduct("productX3", "description productX3","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
+        Utils.setProduct("productX4", "description productX4","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
+        Utils.setProduct("productX5", "description productX5","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
+        Utils.setProduct("productX6", "description productX6","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
+        Utils.setProduct("productY1", "description productY1","shortDescription", 1200, 4, categoryY.getId(), true, productsRep);
+        Utils.setProduct("productY2", "description productY2","shortDescription", 1200, 4, categoryY.getId(), true, productsRep);
+        Utils.setProduct("productY3", "description productY3","shortDescription", 1200, 4, categoryY.getId(), true, productsRep);
+        Utils.setProduct("productY4", "description productY4","shortDescription", 1200, 4, categoryY.getId(), true, productsRep);
     }
 
     @Test

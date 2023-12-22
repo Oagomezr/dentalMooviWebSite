@@ -11,7 +11,9 @@ public class ProductsDTO {
     private String nameProduct;
     private double unitPrice;
     private String description;
+    private String shortDescription;
     private int stock;
     private List<ImagesDTO> images;
     private List<String> location;
+    private String hidden;
 }

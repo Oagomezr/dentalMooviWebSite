@@ -4,11 +4,23 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.awt.image.BufferedImage;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.ImagesDTO;
+import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.ProductsDTO;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Images;
@@ -18,22 +30,21 @@ import com.dentalmoovi.website.repositories.CategoriesRep;
 import com.dentalmoovi.website.repositories.ImgRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
 
+import lombok.RequiredArgsConstructor;
+
+
 @Service
+@RequiredArgsConstructor
 public class ProductsSer {
     
     private final ProductsRep productsRep;
     private final CategoriesRep categoriesRep;
     private final ImgRep imagesRep;
     private String categoryNotFound = "Category not found";
-
-    public ProductsSer(ProductsRep productsRep, CategoriesRep categoriesRep, ImgRep imagesRep){
-        this.productsRep = productsRep;
-        this.categoriesRep = categoriesRep;
-        this.imagesRep = imagesRep;
-    }
+    private String productNotFound = "Product not found";
 
     @Cacheable(cacheNames = "productsByCategory")
-    public ProductsResponse getProductsByCategory(String parentCategoryName, int currentPage, int productsPerPage){
+    public ProductsResponse getProductsByCategory(String parentCategoryName, int currentPage, int productsPerPage, boolean all){
         class GetProductsByCategory{
             ProductsResponse getProductsByCategory() {
 
@@ -64,7 +75,7 @@ public class ProductsSer {
                 List<Products> currentPageProducts = allProducts.subList(startIndex, endIndex);
                 
                 //Classic DTO
-                List<ProductsDTO> productsDTO = convertToProductsDTOList(currentPageProducts);
+                List<ProductsDTO> productsDTO = convertToProductsDTOList(currentPageProducts, all);
 
                 /*One of the best practices in programming is not send List or Arrays as response,
                 instead Objects as response*/
@@ -93,14 +104,18 @@ public class ProductsSer {
     }
 
     @Cacheable(cacheNames = "getProduct")
-    public ProductsDTO getProduct(String name){
+    public ProductsDTO getProduct(String name, boolean admin){
 
         class GetProduct{
             ProductsDTO getProduct(){
 
                 //Search product
                 Products product = productsRep.findByName(name)
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+                    .orElseThrow(() -> new RuntimeException(productNotFound));
+
+                if (!admin && !product.isOpenToPublic())
+                    throw new RuntimeException("Something wrong");
+                
                 //Get product's category
                 Categories category = categoriesRep.findById(product.getIdCategory())
                     .orElseThrow(() -> new RuntimeException(categoryNotFound));
@@ -112,8 +127,11 @@ public class ProductsSer {
                 List<ImagesDTO> productImagesDTO = getProductImages(product, true);
 
                 ProductsDTO productsDTO = setProductDTO(name, product.getUnitPrice(), product.getDescription(), 
-                                                product.getStock(), productImagesDTO);
+                                            product.getShortDescription(), product.getStock(), productImagesDTO);
                 productsDTO.setLocation(location);
+
+                if (admin && !product.isOpenToPublic())
+                    productsDTO.setHidden("yes");
 
                 return productsDTO;
             }
@@ -136,17 +154,17 @@ public class ProductsSer {
     }
 
     @Cacheable(cacheNames = "getProducsByContaining")
-    public ProductsResponse getProductsByContaining(String name, boolean limit, int currentPage, int productsPerPage){
+    public ProductsResponse getProductsByContaining(String name, boolean limit, int currentPage, int productsPerPage, boolean all){
         List<Products> productsFound;
 
-        //if the user wants to obtain only the 7 first query results  or all results
+        //if the user wants to obtain only the 7 first query results or all results
         if(limit){
 
             //Get the first 7 query results from database
             productsFound = productsRep.findByNameContaining(name,7,0);
 
             //Convert those results in DTOs
-            List<ProductsDTO> productsDTO = convertToProductsDTOList(productsFound);
+            List<ProductsDTO> productsDTO = convertToProductsDTOList(productsFound, all);
 
             //Put the DTOs inside the Object
             ProductsResponse productsResponse = new ProductsResponse();
@@ -161,7 +179,7 @@ public class ProductsSer {
         List<Products> allProductsFound = productsRep.findByNameContaining(name, productsPerPage, ((currentPage-1)*productsPerPage));
 
         //Convert those results in DTOs
-        List<ProductsDTO> productsDTO = convertToProductsDTOList(allProductsFound);
+        List<ProductsDTO> productsDTO = convertToProductsDTOList(allProductsFound, all);
 
         //Put the DTOs inside the Object
         ProductsResponse productsResponse = new ProductsResponse();
@@ -171,16 +189,187 @@ public class ProductsSer {
         return productsResponse;
     }
 
+    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    public MessageDTO updateMainImage(long idImage, String productName){
+        Products product = productsRep.findByName(productName)
+            .orElseThrow(() -> new RuntimeException(productNotFound));
+        product.setIdMainImage(idImage);
+        productsRep.save(product);
+        return new MessageDTO("Main product image updated");
+    }
+
+    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    public MessageDTO uploadImage(MultipartFile file, String nameProduct) throws IOException{
+        class UploadImage{
+            MessageDTO uploadImage() throws IOException{
+        
+                // Find product
+                Products product = productsRep.findByName(nameProduct)
+                        .orElseThrow(() -> new RuntimeException(productNotFound));
+                
+                // Read original image
+                BufferedImage originalImage = ImageIO.read(file.getInputStream());
+                
+                // Set max image sizes
+                int maxWidth = 600;
+                int maxHeight = 600;
+                
+                // Variables to new Width and Height of the image
+                int newWidth;
+                int newHeight;
+                
+                // Create new image if resizing is not required
+                if (originalImage.getWidth() < maxWidth && originalImage.getHeight() < maxHeight)
+                    return createImage(file, product, null);
+                
+                // Calculate new image size
+                if (originalImage.getWidth() > originalImage.getHeight()) {
+                    newWidth = maxWidth;
+                    newHeight = (originalImage.getHeight() * maxWidth) / originalImage.getWidth();
+                } else {
+                    newHeight = maxHeight;
+                    newWidth = (originalImage.getWidth() * maxHeight) / originalImage.getHeight();
+                }
+                
+                byte[] resizedImageData = rescaleAndConvert(originalImage, newWidth, newHeight);
+        
+                // Create and save the new image
+                return createImage(file, product, resizedImageData);
+            }
+
+            private MessageDTO createImage(MultipartFile file, Products product, byte[] resizedImageData) throws IOException {
+                
+                String originalFileName = file.getOriginalFilename();
+                String contentType = file.getContentType();
+
+                if(originalFileName == null || contentType == null) throw new IOException("Empty file");
+                
+                contentType = contentType.replace("image/", "");
+                originalFileName = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
+                byte[] imageData = resizedImageData != null ? resizedImageData : file.getBytes();
+                Images newImage = Utils.setImage(originalFileName, contentType, imageData, product.getId(), imagesRep);
+        
+                // Set the new image as the main image if there is no main image assigned
+                if (product.getIdMainImage() == null) {
+                    product.setIdMainImage(newImage.getId());
+                    productsRep.save(product);
+                }
+                return new MessageDTO("Image created");
+            }
+
+            private byte[] rescaleAndConvert(BufferedImage originalImage, int newWidth, int newHeight) throws IOException{
+                // Rescale the image to the new size
+                Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+                Graphics2D graphics2D = resizedImage.createGraphics();
+                graphics2D.drawImage(scaledImage, 0, 0, null);
+                graphics2D.dispose();
+        
+                // Convert resized image to bytes
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ImageIO.write(resizedImage, "jpg", outputStream);
+                byte[] resizedImageData = outputStream.toByteArray();
+                outputStream.close();
+                return resizedImageData;
+            }
+        }
+        UploadImage innerClass = new UploadImage();
+        return innerClass.uploadImage();
+    }
+
+    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    public MessageDTO deleteImage(String parameter){
+        if (parameter.matches(".*[a-zA-Z].*")) {
+            Products product = productsRep.findByName(parameter)
+                .orElseThrow(() -> new RuntimeException(productNotFound));
+            long idImage = product.getIdMainImage();
+            product.setIdMainImage(null);
+            productsRep.save(product);
+            imagesRep.deleteById(idImage);
+        }else{
+            long idImage = Long.parseLong(parameter);
+            imagesRep.deleteById(idImage);
+        }
+
+        return new MessageDTO("Image deleted");
+    }
+
+    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    public MessageDTO hideOrShowProduct(boolean visibility, String productName){
+        Products product = productsRep.findByName(productName)
+            .orElseThrow(() -> new RuntimeException(productNotFound));
+        product.setOpenToPublic(visibility);
+        productsRep.save(product);
+        return new MessageDTO("Product Updated");
+    }
+
+    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    public MessageDTO updateProductInfo(int option, String nameProduct, String newInfo){
+        // Find product
+        Products product = productsRep.findByName(nameProduct)
+            .orElseThrow(() -> new RuntimeException(productNotFound));
+        switch (option) {
+            case 0:
+                product.setName(newInfo);
+                productsRep.save(product);
+            break;
+            case 1:
+                product.setUnitPrice(Double.parseDouble(newInfo));
+                productsRep.save(product);
+            break;
+            case 2:
+                product.setDescription(newInfo);
+                productsRep.save(product);
+            break;
+            case 3:
+                product.setStock(Integer.parseInt(newInfo));
+                productsRep.save(product);
+            break;
+            case 4:
+                product.setShortDescription(newInfo);
+                productsRep.save(product);
+            break;
+        
+            default:
+                throw new RuntimeException("Invalid option");
+        }
+        return new MessageDTO("Info updated");
+    }
+
+    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    public Boolean createProduct(String categoryName){
+
+        Categories category = categoriesRep.findByName(categoryName)
+            .orElseThrow(() -> new RuntimeException(productNotFound));
+
+        if (Boolean.TRUE.equals(productsRep.existsByName("Nombre del nuevo producto"))) {
+            Products product = productsRep.findByName("Nombre del nuevo producto")
+                .orElseThrow(() -> new RuntimeException(productNotFound));
+            product.setIdCategory(category.getId());
+            productsRep.save(product);
+            return false;
+        }
+        
+        Utils.setProduct("Nombre del nuevo producto", "Descripción del nuevo producto", "descripción corta del nuevo producto", 0, 0, category.getId(), false, productsRep);
+        return true;
+    }
+
     //This only converts our database data to DTOs
-    private List<ProductsDTO> convertToProductsDTOList(List<Products> productsList) {
+    private List<ProductsDTO> convertToProductsDTOList(List<Products> productsList, boolean all) {
+
         List<ProductsDTO> productsDTOList = new ArrayList<>();
-    
+        
         productsList.stream().forEach(product ->{
-            if(product.isOpenToPublic()){
-                List<ImagesDTO> productImagesDTO = getProductImages(product, false);
-                ProductsDTO productDTO = setProductDTO(product.getName(), product.getUnitPrice(), 
-                                            product.getDescription(), product.getStock(), productImagesDTO);
-                productsDTOList.add(productDTO);
+            try {
+                if(product.isOpenToPublic() || all){
+                    List<ImagesDTO> productImagesDTO = getProductImages(product, false);
+                    ProductsDTO productDTO = setProductDTO(product.getName(), product.getUnitPrice(), 
+                        product.getDescription(), product.getShortDescription(), product.getStock(), productImagesDTO);
+                    if (!product.isOpenToPublic()) productDTO.setHidden("Yes");
+                    productsDTOList.add(productDTO);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     
@@ -199,27 +388,30 @@ public class ProductsSer {
             List<Images> productImages = imagesRep.findByIdProduct(product.getId());
             
             productImages.stream().forEach(productImage ->{
+                long idImage = productImage.getId();
                 String imgName = productImage.getName();
                 String contentType = productImage.getContentType();
                 String base64Image = Base64.getEncoder().encodeToString(productImage.getData());
-                ImagesDTO imageDTO = setImageDTO(imgName, contentType, base64Image);
+                ImagesDTO imageDTO = setImageDTO(idImage ,imgName, contentType, base64Image);
 
-                if (mainImage == productImage) productImagesDTO.add(0, imageDTO);
+                if (mainImage.equals(productImage)) productImagesDTO.add(0, imageDTO);
                 else productImagesDTO.add(imageDTO);
             });
             return productImagesDTO;
         }
 
+        long idMainImage = mainImage.getId();
         String imgName = mainImage.getName();
         String contentType = mainImage.getContentType();
         String base64Image = Base64.getEncoder().encodeToString(mainImage.getData());
-        ImagesDTO imageDTO = setImageDTO(imgName, contentType, base64Image);
+        ImagesDTO imageDTO = setImageDTO(idMainImage , imgName, contentType, base64Image);
         productImagesDTO.add(imageDTO);
         return productImagesDTO;
     }
 
-    private ImagesDTO setImageDTO(String name, String contenType, String base64){
+    private ImagesDTO setImageDTO(long id ,String name, String contenType, String base64){
         ImagesDTO imageDTO = new ImagesDTO();
+        imageDTO.setId(id);
         imageDTO.setName(name);
         imageDTO.setContentType(contenType);
         imageDTO.setImageBase64(base64);
@@ -227,13 +419,16 @@ public class ProductsSer {
     }
 
     private ProductsDTO setProductDTO(String name, double unitPrice, String description, 
-                                        int stock, List<ImagesDTO> imagesDTO){
+                                        String shortDescription ,int stock, List<ImagesDTO> imagesDTO){
         ProductsDTO productDTO = new ProductsDTO();
         productDTO.setNameProduct(name);
         productDTO.setUnitPrice(unitPrice);
         productDTO.setDescription(description);
+        productDTO.setShortDescription(shortDescription);
         productDTO.setStock(stock);
         productDTO.setImages(imagesDTO);
         return productDTO;
     }
+
+    
 }

@@ -3,6 +3,7 @@ package com.dentalmoovi.website.security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.dentalmoovi.website.Utils;
+import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.security.jwt.JWTprovider;
 import com.dentalmoovi.website.services.UserSer;
 import com.dentalmoovi.website.services.cache.CacheSer;
@@ -73,12 +75,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @CacheEvict(cacheNames = {"getUserAuthenticated", "isAdmin"})
     public ResponseEntity<Object> login( HttpServletResponse hsr,
         @Valid @RequestBody LoginDTO loginUser, BindingResult bidBindingResult){
 
         logger.info(loginUser.getUserName());
         if(bidBindingResult.hasErrors())
-            return new ResponseEntity<>(new Message("Revise sus credenciales"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageDTO("Revise sus credenciales"), HttpStatus.BAD_REQUEST);
         try {
                 if(userSer.isAdmin(loginUser.getUserName())){
                     //get verification code
@@ -87,6 +90,8 @@ public class AuthController {
                     //verify if code sended is equals the verification code
                     if(!loginUser.getCode().equals(code)) 
                         throw new RuntimeException("That code is incorrect");
+
+                    
                 }
 
                 Authentication auth = am.authenticate(
@@ -95,18 +100,19 @@ public class AuthController {
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 String jwt = jWTprovider.generateToken(auth);
                 Utils.createCookie(hsr, cookieName, jwt, false, -1, "localhost");
-                return new ResponseEntity<>(new Message("Sesión iniciada"), HttpStatus.OK);
+                return new ResponseEntity<>(new MessageDTO("Sesión iniciada"), HttpStatus.OK);
         } catch (Exception e) {
                 logger.error("Error to login: {}", e.getMessage());
-                return new ResponseEntity<>(new Message("Revise sus credenciales "+e.getMessage()), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new MessageDTO("Revise sus credenciales "+e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<Message> logOut(HttpServletResponse hsr){
+    @CacheEvict(cacheNames = {"getUserAuthenticated", "isAdmin"})
+    public ResponseEntity<MessageDTO> logOut(HttpServletResponse hsr){
         Utils.clearCookie(hsr, cookieName);
         SecurityContextHolder.clearContext();
-        return new ResponseEntity<>(new Message("Sesión cerrada"), HttpStatus.OK);
+        return new ResponseEntity<>(new MessageDTO("Sesión cerrada"), HttpStatus.OK);
     }
 
 }

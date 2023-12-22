@@ -112,8 +112,8 @@ class ProductsSerUnitTest {
             }
         });
 
-        ProductsResponse response1 = productsSer.getProductsByCategory("parent1", 1, 9);
-        ProductsResponse response2 = productsSer.getProductsByCategory("parent2", 1, 9);
+        ProductsResponse response1 = productsSer.getProductsByCategory("parent1", 1, 9, false);
+        ProductsResponse response2 = productsSer.getProductsByCategory("parent2", 1, 9, false);
 
         assertEquals(11, response1.getTotalProducts());
         assertEquals(9, response1.getPaginatedProducts());
@@ -163,7 +163,7 @@ class ProductsSerUnitTest {
         List<Products> productsTest = List.of(productosubX1one, productosubX2one, productosubY1one, productosubSubX1one);
 
         productsTest.stream().forEach(productTest ->{
-            ProductsDTO expected = productsSer.getProduct(productTest.getName());
+            ProductsDTO expected = productsSer.getProduct(productTest.getName(),false);
             assertEquals(expected.getNameProduct(), productTest.getName());
         });
     }
@@ -214,8 +214,8 @@ class ProductsSerUnitTest {
         List<Integer> expected2 = List.of(15,6,2,1);
 
         for(int i=0; i<keyWordsForSearch.size(); i++){
-            int response1 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), true, 1, 7).getTotalProducts();
-            int response2 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), false, 1, 9).getTotalProducts();
+            int response1 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), true, 1, 7, false).getTotalProducts();
+            int response2 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), false, 1, 9, false).getTotalProducts();
             assertEquals(expected1.get(i), response1);
             assertEquals(expected2.get(i), response2);
         }

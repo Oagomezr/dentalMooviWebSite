@@ -14,6 +14,6 @@ public class JWTentryPoint implements AuthenticationEntryPoint{
     @Override
     //this method controls the error when the user doesn't have any authorizations
     public void commence(HttpServletRequest req, HttpServletResponse res, AuthenticationException e) throws IOException {
-        res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UNAUTHORIZED"+ e.getMessage());
+        res.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
     }
 }

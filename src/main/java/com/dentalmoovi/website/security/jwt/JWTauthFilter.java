@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.security.UserRetrievalService;
 
 import jakarta.servlet.FilterChain;
@@ -49,8 +48,6 @@ public class JWTauthFilter extends OncePerRequestFilter{
             }
         } catch (Exception e) {
             loggerConsole.error(e.getMessage());
-            SecurityContextHolder.clearContext();
-            Utils.clearCookie(response, cookieName);
         } finally {
             filterChain.doFilter(request, response);
         }
