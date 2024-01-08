@@ -6,12 +6,16 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.dentalmoovi.website.models.dtos.AddressesDTO;
+import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
+import com.dentalmoovi.website.models.responses.AddressesResponse;
 import com.dentalmoovi.website.services.UserSer;
 
 @RestController
@@ -53,6 +57,34 @@ public class UserController {
         try {
             UserDTO userDTO= userSer.getUserAuthenticated();
             return ResponseEntity.ok(userDTO);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+    
+    @PutMapping("/user/update")
+    public ResponseEntity<MessageDTO> updateUser(@RequestBody UserDTO userDTO){
+        try {
+            return ResponseEntity.ok(userSer.updateUserInfo(userDTO));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @PostMapping("/user/addAddress")
+    public ResponseEntity<MessageDTO> addAddress(@RequestBody AddressesDTO addressDTO){
+        try {
+            userSer.createAddress(addressDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @GetMapping("/user/getAddresses")
+    public ResponseEntity<AddressesResponse> getAddresses(){
+        try {
+            return ResponseEntity.ok(userSer.getAddresses());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

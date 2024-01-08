@@ -79,7 +79,7 @@ public class AuthController {
     public ResponseEntity<Object> login( HttpServletResponse hsr,
         @Valid @RequestBody LoginDTO loginUser, BindingResult bidBindingResult){
 
-        logger.info(loginUser.getUserName());
+        
         if(bidBindingResult.hasErrors())
             return new ResponseEntity<>(new MessageDTO("Revise sus credenciales"), HttpStatus.BAD_REQUEST);
         try {

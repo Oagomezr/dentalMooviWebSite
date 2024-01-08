@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS categories, images, products, users, roles, users_roles;
+DROP TABLE IF EXISTS categories, images, products, users, roles, users_roles, addresses, users_addresses;
 
 CREATE TABLE categories (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -49,6 +49,21 @@ CREATE TABLE users_roles(
     id_user BIGINT,
     id_role BIGINT,
     PRIMARY KEY (id_user, id_role)
+);
+
+CREATE TABLE addresses(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    address VARCHAR(100) NOT NULL,
+    phone VARCHAR(13) NOT NULL,
+    departament VARCHAR(30) NOT NULL UNIQUE,
+    location VARCHAR(30) NOT NULL,
+    description VARCHAR(255)
+);
+
+CREATE TABLE users_addresses(
+    id_user BIGINT,
+    id_address BIGINT,
+    PRIMARY KEY (id_user, id_address)
 );
 
 ALTER TABLE images

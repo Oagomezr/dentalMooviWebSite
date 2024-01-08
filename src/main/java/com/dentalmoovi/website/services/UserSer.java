@@ -1,25 +1,40 @@
 package com.dentalmoovi.website.services;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.dentalmoovi.website.Utils;
+import com.dentalmoovi.website.models.dtos.AddressesDTO;
+import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
+import com.dentalmoovi.website.models.entities.Addresses;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.enums.RolesList;
+import com.dentalmoovi.website.models.responses.AddressesResponse;
+import com.dentalmoovi.website.repositories.AddressesRep;
 import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
 import com.dentalmoovi.website.security.MainUser;
 import com.dentalmoovi.website.services.cache.CacheSer;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserSer {
 
     Random random = new Random();
@@ -27,14 +42,8 @@ public class UserSer {
     private final EmailSer emailSer;
     private final UserRep userRep;
     private final RolesRep rolesRep;
-
-    
-    public UserSer(CacheSer cacheSer, EmailSer emailSer, UserRep userRep, RolesRep rolesRep) {
-        this.cacheSer = cacheSer;
-        this.emailSer = emailSer;
-        this.userRep = userRep;
-        this.rolesRep = rolesRep;
-    }
+    private final AddressesRep addressesRep;
+    private static Logger logger = LoggerFactory.getLogger(UserSer.class);
 
     public void sendEmailNotification(String email, String subject, String body) {
         String retrictReplay = cacheSer.getFromReplayCodeRestrict(email);
@@ -100,7 +109,7 @@ public class UserSer {
         return userRep.existsByEmail(value);
     }
 
-    @Cacheable(cacheNames = "getUserAuthenticated")
+    @Cacheable("getUserAuthenticatedCache")
     public UserDTO getUserAuthenticated(){
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
@@ -123,5 +132,54 @@ public class UserSer {
         return mainUser.getAuthorities().stream()
             .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
                 .equals(RolesList.ADMIN_ROLE.name()));
+    }
+
+    @CacheEvict(value = "getUserAuthenticatedCache", allEntries = true)
+    public MessageDTO updateUserInfo(UserDTO userDTO){
+        Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setBirthdate(userDTO.getBirthdate());
+        user.setGender(userDTO.getGender());
+        user.setCelPhone(userDTO.getCelPhone());
+        userRep.save(user);
+        return new MessageDTO("User updated");
+    }
+
+    public MessageDTO createAddress(AddressesDTO addressDTO){
+        try {
+            Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+            logger.info(user.getFirstName());
+            Addresses address = Utils.setAddress(addressDTO.getDepartament(), 
+                addressDTO.getLocation(), addressDTO.getAddress(), addressDTO.getPhone(), 
+                addressDTO.getDescription(), addressesRep);
+            
+            user.addAddress(address);
+            userRep.save(user);
+
+            return new MessageDTO("Address created");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    public AddressesResponse getAddresses(){
+        Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Long> idsAddresses = new ArrayList<>(user.getAddressesIds());
+        List<AddressesDTO> addressesDTO = new ArrayList<>();
+        idsAddresses.stream().forEach(id ->{
+            Addresses address = addressesRep.findById(id)
+                .orElseThrow(() -> new RuntimeException("Address not found"));
+            AddressesDTO addressDTO = Utils.setAddressDTO(address.getDepartament(), address.getLocation(), 
+                address.getAddress(), address.getPhone(), address.getDescription());
+            addressesDTO.add(addressDTO);
+        });
+        AddressesResponse response = new AddressesResponse();
+        response.setIdsAddresses(addressesDTO);
+        return response;
     }
 }

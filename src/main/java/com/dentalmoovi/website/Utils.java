@@ -1,6 +1,8 @@
 package com.dentalmoovi.website;
 
+import com.dentalmoovi.website.models.dtos.AddressesDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
+import com.dentalmoovi.website.models.entities.Addresses;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Images;
 import com.dentalmoovi.website.models.entities.Products;
@@ -8,6 +10,7 @@ import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.enums.GenderList;
 import com.dentalmoovi.website.models.enums.RolesList;
+import com.dentalmoovi.website.repositories.AddressesRep;
 import com.dentalmoovi.website.repositories.CategoriesRep;
 import com.dentalmoovi.website.repositories.ImgRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
@@ -145,5 +148,26 @@ public class Utils {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error al convertir a JSON: " + e.getMessage());
         }
+    }
+
+    public static Addresses setAddress(String departament, String location, String addressLocation, String phone, String description, AddressesRep rep){
+        Addresses address = new Addresses();
+        address.setDepartament(departament);
+        address.setLocation(location);
+        address.setAddress(addressLocation);
+        address.setPhone(phone);
+        address.setDescription(description);
+        address = rep.save(address);
+        return address;
+    }
+
+    public static AddressesDTO setAddressDTO(String departament, String location, String address, String phone, String description){
+        AddressesDTO addressDTO = new AddressesDTO();
+        addressDTO.setDepartament(departament);
+        addressDTO.setLocation(location);
+        addressDTO.setAddress(address);
+        addressDTO.setPhone(phone);
+        addressDTO.setDescription(description);
+        return addressDTO;
     }
 }

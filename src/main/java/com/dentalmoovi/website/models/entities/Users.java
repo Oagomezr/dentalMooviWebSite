@@ -30,6 +30,9 @@ public class Users {
     @MappedCollection(idColumn = "id_user")
     private Set<RolesRef> roles = new HashSet<>();
 
+    @MappedCollection(idColumn = "id_user")
+    private Set<AddressesRef> addresses = new HashSet<>();
+
     public void addRole(Roles role){
         this.roles.add(new RolesRef(role.getId()));
     }
@@ -37,6 +40,16 @@ public class Users {
     public Set<Long> getRolesIds(){
         return this.roles.stream()
                     .map(RolesRef::getIdRole)
+                    .collect(Collectors.toSet());
+    }
+
+    public void addAddress(Addresses address){
+        this.addresses.add(new AddressesRef(address.getId()));
+    }
+
+    public Set<Long> getAddressesIds(){
+        return this.addresses.stream()
+                    .map(AddressesRef::getIdAddress)
                     .collect(Collectors.toSet());
     }
 }
