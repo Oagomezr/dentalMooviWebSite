@@ -161,8 +161,9 @@ public class Utils {
         return address;
     }
 
-    public static AddressesDTO setAddressDTO(String departament, String location, String address, String phone, String description){
+    public static AddressesDTO setAddressDTO(long id, String departament, String location, String address, String phone, String description){
         AddressesDTO addressDTO = new AddressesDTO();
+        addressDTO.setId(id);
         addressDTO.setDepartament(departament);
         addressDTO.setLocation(location);
         addressDTO.setAddress(address);

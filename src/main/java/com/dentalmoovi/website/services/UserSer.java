@@ -8,13 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.AddressesDTO;
@@ -147,25 +145,39 @@ public class UserSer {
         return new MessageDTO("User updated");
     }
 
+    @CacheEvict(value = "getAddresses", allEntries = true)
     public MessageDTO createAddress(AddressesDTO addressDTO){
-        try {
-            Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
+            
+        Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-            logger.info(user.getFirstName());
-            Addresses address = Utils.setAddress(addressDTO.getDepartament(), 
-                addressDTO.getLocation(), addressDTO.getAddress(), addressDTO.getPhone(), 
-                addressDTO.getDescription(), addressesRep);
-            
-            user.addAddress(address);
-            userRep.save(user);
+        
+        Addresses address = Utils.setAddress(addressDTO.getDepartament(), 
+            addressDTO.getLocation(), addressDTO.getAddress(), addressDTO.getPhone(), 
+            addressDTO.getDescription(), addressesRep);
+        
+        user.addAddress(address);
+        userRep.save(user);
 
-            return new MessageDTO("Address created");
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+        return new MessageDTO("Address created");
+            
     }
 
+    @CacheEvict(value = "getAddresses", allEntries = true)
+    public MessageDTO updateAddress(AddressesDTO addressDTO){
+        Addresses address = addressesRep.findById(addressDTO.getId())
+            .orElseThrow(() -> new RuntimeException("Address not found"));
+        logger.info(address.getDescription());
+        address.setDepartament(addressDTO.getDepartament());
+        address.setLocation(addressDTO.getLocation());
+        address.setAddress(addressDTO.getAddress());
+        address.setPhone(addressDTO.getPhone());
+        address.setDescription(addressDTO.getDescription());
+        addressesRep.save(address);
+        return new MessageDTO("Address updated");
+    }
+
+    @Cacheable("getAddresses")
     public AddressesResponse getAddresses(){
         Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -174,12 +186,22 @@ public class UserSer {
         idsAddresses.stream().forEach(id ->{
             Addresses address = addressesRep.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found"));
-            AddressesDTO addressDTO = Utils.setAddressDTO(address.getDepartament(), address.getLocation(), 
+            AddressesDTO addressDTO = Utils.setAddressDTO(id, address.getDepartament(), address.getLocation(), 
                 address.getAddress(), address.getPhone(), address.getDescription());
             addressesDTO.add(addressDTO);
         });
         AddressesResponse response = new AddressesResponse();
-        response.setIdsAddresses(addressesDTO);
+        response.setData(addressesDTO);
         return response;
+    }
+
+    @CacheEvict(value = "getAddresses", allEntries = true)
+    public MessageDTO deleteAddress(long id){
+        Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.deleteAddress(id);
+        userRep.save(user);
+        addressesRep.deleteById(id);
+        return new MessageDTO("Address deleted");
     }
 }

@@ -10,5 +10,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddressesResponse {
-    private List<AddressesDTO> idsAddresses;
+    private List<AddressesDTO> data;
 }

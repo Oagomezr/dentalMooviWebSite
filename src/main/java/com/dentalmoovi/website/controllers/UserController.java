@@ -3,6 +3,7 @@ package com.dentalmoovi.website.controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -72,7 +73,7 @@ public class UserController {
     }
 
     @PostMapping("/user/addAddress")
-    public ResponseEntity<MessageDTO> addAddress(@RequestBody AddressesDTO addressDTO){
+    public ResponseEntity<MessageDTO> createAddress(@RequestBody AddressesDTO addressDTO){
         try {
             userSer.createAddress(addressDTO);
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -87,6 +88,24 @@ public class UserController {
             return ResponseEntity.ok(userSer.getAddresses());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @PutMapping("/user/updateAddress")
+    public ResponseEntity<MessageDTO> updateAddress(@RequestBody AddressesDTO addressDTO){
+        try {
+            return ResponseEntity.ok(userSer.updateAddress(addressDTO));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/user/deleteAddress/{id}")
+    public ResponseEntity<MessageDTO> deleteAddress(@PathVariable long id){
+        try{
+            return ResponseEntity.ok(userSer.deleteAddress(id));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

@@ -52,4 +52,8 @@ public class Users {
                     .map(AddressesRef::getIdAddress)
                     .collect(Collectors.toSet());
     }
+
+    public void deleteAddress(Long addressId) {
+        this.addresses.removeIf(addressRef -> addressRef.getIdAddress().equals(addressId));
+    }
 }
