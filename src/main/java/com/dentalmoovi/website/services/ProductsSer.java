@@ -13,12 +13,18 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dentalmoovi.website.Utils;
+import com.dentalmoovi.website.models.cart.CartDtoRequest;
+import com.dentalmoovi.website.models.cart.CartDtoRespose;
+import com.dentalmoovi.website.models.cart.CartRequest;
+import com.dentalmoovi.website.models.cart.CartResponse;
 import com.dentalmoovi.website.models.dtos.ImagesDTO;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.ProductsDTO;
@@ -42,6 +48,8 @@ public class ProductsSer {
     private final ImgRep imagesRep;
     private String categoryNotFound = "Category not found";
     private String productNotFound = "Product not found";
+
+    private static Logger logger = LoggerFactory.getLogger(ProductsSer.class);
 
     @Cacheable(cacheNames = "productsByCategory")
     public ProductsResponse getProductsByCategory(String parentCategoryName, int currentPage, int productsPerPage, boolean all){
@@ -126,7 +134,7 @@ public class ProductsSer {
                 //Get Product images
                 List<ImagesDTO> productImagesDTO = getProductImages(product, true);
 
-                ProductsDTO productsDTO = setProductDTO(name, product.getUnitPrice(), product.getDescription(), 
+                ProductsDTO productsDTO = setProductDTO(product.getId() , name, product.getUnitPrice(), product.getDescription(), 
                                             product.getShortDescription(), product.getStock(), productImagesDTO);
                 productsDTO.setLocation(location);
 
@@ -354,6 +362,40 @@ public class ProductsSer {
         return true;
     }
 
+    public CartResponse getShoppingCartProducts(CartRequest req){
+        CartResponse cartResponse = new CartResponse();
+        cartResponse.setData(new ArrayList<>());
+
+        double total = 0;
+        int amountOfProducts = 0;
+        logger.info("data: {}",req.getData());
+        for (CartDtoRequest elem : req.getData()) {
+            Products product = productsRep.findById(elem.getId())
+                .orElseThrow(() -> new RuntimeException(productNotFound));
+
+            CartDtoRespose cart = new CartDtoRespose();
+
+            if (product.getIdMainImage() != null) {
+                Images mainImage = imagesRep.findById(product.getIdMainImage())
+                    .orElseThrow(() -> new RuntimeException("Image not found"));
+                cart.setImage(setImageDTO(mainImage));
+            }
+
+            cart.setId(elem.getId());
+            cart.setProductName(product.getName());
+            cart.setPrize(product.getUnitPrice());
+            cart.setAmount(elem.getAmount());
+            cart.setSubtotal(product.getUnitPrice()*elem.getAmount());
+            total += product.getUnitPrice()*elem.getAmount();
+            amountOfProducts += elem.getAmount();
+            cartResponse.getData().add(cart);
+        }
+
+        cartResponse.setTotal(total);
+        cartResponse.setAmountOfProducts(amountOfProducts);
+        return cartResponse;
+    }
+
     //This only converts our database data to DTOs
     private List<ProductsDTO> convertToProductsDTOList(List<Products> productsList, boolean all) {
 
@@ -363,7 +405,7 @@ public class ProductsSer {
             try {
                 if(product.isOpenToPublic() || all){
                     List<ImagesDTO> productImagesDTO = getProductImages(product, false);
-                    ProductsDTO productDTO = setProductDTO(product.getName(), product.getUnitPrice(), 
+                    ProductsDTO productDTO = setProductDTO(product.getId() , product.getName(), product.getUnitPrice(), 
                         product.getDescription(), product.getShortDescription(), product.getStock(), productImagesDTO);
                     if (!product.isOpenToPublic()) productDTO.setHidden("Yes");
                     productsDTOList.add(productDTO);
@@ -400,13 +442,20 @@ public class ProductsSer {
             return productImagesDTO;
         }
 
-        long idMainImage = mainImage.getId();
-        String imgName = mainImage.getName();
-        String contentType = mainImage.getContentType();
-        String base64Image = Base64.getEncoder().encodeToString(mainImage.getData());
-        ImagesDTO imageDTO = setImageDTO(idMainImage , imgName, contentType, base64Image);
+        ImagesDTO imageDTO = setImageDTO(mainImage);
+        
         productImagesDTO.add(imageDTO);
         return productImagesDTO;
+    }
+
+    private ImagesDTO setImageDTO(Images image){
+
+        long idMainImage = image.getId();
+        String imgName = image.getName();
+        String contentType = image.getContentType();
+        String base64Image = Base64.getEncoder().encodeToString(image.getData());
+
+        return setImageDTO(idMainImage , imgName, contentType, base64Image);
     }
 
     private ImagesDTO setImageDTO(long id ,String name, String contenType, String base64){
@@ -418,9 +467,10 @@ public class ProductsSer {
         return imageDTO;
     }
 
-    private ProductsDTO setProductDTO(String name, double unitPrice, String description, 
+    private ProductsDTO setProductDTO(long id, String name, double unitPrice, String description, 
                                         String shortDescription ,int stock, List<ImagesDTO> imagesDTO){
         ProductsDTO productDTO = new ProductsDTO();
+        productDTO.setId(id);
         productDTO.setNameProduct(name);
         productDTO.setUnitPrice(unitPrice);
         productDTO.setDescription(description);

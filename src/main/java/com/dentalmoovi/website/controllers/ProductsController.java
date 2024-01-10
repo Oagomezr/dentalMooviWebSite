@@ -2,6 +2,7 @@ package com.dentalmoovi.website.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dentalmoovi.website.models.cart.CartRequest;
+import com.dentalmoovi.website.models.cart.CartResponse;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.ProductsDTO;
 import com.dentalmoovi.website.models.responses.ProductsResponse;
@@ -117,7 +120,8 @@ public class ProductsController {
     @PostMapping("/admin/products/createProduct")
     public ResponseEntity<Boolean> createProduct(@RequestBody String categoryName) {
         try{
-            return ResponseEntity.ok(productsSer.createProduct(categoryName));
+            productsSer.createProduct(categoryName);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
@@ -150,6 +154,17 @@ public class ProductsController {
             ProductsResponse products = productsSer.getProductsByCategory(name, pageNumber, pageSize, true);
             return ResponseEntity.ok(products);
         } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/public/shoppingCart")
+    public ResponseEntity<CartResponse> getShoppingCartProducts(@RequestBody CartRequest req){
+        try{
+            return ResponseEntity.ok(productsSer.getShoppingCartProducts(req));
+        } catch (Exception e) {
+            logger.error("error: {}", e.getMessage());
+            logger.info("error: {}", req);
             return ResponseEntity.notFound().build();
         }
     }
