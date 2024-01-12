@@ -28,6 +28,7 @@ class CategoriesControllerTest {
     @Autowired
     private CategoriesSer categoriesSer;
 
+    @SuppressWarnings("null")
     @Test
     void getAllCategories() throws Exception{
 

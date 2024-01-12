@@ -183,9 +183,14 @@ public class UserSer {
             .orElseThrow(() -> new RuntimeException("User not found"));
         List<Long> idsAddresses = new ArrayList<>(user.getAddressesIds());
         List<AddressesDTO> addressesDTO = new ArrayList<>();
+
+        
         idsAddresses.stream().forEach(id ->{
+
+            @SuppressWarnings("null")
             Addresses address = addressesRep.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found"));
+                
             AddressesDTO addressDTO = Utils.setAddressDTO(id, address.getDepartament(), address.getLocation(), 
                 address.getAddress(), address.getPhone(), address.getDescription());
             addressesDTO.add(addressDTO);

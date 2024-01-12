@@ -30,6 +30,7 @@ class ProductsControllerTest {
 
     private ProductsResponse expectedResponse;
 
+    @SuppressWarnings("null")
     @Test
     void getProductsByCategoryTest() throws Exception{
         
@@ -43,6 +44,7 @@ class ProductsControllerTest {
             .andExpect(content().string(expectedJsonResponse));
     }
 
+    @SuppressWarnings("null")
     @Test
     void getProductsByContainingTest() throws Exception{
         
@@ -63,6 +65,7 @@ class ProductsControllerTest {
             .andExpect(content().string(expectedJsonResponse2));
     }
 
+    @SuppressWarnings("null")
     @Test
     void getProductTest() throws Exception{
         

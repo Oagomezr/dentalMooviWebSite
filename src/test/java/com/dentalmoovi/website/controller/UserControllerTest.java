@@ -31,6 +31,7 @@ class UserControllerTest {
     @Autowired
     private CacheSer cacheSer;
 
+    @SuppressWarnings("null")
     @Test
     void createUserTest() throws Exception{
         UserDTO userDTO = Utils.setUserDTO("example", "test", "example@test.com", "333-3333-3333", GenderList.UNDEFINED, null, "123456", "password");

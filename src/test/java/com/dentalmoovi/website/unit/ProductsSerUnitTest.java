@@ -121,6 +121,7 @@ class ProductsSerUnitTest {
         assertEquals(4, response2.getPaginatedProducts());
     }
 
+    @SuppressWarnings("null")
     @Test
     void getProductTest(){
         when(productsRep.findByName(Mockito.any())).thenAnswer(invocation -> {

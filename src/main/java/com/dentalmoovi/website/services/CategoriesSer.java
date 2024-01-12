@@ -73,6 +73,7 @@ public class CategoriesSer {
         return new MessageDTO("Category created");
     }
 
+    @SuppressWarnings("null")
     @CacheEvict(cacheNames = {"getAllCategories", "productsByCategory"}, allEntries = true)
     public MessageDTO deleteCategory(String categoryName){
         Categories category = categoriesRep.findByName(categoryName)

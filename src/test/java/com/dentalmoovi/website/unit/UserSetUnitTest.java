@@ -83,6 +83,7 @@ class UserSetUnitTest {
         assertFalse(userSer.checkEmailExists("test@noExist.com"));
     }
 
+    @SuppressWarnings("null")
     @Test
     void createUserTest(){
 

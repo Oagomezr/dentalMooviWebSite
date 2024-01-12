@@ -125,6 +125,7 @@ public class ProductsSer {
                     throw new RuntimeException("Something wrong");
                 
                 //Get product's category
+                @SuppressWarnings("null")
                 Categories category = categoriesRep.findById(product.getIdCategory())
                     .orElseThrow(() -> new RuntimeException(categoryNotFound));
 
@@ -145,6 +146,7 @@ public class ProductsSer {
             }
 
             //It's a function with the aim of find the location products inside the categories
+            @SuppressWarnings("null")
             private List<String> getLocationProduct(Categories category){
                 List<String> location = new ArrayList<>(List.of(category.getName()));
                 if(category.getIdParentCategory() != null) 
@@ -375,7 +377,9 @@ public class ProductsSer {
 
             CartDtoRespose cart = new CartDtoRespose();
 
+            
             if (product.getIdMainImage() != null) {
+                @SuppressWarnings("null")
                 Images mainImage = imagesRep.findById(product.getIdMainImage())
                     .orElseThrow(() -> new RuntimeException("Image not found"));
                 cart.setImage(setImageDTO(mainImage));
@@ -423,6 +427,7 @@ public class ProductsSer {
         List<ImagesDTO> productImagesDTO = new ArrayList<>();
         if(product.getIdMainImage() == null) return productImagesDTO;
 
+        @SuppressWarnings("null")
         Images mainImage = imagesRep.findById(product.getIdMainImage())
                 .orElseThrow(() -> new RuntimeException("Image not found"));
 

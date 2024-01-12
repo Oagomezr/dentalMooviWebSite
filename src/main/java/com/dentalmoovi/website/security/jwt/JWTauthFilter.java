@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,8 +28,8 @@ public class JWTauthFilter extends OncePerRequestFilter{
     private JWTprovider jWTprovider;
     private UserRetrievalService userRetrievalService;
 
-    @Value("${jwt.accessTokenByCookieName}")
-    private String cookieName;
+    @Value("${jwt.accessTokenByCookieName:#{null}}")
+    @NonNull private String cookieName = "";
 
     @Autowired
     public void dependencies(JWTprovider jWTprovider, UserRetrievalService userRetrievalService) {
@@ -37,8 +38,8 @@ public class JWTauthFilter extends OncePerRequestFilter{
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
-        FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, 
+        @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = getToken(request);
             if (token != null && jWTprovider.validateToken(token)) {
@@ -55,8 +56,9 @@ public class JWTauthFilter extends OncePerRequestFilter{
         }
     }
 
-    private String getToken(HttpServletRequest request){
-        Cookie cookie = WebUtils.getCookie(request, cookieName);
+    private String getToken(@NonNull HttpServletRequest request){
+        
+        Cookie cookie = WebUtils.getCookie( request, cookieName);
         return cookie != null ? cookie.getValue() : null;
     }
 
