@@ -9,9 +9,4 @@ import lombok.Setter;
 @Setter
 public class CartRequest {
     private List<CartDtoRequest> data;
-
-    @Override
-    public String toString() {
-        return data.toString();
-    }
 }

@@ -24,16 +24,14 @@ import com.dentalmoovi.website.models.responses.ProductsResponse;
 import com.dentalmoovi.website.services.ProductsSer;
 
 import io.jsonwebtoken.io.IOException;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping
 @CrossOrigin(origins = "http://localhost:4200")
+@RequiredArgsConstructor
 public class ProductsController {
     private final ProductsSer productsSer;
-
-    public ProductsController(ProductsSer productsSer) {
-        this.productsSer = productsSer;
-    }
 
     private static Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
@@ -163,8 +161,6 @@ public class ProductsController {
         try{
             return ResponseEntity.ok(productsSer.getShoppingCartProducts(req));
         } catch (Exception e) {
-            logger.error("error: {}", e.getMessage());
-            logger.info("error: {}", req);
             return ResponseEntity.notFound().build();
         }
     }

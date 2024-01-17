@@ -8,9 +8,4 @@ import lombok.Setter;
 public class CartDtoRequest {
     private long id;
     private int amount;
-
-    @Override
-    public String toString() {
-        return "["+id+","+amount+"]";
-    }
 }

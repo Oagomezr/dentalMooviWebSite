@@ -13,8 +13,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -48,8 +46,6 @@ public class ProductsSer {
     private final ImgRep imagesRep;
     private String categoryNotFound = "Category not found";
     private String productNotFound = "Product not found";
-
-    private static Logger logger = LoggerFactory.getLogger(ProductsSer.class);
 
     @Cacheable(cacheNames = "productsByCategory")
     public ProductsResponse getProductsByCategory(String parentCategoryName, int currentPage, int productsPerPage, boolean all){
@@ -370,7 +366,6 @@ public class ProductsSer {
 
         double total = 0;
         int amountOfProducts = 0;
-        logger.info("data: {}",req.getData());
         for (CartDtoRequest elem : req.getData()) {
             Products product = productsRep.findById(elem.getId())
                 .orElseThrow(() -> new RuntimeException(productNotFound));

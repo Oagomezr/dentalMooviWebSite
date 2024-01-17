@@ -17,15 +17,14 @@ import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.responses.CategoriesResponse;
 import com.dentalmoovi.website.services.CategoriesSer;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping
 @CrossOrigin(origins = "http://localhost:4200")
+@RequiredArgsConstructor
 public class CategoriesController {
     private final CategoriesSer categoriesSer;
-
-    public CategoriesController(CategoriesSer categoriesSer) {
-        this.categoriesSer = categoriesSer;
-    }
 
     @GetMapping("/public/categories")
     public ResponseEntity<CategoriesResponse> getAllCategories() {

@@ -1,18 +1,22 @@
 package com.dentalmoovi.website;
 
+import com.dentalmoovi.website.models.cart.CartRequest;
 import com.dentalmoovi.website.models.dtos.AddressesDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Addresses;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Images;
+import com.dentalmoovi.website.models.entities.Orders;
 import com.dentalmoovi.website.models.entities.Products;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.enums.GenderList;
 import com.dentalmoovi.website.models.enums.RolesList;
+import com.dentalmoovi.website.models.enums.StatusOrderList;
 import com.dentalmoovi.website.repositories.AddressesRep;
 import com.dentalmoovi.website.repositories.CategoriesRep;
 import com.dentalmoovi.website.repositories.ImgRep;
+import com.dentalmoovi.website.repositories.OrdersRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
 import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
@@ -170,5 +174,16 @@ public class Utils {
         addressDTO.setPhone(phone);
         addressDTO.setDescription(description);
         return addressDTO;
+    }
+
+    public static Orders setOrder(StatusOrderList status, String file, long idUser, long idAddress, CartRequest req, OrdersRep rep){
+        Orders order = new Orders();
+        order.setStatus(status);
+        order.setOrderFile(file);
+        order.setIdUser(idUser);
+        order.setIdAddress(idAddress);
+        req.getData().forEach(elem ->
+            order.addProduct(elem.getId(), elem.getAmount()));
+        return rep.save(order);
     }
 }

@@ -19,15 +19,14 @@ import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.responses.AddressesResponse;
 import com.dentalmoovi.website.services.UserSer;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping
 @CrossOrigin(origins = "http://localhost:4200")
+@RequiredArgsConstructor
 public class UserController {
     private final UserSer userSer;
-
-    public UserController(UserSer userSer) {
-        this.userSer = userSer;
-    }
 
     @PostMapping("/public/create")
     public ResponseEntity<Void> createUser(@RequestBody UserDTO userDTO){
