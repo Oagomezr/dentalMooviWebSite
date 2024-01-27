@@ -50,9 +50,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authRequest ->
                 authRequest
                     .requestMatchers("/public/**").permitAll()
+                    .requestMatchers("/favicon.ico").permitAll()
                     .requestMatchers("/user/**").hasAuthority(RolesList.USER_ROLE.name())
                     .requestMatchers("/admin/**").hasAuthority(RolesList.ADMIN_ROLE.name())
-                    .anyRequest().authenticated()
+                    //.anyRequest().authenticated()
             )
             .exceptionHandling(exception ->
                 exception.authenticationEntryPoint(jWTentryPoint)

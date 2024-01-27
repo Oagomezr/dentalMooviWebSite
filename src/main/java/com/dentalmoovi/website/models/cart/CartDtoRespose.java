@@ -14,4 +14,6 @@ public class CartDtoRespose {
     private double prize;
     private int amount;
     private double subtotal;
+    private String prizePDF;
+    private String subtotalPDF;
 }

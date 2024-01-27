@@ -1,6 +1,5 @@
 package com.dentalmoovi.website.models.entities;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,9 +15,8 @@ import lombok.Data;
 public class Orders {
     @Id
     private Long id;
-    private String orderFile;
+    private byte[] orderFile;
     private StatusOrderList status;
-    private LocalDate creationDate;
     private Long idUser;
     private Long idAddress;
 

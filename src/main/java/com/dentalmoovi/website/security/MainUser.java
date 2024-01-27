@@ -18,11 +18,12 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class MainUser implements UserDetails{
 
+    private String cacheRef;
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public static MainUser build(Users user, RolesRep rolesRep){
+    public static MainUser build(Users user, RolesRep rolesRep, String ref){
         Set<Long> rolesIds = user.getRolesIds();
 
         @SuppressWarnings("null")
@@ -35,7 +36,9 @@ public class MainUser implements UserDetails{
             .map(role -> new SimpleGrantedAuthority(role.getRole().name()))
             .collect(Collectors.toList());
 
-        return new MainUser(user.getEmail(), user.getPassword(), authorities);
+        String cacheRef = String.valueOf(user.getId() + ref.length());
+
+        return new MainUser(cacheRef, user.getEmail(), user.getPassword(), authorities);
     }
 
     @Override
@@ -58,5 +61,7 @@ public class MainUser implements UserDetails{
 
     @Override
     public boolean isEnabled() { return true; }
+
+    public String getCacheRef(){ return cacheRef; }
 
 }

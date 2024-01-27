@@ -3,7 +3,7 @@ package com.dentalmoovi.website.security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,23 +27,18 @@ import com.dentalmoovi.website.services.cache.CacheSer;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/public")
 @CrossOrigin(origins = "http://localhost:4200")
+@RequiredArgsConstructor
 public class AuthController {
-    private final AuthenticationManager am;
     private final JWTprovider jWTprovider;
     private final UserSer userSer;
     private final CacheSer cacheSer;
+    private final AuthenticationManager am;
     private static Logger logger = LoggerFactory.getLogger(AuthController.class);
-
-    public AuthController(AuthenticationManager am, JWTprovider jWTprovider, UserSer userSer, CacheSer cacheSer) {
-        this.am = am;
-        this.jWTprovider = jWTprovider;
-        this.userSer = userSer;
-        this.cacheSer = cacheSer;
-    }
 
     @Value("${jwt.accessTokenByCookieName}")
     private String cookieName;
@@ -51,13 +46,13 @@ public class AuthController {
     @PostMapping("/isAuthorized")
     public ResponseEntity<Boolean> checkRole(@RequestBody LoginDTO loginUser) {
 
-        Boolean isAdmin = userSer.isAdmin(loginUser.getUserName());
+        String userDetails = userSer.getUserDetails(loginUser.getUserName());
+        boolean isAdmin = userDetails.charAt(0) == 'A';
 
-        if (Boolean.TRUE.equals(isAdmin)) {
+        if (isAdmin) {
             try {
-                am.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginUser.getUserName(), loginUser.getPassword())
-                );
+                
+                getAuth(loginUser.getUserName(), loginUser.getPassword());
 
                 String subject = "Codigo de inicio de sesión";
                 String body =   
@@ -75,44 +70,42 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @CacheEvict(cacheNames = {"getUserAuthenticated", "isAdmin"})
     public ResponseEntity<Object> login( HttpServletResponse hsr,
         @Valid @RequestBody LoginDTO loginUser, BindingResult bidBindingResult){
 
-        
         if(bidBindingResult.hasErrors())
             return new ResponseEntity<>(new MessageDTO("Revise sus credenciales"), HttpStatus.BAD_REQUEST);
         try {
-                if(userSer.isAdmin(loginUser.getUserName())){
-                    //get verification code
-                    String code = cacheSer.getFromRegistrationCache(loginUser.getUserName());
+            String userDetails = userSer.getUserDetails(loginUser.getUserName());
+            if(userDetails.charAt(0) == 'A'){
+                //get verification code
+                String code = cacheSer.getFromRegistrationCache(loginUser.getUserName());
 
-                    //verify if code sended is equals the verification code
-                    if(!loginUser.getCode().equals(code)) 
-                        throw new RuntimeException("That code is incorrect");
+                //verify if code sended is equals the verification code
+                if(!loginUser.getCode().equals(code)) 
+                    throw new RuntimeException("That code is incorrect");
+            }
 
-                    
-                }
-
-                Authentication auth = am.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginUser.getUserName(), loginUser.getPassword())
-                );
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                String jwt = jWTprovider.generateToken(auth);
-                Utils.createCookie(hsr, cookieName, jwt, false, -1, "localhost");
-                return new ResponseEntity<>(new MessageDTO("Sesión iniciada"), HttpStatus.OK);
+            Authentication auth = getAuth(loginUser.getUserName(), loginUser.getPassword());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            String jwt = jWTprovider.generateToken(auth);
+            Utils.createCookie(hsr, cookieName, jwt, false, -1, "localhost");
+            return ResponseEntity.ok(new MessageDTO(userDetails.substring(1)));
         } catch (Exception e) {
-                logger.error("Error to login: {}", e.getMessage());
-                return new ResponseEntity<>(new MessageDTO("Revise sus credenciales "+e.getMessage()), HttpStatus.BAD_REQUEST);
+            logger.error("Error to login: {}", e.getMessage());
+            return new ResponseEntity<>(new MessageDTO("Revise sus credenciales "+e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/logout")
-    @CacheEvict(cacheNames = {"getUserAuthenticated", "isAdmin"})
     public ResponseEntity<MessageDTO> logOut(HttpServletResponse hsr){
         Utils.clearCookie(hsr, cookieName);
         SecurityContextHolder.clearContext();
         return new ResponseEntity<>(new MessageDTO("Sesión cerrada"), HttpStatus.OK);
     }
 
+    @Cacheable("auth")
+    private Authentication getAuth(String userName, String password){
+        return am.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+    }
 }

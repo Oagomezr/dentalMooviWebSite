@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
@@ -33,10 +34,10 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.lang.NonNull;
+import org.springframework.web.util.WebUtils;
 
 public class Utils {
-
-    
 
     private Utils() {
         throw new IllegalStateException("Utility class");
@@ -176,14 +177,18 @@ public class Utils {
         return addressDTO;
     }
 
-    public static Orders setOrder(StatusOrderList status, String file, long idUser, long idAddress, CartRequest req, OrdersRep rep){
+    public static Orders setOrder(StatusOrderList status, long idUser, long idAddress, CartRequest req, OrdersRep rep){
         Orders order = new Orders();
         order.setStatus(status);
-        order.setOrderFile(file);
         order.setIdUser(idUser);
         order.setIdAddress(idAddress);
         req.getData().forEach(elem ->
             order.addProduct(elem.getId(), elem.getAmount()));
         return rep.save(order);
+    }
+
+    public static String getToken(@NonNull HttpServletRequest request, @NonNull String  cookieName){
+        Cookie cookie = WebUtils.getCookie( request, cookieName);
+        return cookie != null ? cookie.getValue() : null;
     }
 }

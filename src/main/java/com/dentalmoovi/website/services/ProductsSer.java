@@ -195,7 +195,9 @@ public class ProductsSer {
         return productsResponse;
     }
 
-    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    @CacheEvict(
+        cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, 
+        allEntries = true)
     public MessageDTO updateMainImage(long idImage, String productName){
         Products product = productsRep.findByName(productName)
             .orElseThrow(() -> new RuntimeException(productNotFound));
@@ -204,7 +206,9 @@ public class ProductsSer {
         return new MessageDTO("Main product image updated");
     }
 
-    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    @CacheEvict(
+        cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, 
+        allEntries = true)
     public MessageDTO uploadImage(MultipartFile file, String nameProduct) throws IOException{
         class UploadImage{
             MessageDTO uploadImage() throws IOException{
@@ -283,7 +287,9 @@ public class ProductsSer {
         return innerClass.uploadImage();
     }
 
-    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    @CacheEvict(
+        cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, 
+        allEntries = true)
     public MessageDTO deleteImage(String parameter){
         if (parameter.matches(".*[a-zA-Z].*")) {
             Products product = productsRep.findByName(parameter)
@@ -300,7 +306,9 @@ public class ProductsSer {
         return new MessageDTO("Image deleted");
     }
 
-    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    @CacheEvict(
+        cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, 
+        allEntries = true)
     public MessageDTO hideOrShowProduct(boolean visibility, String productName){
         Products product = productsRep.findByName(productName)
             .orElseThrow(() -> new RuntimeException(productNotFound));
@@ -309,7 +317,9 @@ public class ProductsSer {
         return new MessageDTO("Product Updated");
     }
 
-    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    @CacheEvict(
+        cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, 
+        allEntries = true)
     public MessageDTO updateProductInfo(int option, String nameProduct, String newInfo){
         // Find product
         Products product = productsRep.findByName(nameProduct)
@@ -342,7 +352,9 @@ public class ProductsSer {
         return new MessageDTO("Info updated");
     }
 
-    @CacheEvict(cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, allEntries = true)
+    @CacheEvict(
+        cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, 
+        allEntries = true)
     public Boolean createProduct(String categoryName){
 
         Categories category = categoriesRep.findByName(categoryName)
@@ -360,9 +372,10 @@ public class ProductsSer {
         return true;
     }
 
-    public CartResponse getShoppingCartProducts(CartRequest req){
+    public CartResponse getShoppingCartProducts(CartRequest req, boolean admin, boolean pdf) throws Exception{
         CartResponse cartResponse = new CartResponse();
-        cartResponse.setData(new ArrayList<>());
+
+        List<CartDtoRespose> data = new ArrayList<>();
 
         double total = 0;
         int amountOfProducts = 0;
@@ -370,8 +383,13 @@ public class ProductsSer {
             Products product = productsRep.findById(elem.getId())
                 .orElseThrow(() -> new RuntimeException(productNotFound));
 
-            CartDtoRespose cart = new CartDtoRespose();
+            
+            if (admin) product.setUnitPrice(elem.getPrize());
 
+            if (!product.isOpenToPublic() && !admin)
+                throw new RuntimeException("That product does not exist");
+                
+            CartDtoRespose cart = new CartDtoRespose();
             
             if (product.getIdMainImage() != null) {
                 @SuppressWarnings("null")
@@ -380,16 +398,24 @@ public class ProductsSer {
                 cart.setImage(setImageDTO(mainImage));
             }
 
+            if (pdf) {
+                cart.setPrizePDF(String.format("%,.2f", product.getUnitPrice()));
+                cart.setSubtotalPDF(String.format("%,.2f", product.getUnitPrice()*elem.getAmount()));
+            }else{
+                cart.setPrize(product.getUnitPrice());
+                cart.setSubtotal(product.getUnitPrice()*elem.getAmount());
+            }
+
             cart.setId(elem.getId());
             cart.setProductName(product.getName());
-            cart.setPrize(product.getUnitPrice());
             cart.setAmount(elem.getAmount());
-            cart.setSubtotal(product.getUnitPrice()*elem.getAmount());
+            
             total += product.getUnitPrice()*elem.getAmount();
             amountOfProducts += elem.getAmount();
-            cartResponse.getData().add(cart);
+            data.add(cart);
         }
 
+        cartResponse.setData(data);
         cartResponse.setTotal(total);
         cartResponse.setAmountOfProducts(amountOfProducts);
         return cartResponse;
