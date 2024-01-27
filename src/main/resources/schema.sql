@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS categories, images, products, users, roles, users_roles, addresses, users_addresses, orders, orders_products;
+/* DROP TABLE IF EXISTS categories, images, products, users, roles, users_roles, addresses, users_addresses, orders, orders_products;
 
 CREATE TABLE categories (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -68,7 +68,7 @@ CREATE TABLE users_addresses(
 
 CREATE TABLE orders(
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    order_file VARCHAR(13),
+    order_file LONGBLOB,
     status VARCHAR(13),
     id_user BIGINT,
     id_address BIGINT,
@@ -79,10 +79,9 @@ CREATE TABLE orders(
 CREATE TABLE orders_products(
     id_order BIGINT,
     id_product BIGINT,
-    creation_date DATE,
     PRIMARY KEY (id_order, id_product),
     amount INT
 );
 
 ALTER TABLE images
-ADD FOREIGN KEY (id_product) REFERENCES products(id);
+ADD FOREIGN KEY (id_product) REFERENCES products(id); */

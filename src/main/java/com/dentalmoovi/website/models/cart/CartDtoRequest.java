@@ -7,5 +7,6 @@ import lombok.Setter;
 @Setter
 public class CartDtoRequest {
     private long id;
+    private double prize;
     private int amount;
 }

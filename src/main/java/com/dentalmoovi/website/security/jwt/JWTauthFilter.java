@@ -11,14 +11,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.WebUtils;
 
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.security.UserRetrievalService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -41,7 +39,7 @@ public class JWTauthFilter extends OncePerRequestFilter{
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, 
         @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
-            String token = getToken(request);
+            String token = Utils.getToken(request, cookieName);
             if (token != null && jWTprovider.validateToken(token)) {
                 String userName = jWTprovider.getUserNameFromToken(token);
                 UserDetails userRetrieval = userRetrievalService.loadUserByUsername(userName);
@@ -54,12 +52,6 @@ public class JWTauthFilter extends OncePerRequestFilter{
         } finally {
             filterChain.doFilter(request, response);
         }
-    }
-
-    private String getToken(@NonNull HttpServletRequest request){
-        
-        Cookie cookie = WebUtils.getCookie( request, cookieName);
-        return cookie != null ? cookie.getValue() : null;
     }
 
 }

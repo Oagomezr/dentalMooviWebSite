@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,6 +43,9 @@ public class UserSer {
     private final RolesRep rolesRep;
     private final AddressesRep addressesRep;
     private static Logger logger = LoggerFactory.getLogger(UserSer.class);
+
+    @Value("${spring.mail.otherPassword}")
+    private String ref; 
 
     public void sendEmailNotification(String email, String subject, String body) {
         String retrictReplay = cacheSer.getFromReplayCodeRestrict(email);
@@ -103,16 +107,22 @@ public class UserSer {
     }
 
     //verify if user exist
+    @Cacheable("checkEmail")
     public boolean checkEmailExists(String value) {
         return userRep.existsByEmail(value);
     }
 
-    @Cacheable("getUserAuthenticatedCache")
-    public UserDTO getUserAuthenticated(){
+    @Cacheable("getName")
+    public MessageDTO getName(String cacheRef){
+        return new MessageDTO(getUserAuthenticated(cacheRef).getFirstName());
+    }
+    
+    @Cacheable("getUserAuthenticated")
+    public UserDTO getUserAuthenticated(String cacheRef){
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String userName = userDetails.getUsername();
-        Users user= this.userRep.findByEmail(userName)
+        Users user= userRep.findByEmail(userName)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         return Utils.setUserDTO(user.getFirstName(), user.getLastName(), user.getEmail(), user.getCelPhone(), user.getGender(), user.getBirthdate(), null, null);
@@ -122,19 +132,23 @@ public class UserSer {
         Users user = userRep.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return MainUser.build(user, rolesRep);
+        return MainUser.build(user, rolesRep, ref);
     }
 
-    public boolean isAdmin(String email){
+    @Cacheable("getUserDetails")
+    public String getUserDetails(String email){
         MainUser mainUser = getMainUser(email);
-        return mainUser.getAuthorities().stream()
+        boolean isAdmin = mainUser.getAuthorities().stream()
             .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
                 .equals(RolesList.ADMIN_ROLE.name()));
+        if (isAdmin) return "A" + mainUser.getCacheRef();
+
+        return mainUser.getCacheRef();
     }
 
-    @CacheEvict(value = "getUserAuthenticatedCache", allEntries = true)
-    public MessageDTO updateUserInfo(UserDTO userDTO){
-        Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
+    @CacheEvict(value = {"getName", "getUserAuthenticated"}, key = "#cacheRef")
+    public MessageDTO updateUserInfo(UserDTO userDTO, String cacheRef){
+        Users user = userRep.findByEmail(getUserAuthenticated(cacheRef).getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
@@ -145,41 +159,9 @@ public class UserSer {
         return new MessageDTO("User updated");
     }
 
-    @CacheEvict(value = "getAddresses", allEntries = true)
-    public MessageDTO createAddress(AddressesDTO addressDTO){
-            
-        Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        
-        Addresses address = Utils.setAddress(addressDTO.getDepartament(), 
-            addressDTO.getLocation(), addressDTO.getAddress(), addressDTO.getPhone(), 
-            addressDTO.getDescription(), addressesRep);
-        
-        user.addAddress(address);
-        userRep.save(user);
-
-        return new MessageDTO("Address created");
-            
-    }
-
-    @CacheEvict(value = "getAddresses", allEntries = true)
-    public MessageDTO updateAddress(AddressesDTO addressDTO){
-        Addresses address = addressesRep.findById(addressDTO.getId())
-            .orElseThrow(() -> new RuntimeException("Address not found"));
-        logger.info(address.getDescription());
-        address.setDepartament(addressDTO.getDepartament());
-        address.setLocation(addressDTO.getLocation());
-        address.setAddress(addressDTO.getAddress());
-        address.setPhone(addressDTO.getPhone());
-        address.setDescription(addressDTO.getDescription());
-        addressesRep.save(address);
-        return new MessageDTO("Address updated");
-    }
-
     @Cacheable("getAddresses")
-    public AddressesResponse getAddresses(){
-        Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
+    public AddressesResponse getAddresses(String cacheRef){
+        Users user = userRep.findByEmail(getUserAuthenticated(cacheRef).getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
         List<Long> idsAddresses = new ArrayList<>(user.getAddressesIds());
         List<AddressesDTO> addressesDTO = new ArrayList<>();
@@ -200,9 +182,40 @@ public class UserSer {
         return response;
     }
 
-    @CacheEvict(value = "getAddresses", allEntries = true)
-    public MessageDTO deleteAddress(long id){
-        Users user = userRep.findByEmail(getUserAuthenticated().getEmail())
+    @CacheEvict(value = "getAddresses", key = "#cacheRef")
+    public MessageDTO createAddress(AddressesDTO addressDTO, String cacheRef){
+            
+        Users user = userRep.findByEmail(getUserAuthenticated(cacheRef).getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        
+        Addresses address = Utils.setAddress(addressDTO.getDepartament(), 
+            addressDTO.getLocation(), addressDTO.getAddress(), addressDTO.getPhone(), 
+            addressDTO.getDescription(), addressesRep);
+        
+        user.addAddress(address);
+        userRep.save(user);
+
+        return new MessageDTO("Address created");
+    }
+
+    @CacheEvict(value = "getAddresses", key = "#cacheRef")
+    public MessageDTO updateAddress(AddressesDTO addressDTO, String cacheRef){
+        Addresses address = addressesRep.findById(addressDTO.getId())
+            .orElseThrow(() -> new RuntimeException("Address not found"));
+        logger.info(address.getDescription());
+        address.setDepartament(addressDTO.getDepartament());
+        address.setLocation(addressDTO.getLocation());
+        address.setAddress(addressDTO.getAddress());
+        address.setPhone(addressDTO.getPhone());
+        address.setDescription(addressDTO.getDescription());
+        addressesRep.save(address);
+        return new MessageDTO("Address updated");
+    }
+
+    @CacheEvict(value = "getAddresses", key = "#cacheRef")
+    public MessageDTO deleteAddress(long id, String cacheRef){
+        Users user = userRep.findByEmail(getUserAuthenticated(cacheRef).getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
         user.deleteAddress(id);
         userRep.save(user);

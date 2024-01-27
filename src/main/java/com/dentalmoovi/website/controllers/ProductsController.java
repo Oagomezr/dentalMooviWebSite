@@ -159,8 +159,18 @@ public class ProductsController {
     @PostMapping("/public/shoppingCart")
     public ResponseEntity<CartResponse> getShoppingCartProducts(@RequestBody CartRequest req){
         try{
-            return ResponseEntity.ok(productsSer.getShoppingCartProducts(req));
+            return ResponseEntity.ok(productsSer.getShoppingCartProducts(req, false, false));
         } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/admin/shoppingCart")
+    public ResponseEntity<CartResponse> getShoppingCartProductsA(@RequestBody CartRequest req){
+        try{
+            return ResponseEntity.ok(productsSer.getShoppingCartProducts(req, true, false));
+        } catch (Exception e) {
+            logger.debug("error:", e);
             return ResponseEntity.notFound().build();
         }
     }

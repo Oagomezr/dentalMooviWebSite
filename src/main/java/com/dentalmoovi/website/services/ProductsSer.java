@@ -360,9 +360,10 @@ public class ProductsSer {
         return true;
     }
 
-    public CartResponse getShoppingCartProducts(CartRequest req){
+    public CartResponse getShoppingCartProducts(CartRequest req, boolean admin, boolean pdf) throws Exception{
         CartResponse cartResponse = new CartResponse();
-        cartResponse.setData(new ArrayList<>());
+
+        List<CartDtoRespose> data = new ArrayList<>();
 
         double total = 0;
         int amountOfProducts = 0;
@@ -370,8 +371,13 @@ public class ProductsSer {
             Products product = productsRep.findById(elem.getId())
                 .orElseThrow(() -> new RuntimeException(productNotFound));
 
-            CartDtoRespose cart = new CartDtoRespose();
+            
+            if (admin) product.setUnitPrice(elem.getPrize());
 
+            if (!product.isOpenToPublic() && !admin)
+                throw new RuntimeException("That product does not exist");
+                
+            CartDtoRespose cart = new CartDtoRespose();
             
             if (product.getIdMainImage() != null) {
                 @SuppressWarnings("null")
@@ -380,16 +386,24 @@ public class ProductsSer {
                 cart.setImage(setImageDTO(mainImage));
             }
 
+            if (pdf) {
+                cart.setPrizePDF(String.format("%,.2f", product.getUnitPrice()));
+                cart.setSubtotalPDF(String.format("%,.2f", product.getUnitPrice()*elem.getAmount()));
+            }else{
+                cart.setPrize(product.getUnitPrice());
+                cart.setSubtotal(product.getUnitPrice()*elem.getAmount());
+            }
+
             cart.setId(elem.getId());
             cart.setProductName(product.getName());
-            cart.setPrize(product.getUnitPrice());
             cart.setAmount(elem.getAmount());
-            cart.setSubtotal(product.getUnitPrice()*elem.getAmount());
+            
             total += product.getUnitPrice()*elem.getAmount();
             amountOfProducts += elem.getAmount();
-            cartResponse.getData().add(cart);
+            data.add(cart);
         }
 
+        cartResponse.setData(data);
         cartResponse.setTotal(total);
         cartResponse.setAmountOfProducts(amountOfProducts);
         return cartResponse;
