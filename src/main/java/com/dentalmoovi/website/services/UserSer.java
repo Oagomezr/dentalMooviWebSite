@@ -146,11 +146,10 @@ public class UserSer {
         return mainUser.getCacheRef();
     }
 
-    @CacheEvict(
-        value = {"getName", "getUserAuthenticated", "getUserByRep"}, 
-        key = "#cacheRef")
+    @CacheEvict(value = {"getName", "getUserAuthenticated"}, key = "#cacheRef")
     public MessageDTO updateUserInfo(UserDTO userDTO, String cacheRef){
-        Users user = getUserFromRep(cacheRef);
+        Users user = userRep.findByEmail(getUserAuthenticated(cacheRef).getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found"));
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setBirthdate(userDTO.getBirthdate());
