@@ -257,11 +257,12 @@ public class ProductsSer {
                 contentType = contentType.replace("image/", "");
                 originalFileName = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
                 byte[] imageData = resizedImageData != null ? resizedImageData : file.getBytes();
-                Images newImage = Utils.setImage(originalFileName, contentType, imageData, product.getId(), imagesRep);
+
+                Images newImage = imagesRep.save(new Images(null, originalFileName, contentType, imageData, product.getId()));
         
                 // Set the new image as the main image if there is no main image assigned
                 if (product.getIdMainImage() == null) {
-                    product.setIdMainImage(newImage.getId());
+                    product.setIdMainImage(newImage.id());
                     productsRep.save(product);
                 }
                 return new MessageDTO("Image created");
@@ -461,10 +462,10 @@ public class ProductsSer {
             List<Images> productImages = imagesRep.findByIdProduct(product.getId());
             
             productImages.stream().forEach(productImage ->{
-                long idImage = productImage.getId();
-                String imgName = productImage.getName();
-                String contentType = productImage.getContentType();
-                String base64Image = Base64.getEncoder().encodeToString(productImage.getData());
+                long idImage = productImage.id();
+                String imgName = productImage.name();
+                String contentType = productImage.contentType();
+                String base64Image = Base64.getEncoder().encodeToString(productImage.data());
                 ImagesDTO imageDTO = setImageDTO(idImage ,imgName, contentType, base64Image);
 
                 if (mainImage.equals(productImage)) productImagesDTO.add(0, imageDTO);
@@ -481,10 +482,10 @@ public class ProductsSer {
 
     private ImagesDTO setImageDTO(Images image){
 
-        long idMainImage = image.getId();
-        String imgName = image.getName();
-        String contentType = image.getContentType();
-        String base64Image = Base64.getEncoder().encodeToString(image.getData());
+        long idMainImage = image.id();
+        String imgName = image.name();
+        String contentType = image.contentType();
+        String base64Image = Base64.getEncoder().encodeToString(image.data());
 
         return setImageDTO(idMainImage , imgName, contentType, base64Image);
     }

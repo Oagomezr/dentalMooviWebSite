@@ -2,7 +2,6 @@ package com.dentalmoovi.website;
 
 import com.dentalmoovi.website.models.cart.CartRequest;
 import com.dentalmoovi.website.models.dtos.UserDTO;
-import com.dentalmoovi.website.models.entities.Images;
 import com.dentalmoovi.website.models.entities.Orders;
 import com.dentalmoovi.website.models.entities.Products;
 import com.dentalmoovi.website.models.entities.Roles;
@@ -10,7 +9,6 @@ import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.entities.enums.GenderList;
 import com.dentalmoovi.website.models.entities.enums.RolesList;
 import com.dentalmoovi.website.models.entities.enums.StatusOrderList;
-import com.dentalmoovi.website.repositories.ImgRep;
 import com.dentalmoovi.website.repositories.OrdersRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
 import com.dentalmoovi.website.repositories.RolesRep;
@@ -116,16 +114,6 @@ public class Utils {
         userDTO.setCode(code);
         userDTO.setPassword(password);
         return userDTO;
-    }
-
-    public static Images setImage(String name, String contentType, byte[] data, Long idProduct, ImgRep repository){
-        Images img = new Images();
-        img.setName(name);
-        img.setContentType(contentType);
-        img.setData(data);
-        img.setIdProduct(idProduct);
-        img = repository.save(img);
-        return img;
     }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
