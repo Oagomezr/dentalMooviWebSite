@@ -164,8 +164,8 @@ class ProductsSerUnitTest {
         List<Products> productsTest = List.of(productosubX1one, productosubX2one, productosubY1one, productosubSubX1one);
 
         productsTest.stream().forEach(productTest ->{
-            ProductsDTO expected = productsSer.getProduct(productTest.getName(),false);
-            assertEquals(expected.getNameProduct(), productTest.getName());
+            ProductsDTO expected = productsSer.getProduct(productTest.name(),false);
+            assertEquals(expected.getNameProduct(), productTest.name());
         });
     }
 
@@ -228,14 +228,7 @@ class ProductsSerUnitTest {
     }
 
     private static Products setProduct(Long id, String name, String description, double unitprice, int stock, Long idCategory, boolean openToPublic){
-        Products product = new Products();
-        product.setId(id);
-        product.setName(name);
-        product.setDescription(description);
-        product.setUnitPrice(unitprice);
-        product.setStock(stock);
-        product.setIdCategory(idCategory);
-        product.setOpenToPublic(openToPublic);
-        return product;
+        
+        return new Products(id, name, description, null, unitprice, stock, openToPublic, null, idCategory);
     }
 }

@@ -89,9 +89,7 @@ class UserSetUnitTest {
 
         UserDTO userDTO1 = Utils.setUserDTO("userDTO1", "DTO", "test@exist.co", "333-3333-3333", GenderList.UNDEFINED, null, "123456", "password");
         UserDTO userDTO2 = Utils.setUserDTO("userDTO2", "DTO", "testno@exist.co", "222-2222-2222", GenderList.UNDEFINED, null, "654321", "password");
-        Roles defaultRole = new Roles();
-        defaultRole.setId(1L);
-        defaultRole.setRole(RolesList.USER_ROLE);
+        Roles defaultRole = new Roles(1L, RolesList.USER_ROLE);
 
         when(cacheSer.getFromRegistrationCache(Mockito.any())).thenAnswer(invocation -> {
             String email = invocation.getArgument(0);

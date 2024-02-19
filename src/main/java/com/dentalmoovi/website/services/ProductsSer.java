@@ -18,7 +18,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.cart.CartDtoRequest;
 import com.dentalmoovi.website.models.cart.CartDtoRespose;
 import com.dentalmoovi.website.models.cart.CartRequest;
@@ -70,7 +69,7 @@ public class ProductsSer {
                 );
                 
                 //We have all products but unorganized, we organize them alphabetical
-                Collections.sort(allProducts, (product1, product2) -> product1.getName().compareTo(product2.getName()));
+                Collections.sort(allProducts, (product1, product2) -> product1.name().compareTo(product2.name()));
 
                 /*We cannot show the costumer N amount of products if N is a high number,
                 so we need to do pagination*/
@@ -117,12 +116,12 @@ public class ProductsSer {
                 Products product = productsRep.findByName(name)
                     .orElseThrow(() -> new RuntimeException(productNotFound));
 
-                if (!admin && !product.isOpenToPublic())
+                if (!admin && !product.openToPublic())
                     throw new RuntimeException("Something wrong");
                 
                 //Get product's category
                 @SuppressWarnings("null")
-                Categories category = categoriesRep.findById(product.getIdCategory())
+                Categories category = categoriesRep.findById(product.idCategory())
                     .orElseThrow(() -> new RuntimeException(categoryNotFound));
 
                 //Get location producto since parent category until its subcategory
@@ -131,11 +130,11 @@ public class ProductsSer {
                 //Get Product images
                 List<ImagesDTO> productImagesDTO = getProductImages(product, true);
 
-                ProductsDTO productsDTO = setProductDTO(product.getId() , name, product.getUnitPrice(), product.getDescription(), 
-                                            product.getShortDescription(), product.getStock(), productImagesDTO);
+                ProductsDTO productsDTO = setProductDTO(product.id() , name, product.unitPrice(), product.description(), 
+                                            product.shortDescription(), product.stock(), productImagesDTO);
                 productsDTO.setLocation(location);
 
-                if (admin && !product.isOpenToPublic())
+                if (admin && !product.openToPublic())
                     productsDTO.setHidden("yes");
 
                 return productsDTO;
@@ -201,8 +200,7 @@ public class ProductsSer {
     public MessageDTO updateMainImage(long idImage, String productName){
         Products product = productsRep.findByName(productName)
             .orElseThrow(() -> new RuntimeException(productNotFound));
-        product.setIdMainImage(idImage);
-        productsRep.save(product);
+        productsRep.save(new Products(product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), product.stock(), product.openToPublic(), idImage, product.idCategory()));
         return new MessageDTO("Main product image updated");
     }
 
@@ -258,12 +256,14 @@ public class ProductsSer {
                 originalFileName = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
                 byte[] imageData = resizedImageData != null ? resizedImageData : file.getBytes();
 
-                Images newImage = imagesRep.save(new Images(null, originalFileName, contentType, imageData, product.getId()));
+                Images newImage = imagesRep.save(new Images(null, originalFileName, contentType, imageData, product.id()));
         
                 // Set the new image as the main image if there is no main image assigned
-                if (product.getIdMainImage() == null) {
-                    product.setIdMainImage(newImage.id());
-                    productsRep.save(product);
+                if (product.idMainImage() == null) {
+                    productsRep.save(
+                        new Products(
+                            product.id(), product.name(), product.description(), product.shortDescription(), 
+                            product.unitPrice(), product.stock(), product.openToPublic(), newImage.id(), product.idCategory()));
                 }
                 return new MessageDTO("Image created");
             }
@@ -295,9 +295,11 @@ public class ProductsSer {
         if (parameter.matches(".*[a-zA-Z].*")) {
             Products product = productsRep.findByName(parameter)
                 .orElseThrow(() -> new RuntimeException(productNotFound));
-            long idImage = product.getIdMainImage();
-            product.setIdMainImage(null);
-            productsRep.save(product);
+            long idImage = product.idMainImage();
+            productsRep.save(
+                new Products(
+                    product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
+                    product.stock(), product.openToPublic(), null, product.idCategory()));
             imagesRep.deleteById(idImage);
         }else{
             long idImage = Long.parseLong(parameter);
@@ -313,8 +315,9 @@ public class ProductsSer {
     public MessageDTO hideOrShowProduct(boolean visibility, String productName){
         Products product = productsRep.findByName(productName)
             .orElseThrow(() -> new RuntimeException(productNotFound));
-        product.setOpenToPublic(visibility);
-        productsRep.save(product);
+        productsRep.save(new Products(
+            product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
+            product.stock(), visibility, product.idMainImage(), product.idCategory()));
         return new MessageDTO("Product Updated");
     }
 
@@ -325,26 +328,33 @@ public class ProductsSer {
         // Find product
         Products product = productsRep.findByName(nameProduct)
             .orElseThrow(() -> new RuntimeException(productNotFound));
+
+        
         switch (option) {
             case 0:
-                product.setName(newInfo);
-                productsRep.save(product);
+                productsRep.save(new Products(
+                    product.id(), newInfo, product.description(), product.shortDescription(), product.unitPrice(), 
+                    product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
             break;
             case 1:
-                product.setUnitPrice(Double.parseDouble(newInfo));
-                productsRep.save(product);
+                productsRep.save(new Products(
+                    product.id(), product.name(), product.description(), product.shortDescription(), Double.parseDouble(newInfo), 
+                    product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
             break;
             case 2:
-                product.setDescription(newInfo);
-                productsRep.save(product);
+                productsRep.save(new Products(
+                    product.id(), product.name(), newInfo, product.shortDescription(), product.unitPrice(), 
+                    product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
             break;
             case 3:
-                product.setStock(Integer.parseInt(newInfo));
-                productsRep.save(product);
+                productsRep.save(new Products(
+                    product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
+                    Integer.parseInt(newInfo), product.openToPublic(), product.idMainImage(), product.idCategory()));
             break;
             case 4:
-                product.setShortDescription(newInfo);
-                productsRep.save(product);
+                productsRep.save(new Products(
+                    product.id(), product.name(), product.description(), newInfo, product.unitPrice(), 
+                    product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
             break;
         
             default:
@@ -364,16 +374,15 @@ public class ProductsSer {
         if (Boolean.TRUE.equals(productsRep.existsByName("Nombre del nuevo producto"))) {
             Products product = productsRep.findByName("Nombre del nuevo producto")
                 .orElseThrow(() -> new RuntimeException(productNotFound));
-            product.setIdCategory(category.id());
-            productsRep.save(product);
+            productsRep.save(new Products(
+                    product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
+                    product.stock(), product.openToPublic(), product.idMainImage(), category.id()));
             return false;
         }
-        
-        Utils.setProduct(
-            "Nombre del nuevo producto", 
-            "Descripción del nuevo producto", 
-            "descripción corta del nuevo producto", 
-            0, 0, category.id(), false, productsRep);
+
+        productsRep.save(new Products(
+            null, "Nombre del nuevo producto", "Descripción del nuevo producto", "descripción corta del nuevo producto", 0, 
+            0, false, null, category.id()));
             
         return true;
     }
@@ -390,33 +399,36 @@ public class ProductsSer {
                 .orElseThrow(() -> new RuntimeException(productNotFound));
 
             
-            if (admin) product.setUnitPrice(elem.getPrize());
+            
+            if (admin) product = new Products(
+                product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
+                product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory());
 
-            if (!product.isOpenToPublic() && !admin)
+            if (!product.openToPublic() && !admin)
                 throw new RuntimeException("That product does not exist");
                 
             CartDtoRespose cart = new CartDtoRespose();
             
-            if (product.getIdMainImage() != null) {
+            if (product.idMainImage() != null) {
                 @SuppressWarnings("null")
-                Images mainImage = imagesRep.findById(product.getIdMainImage())
+                Images mainImage = imagesRep.findById(product.idMainImage())
                     .orElseThrow(() -> new RuntimeException("Image not found"));
                 cart.setImage(setImageDTO(mainImage));
             }
 
             if (pdf) {
-                cart.setPrizePDF(String.format("%,.2f", product.getUnitPrice()));
-                cart.setSubtotalPDF(String.format("%,.2f", product.getUnitPrice()*elem.getAmount()));
+                cart.setPrizePDF(String.format("%,.2f", product.unitPrice()));
+                cart.setSubtotalPDF(String.format("%,.2f", product.unitPrice()*elem.getAmount()));
             }else{
-                cart.setPrize(product.getUnitPrice());
-                cart.setSubtotal(product.getUnitPrice()*elem.getAmount());
+                cart.setPrize(product.unitPrice());
+                cart.setSubtotal(product.unitPrice()*elem.getAmount());
             }
 
             cart.setId(elem.getId());
-            cart.setProductName(product.getName());
+            cart.setProductName(product.name());
             cart.setAmount(elem.getAmount());
             
-            total += product.getUnitPrice()*elem.getAmount();
+            total += product.unitPrice()*elem.getAmount();
             amountOfProducts += elem.getAmount();
             data.add(cart);
         }
@@ -434,11 +446,11 @@ public class ProductsSer {
         
         productsList.stream().forEach(product ->{
             try {
-                if(product.isOpenToPublic() || all){
+                if(product.openToPublic() || all){
                     List<ImagesDTO> productImagesDTO = getProductImages(product, false);
-                    ProductsDTO productDTO = setProductDTO(product.getId() , product.getName(), product.getUnitPrice(), 
-                        product.getDescription(), product.getShortDescription(), product.getStock(), productImagesDTO);
-                    if (!product.isOpenToPublic()) productDTO.setHidden("Yes");
+                    ProductsDTO productDTO = setProductDTO(product.id() , product.name(), product.unitPrice(), 
+                        product.description(), product.shortDescription(), product.stock(), productImagesDTO);
+                    if (!product.openToPublic()) productDTO.setHidden("Yes");
                     productsDTOList.add(productDTO);
                 }
             } catch (Exception e) {
@@ -452,14 +464,14 @@ public class ProductsSer {
     //This function allow us to find one or all product images
     private List<ImagesDTO> getProductImages(Products product, boolean allImages){
         List<ImagesDTO> productImagesDTO = new ArrayList<>();
-        if(product.getIdMainImage() == null) return productImagesDTO;
+        if(product.idMainImage() == null) return productImagesDTO;
 
         @SuppressWarnings("null")
-        Images mainImage = imagesRep.findById(product.getIdMainImage())
+        Images mainImage = imagesRep.findById(product.idMainImage())
                 .orElseThrow(() -> new RuntimeException("Image not found"));
 
         if(allImages){
-            List<Images> productImages = imagesRep.findByIdProduct(product.getId());
+            List<Images> productImages = imagesRep.findByIdProduct(product.id());
             
             productImages.stream().forEach(productImage ->{
                 long idImage = productImage.id();

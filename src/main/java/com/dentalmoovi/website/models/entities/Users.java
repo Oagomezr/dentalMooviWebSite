@@ -36,7 +36,7 @@ public class Users {
     private Set<UsersAddresses> addresses = new HashSet<>();
 
     public void addRole(Roles role){
-        this.roles.add(new UsersRoles(id, role.getId()));
+        this.roles.add(new UsersRoles(id, role.id()));
     }
 
     public Set<Long> getRolesIds(){

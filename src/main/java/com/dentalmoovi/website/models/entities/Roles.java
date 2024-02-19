@@ -4,14 +4,8 @@ import org.springframework.data.annotation.Id;
 
 import com.dentalmoovi.website.models.entities.enums.RolesList;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+public record Roles(
+    @Id Long id,
+    RolesList role
+) {}
 
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Roles {
-    @Id
-    private Long id;
-    @EqualsAndHashCode.Include
-    private RolesList role;
-}

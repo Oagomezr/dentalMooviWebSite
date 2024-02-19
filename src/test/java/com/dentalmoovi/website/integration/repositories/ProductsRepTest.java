@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Products;
 import com.dentalmoovi.website.repositories.CategoriesRep;
@@ -35,16 +34,16 @@ class ProductsRepTest {
         categoryX = categoriesRep.save(new Categories(null, "categoryX", null));
         categoryY = categoriesRep.save(new Categories(null, "categoryY", null));
 
-        productX1 = Utils.setProduct("productX1", "description productX1","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
-        Utils.setProduct("productX2", "description productX2","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
-        Utils.setProduct("productX3", "description productX3","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
-        Utils.setProduct("productX4", "description productX4","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
-        Utils.setProduct("productX5", "description productX5","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
-        Utils.setProduct("productX6", "description productX6","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
-        Utils.setProduct("productY1", "description productY1","shortDescription", 1200, 4, categoryY.id(), true, productsRep);
-        Utils.setProduct("productY2", "description productY2","shortDescription", 1200, 4, categoryY.id(), true, productsRep);
-        Utils.setProduct("productY3", "description productY3","shortDescription", 1200, 4, categoryY.id(), true, productsRep);
-        Utils.setProduct("productY4", "description productY4","shortDescription", 1200, 4, categoryY.id(), true, productsRep);
+        productX1 = productsRep.save(new Products(null, "productX1", "description productX1","shortDescription", 1200, 4, true, null, categoryX.id()));
+        productsRep.save(new Products(null, "productX2", "description productX2","shortDescription", 1200, 4, true, null, categoryX.id()));
+        productsRep.save(new Products(null, "productX3", "description productX3","shortDescription", 1200, 4, true, null, categoryX.id()));
+        productsRep.save(new Products(null, "productX4", "description productX4","shortDescription", 1200, 4, true, null, categoryX.id()));
+        productsRep.save(new Products(null, "productX5", "description productX5","shortDescription", 1200, 4, true, null, categoryX.id()));
+        productsRep.save(new Products(null, "productX6", "description productX6","shortDescription", 1200, 4, true, null, categoryX.id()));
+        productsRep.save(new Products(null, "productY1", "description productY1","shortDescription", 1200, 4, true, null, categoryY.id()));
+        productsRep.save(new Products(null, "productY2", "description productY2","shortDescription", 1200, 4, true, null, categoryY.id()));
+        productsRep.save(new Products(null, "productY3", "description productY3","shortDescription", 1200, 4, true, null, categoryY.id()));
+        productsRep.save(new Products(null, "productY4", "description productY4","shortDescription", 1200, 4, true, null, categoryY.id()));
     }
 
     @Test
@@ -57,7 +56,7 @@ class ProductsRepTest {
 
     @Test
     void findByNameTest() throws Exception{
-        Products product = productsRep.findByName(productX1.getName())
+        Products product = productsRep.findByName(productX1.name())
                             .orElseThrow(() -> new Exception("Product not found"));
         assertEquals(product, productX1);
     }

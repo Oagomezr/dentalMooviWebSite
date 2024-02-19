@@ -3,15 +3,11 @@ package com.dentalmoovi.website;
 import com.dentalmoovi.website.models.cart.CartRequest;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Orders;
-import com.dentalmoovi.website.models.entities.Products;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.entities.enums.GenderList;
-import com.dentalmoovi.website.models.entities.enums.RolesList;
 import com.dentalmoovi.website.models.entities.enums.StatusOrderList;
 import com.dentalmoovi.website.repositories.OrdersRep;
-import com.dentalmoovi.website.repositories.ProductsRep;
-import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,7 +53,7 @@ public class Utils {
         hsr.addCookie(cookie);
     }
 
-    public static Products setProduct(String name, String description, String shortDescription, double unitPrice, int stock, 
+    /* public static Products setProduct(String name, String description, String shortDescription, double unitPrice, int stock, 
                                         Long idCategory, boolean openToPublic, ProductsRep repository){
         Products product = new Products();
         product.setName(name);
@@ -69,7 +65,7 @@ public class Utils {
         product.setOpenToPublic(openToPublic);
         product = repository.save(product);
         return product;
-    }
+    } */
 
     public static Users setUser(String firstName, String lastName, String email, String celPhone, GenderList gender,
                                 String password, LocalDate birthdate, Roles role , UserRep repository){
@@ -86,12 +82,12 @@ public class Utils {
         return user;
     }
 
-    public static Roles setRole(RolesList roleType, RolesRep repository){
+    /* public static Roles setRole(RolesList roleType, RolesRep repository){
         Roles role = new Roles();
         role.setRole(roleType);
         role = repository.save(role);
         return role;
-    }
+    } */
 
     public static byte[] loadImageData(String imagePath) {
         try {

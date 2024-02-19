@@ -33,7 +33,7 @@ public class MainUser implements UserDetails{
             .collect(Collectors.toList());
 
         List<GrantedAuthority> authorities = roles.stream()
-            .map(role -> new SimpleGrantedAuthority(role.getRole().name()))
+            .map(role -> new SimpleGrantedAuthority(role.role().name()))
             .collect(Collectors.toList());
 
         String cacheRef = String.valueOf(user.getId() + ref.length());

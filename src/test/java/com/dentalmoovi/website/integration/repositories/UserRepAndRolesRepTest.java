@@ -40,8 +40,8 @@ class UserRepAndRolesRepTest {
 
     @BeforeAll
     static void setUp(@Autowired UserRep usersRep, @Autowired RolesRep rolesRep){
-        userRole = Utils.setRole(RolesList.USER_ROLE, rolesRep);
-        adminRole = Utils.setRole(RolesList.ADMIN_ROLE, rolesRep);
+        userRole = rolesRep.save(new Roles(null, RolesList.USER_ROLE));
+        adminRole = rolesRep.save(new Roles(null, RolesList.ADMIN_ROLE));
 
         user1 = Utils.setUser("one", "number", "one@mail.com", "0123456789", GenderList.FEMALE, "12345", null, userRole, usersRep);
         user2 = Utils.setUser("two", "number", "two@mail.com", "9876543210", GenderList.MALE, "12345", null, userRole, usersRep);

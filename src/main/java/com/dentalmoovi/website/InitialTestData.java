@@ -1,10 +1,5 @@
 package com.dentalmoovi.website;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -47,16 +42,10 @@ public class InitialTestData {
     public void init(){
 
         //Roles Part ----------------------------------------------------------------------------------------------
-        Set<Roles> rolesSet = new HashSet<>();
+        
 
-        Roles user = new Roles();
-        user.setRole(RolesList.USER_ROLE);
-        Roles admin = new Roles();
-        admin.setRole(RolesList.ADMIN_ROLE);
-
-        rolesSet.add( user );
-        rolesSet.add( admin );
-        rolesRep.saveAll(rolesSet);
+        rolesRep.save(new Roles(null, RolesList.USER_ROLE));
+        rolesRep.save(new Roles(null, RolesList.ADMIN_ROLE));
 
         //User Part ---------------------------------------------------------------
         UserDTO dentalMooviDTO = Utils.setUserDTO("Dental", "Moovi", email, "314-453-6435", GenderList.UNDEFINED, null, "123456", password);
@@ -118,198 +107,232 @@ public class InitialTestData {
             Categories reconstructor = categoriesRep.save(new Categories(null, "RECONSTRUCTOR", rehabilitacionOral.id()));
             Categories resinas = categoriesRep.save(new Categories(null, "RESINAS", rehabilitacionOral.id()));
 
-        Set<Products> products = new HashSet<>();
-
-        Products adhesivo1 = Utils.setProduct("Adhesivo1", "description adhesivo1", "descripción corta", 13000,4, adhesivos.id(), true, productsRep);
-        Products adhesivo2 = Utils.setProduct("Adhesivo2", "description adhesivo2", "descripción corta", 13000,4, adhesivos.id(), false, productsRep);
-        Products alambre1 = Utils.setProduct("Alambre1", "description alambre1", "descripción corta", 13000,4, alambres.id(), true, productsRep);
-        Products alambre2 = Utils.setProduct("Alambre2", "description alambre2", "descripción corta", 13000,4, alambres.id(), true, productsRep);
-        Products arco1 = Utils.setProduct("Arco1", "description arco1", "descripción corta", 13000,4, arcos.id(), true, productsRep);
-        Products arco2 = Utils.setProduct("Arco2", "description arco2", "descripción corta", 13000,4, arcos.id(), true, productsRep);
-        Products auxiliar1 = Utils.setProduct("Auxiliar1", "description Auxiliar1", "descripción corta", 13000,4, auxiliares.id(), true, productsRep);
-        Products auxiliar2 = Utils.setProduct("auxiliar2", "description auxiliar2", "descripción corta", 13000,4, auxiliares.id(), true, productsRep);
-        Products bisacrilico1 = Utils.setProduct("bisacrilico1", "description bisacrilico1", "descripción corta", 13000,4, bisacrilicos.id(), true, productsRep);
-        Products bisacrilico2 = Utils.setProduct("bisacrilico2", "description bisacrilico2", "descripción corta", 13000,4, bisacrilicos.id(), true, productsRep);
-        Products carrierBraket1 = Utils.setProduct("carrierBraket1", "description carrierBraket1", "descripción corta", 13000,4, brakets.id(), true, productsRep);
-        Products cemento1 = Utils.setProduct("cemento1", "description cemento1", "descripción corta", 13000,4, cemento.id(), true, productsRep);
-        Products cepilloOral = Utils.setProduct("cepilloOral", "description cepilloOral", "descripción corta", 13000,4, cuidadoDental.id(), true, productsRep);
-        Products compomero1 = Utils.setProduct("compomero1", "description compomero1", "descripción corta", 13000,4, compomeros.id(), true, productsRep);
-        Products compomero2 = Utils.setProduct("compomero2", "description compomero2", "descripción corta", 13000,4, compomeros.id(), true, productsRep);
-        Products deltaForceBraket1 = Utils.setProduct("deltaForceBraket1", "description deltaForceBraket1", "descripción corta", 13000,4, brakets.id(), true, productsRep);
-        Products distalizador1 = Utils.setProduct("distalizador1", "description distalizador1", "descripción corta", 13000,4, distalizador.id(), true, productsRep);
-        Products distalizador2 = Utils.setProduct("distalizador2", "description distalizador2", "descripción corta", 13000,4, distalizador.id(), true, productsRep);
-        Products elastomeros1 = Utils.setProduct("elastomeros1", "description elastomeros1", "descripción corta", 13000,4, elastomeros.id(), true, productsRep);
-        Products elastomeros2 = Utils.setProduct("elastomeros2", "description elastomeros2", "descripción corta", 13000,4, elastomeros.id(), true, productsRep);
-        Products estandarBraket1 = Utils.setProduct("estandarBraket1", "description estandarBraket1", "descripción corta", 13000,4, brakets.id(), true, productsRep);
-        Products estandarBraket2 = Utils.setProduct("estandarBraket2", "description estandarBraket2", "descripción corta", 13000,4, brakets.id(), true, productsRep);
-        Products guantesLatex = Utils.setProduct("guantesLatex", "description guantesLatex", "descripción corta", 13000,4, desechables.id(), true, productsRep);
-        Products hojaBisturi1 = Utils.setProduct("hojaBisturi1", "description hojaBisturi1", "descripción corta", 13000,4, hojaBisturi.id(), true, productsRep);
-        Products hojaBisturi2 = Utils.setProduct("hojaBisturi2", "description hojaBisturi2", "descripción corta", 13000,4, hojaBisturi.id(), true, productsRep);
-        Products instrumentoOrtodoncia1 = Utils.setProduct("instrumentoOrtodoncia1", "description instrumentoOrtodoncia1", "descripción corta", 13000,4, instrumentosOrtodonticos.id(), true, productsRep);
-        Products instrumentoOrtodoncia2 = Utils.setProduct("instrumentoOrtodoncia2", "description instrumentoOrtodoncia2", "descripción corta", 13000,4, instrumentosOrtodonticos.id(), true, productsRep);
-        Products jeringa1 = Utils.setProduct("jeringa1", "description jeringa1", "descripción corta", 13000,4, jeringas.id(), true, productsRep);
-        Products jeringa2 = Utils.setProduct("jeringa2", "description jeringa2", "descripción corta", 13000,4, jeringas.id(), true, productsRep);
-        Products mango1 = Utils.setProduct("mango1", "description mango1", "descripción corta", 13000,4, mangoBisturi.id(), true, productsRep);
-        Products mango2 = Utils.setProduct("mango2", "description mango2", "descripción corta", 13000,4, mangoBisturi.id(), true, productsRep);
-        Products mBTBraket1 = Utils.setProduct("mBTBraket1", "description mBTBraket1", "descripción corta", 13000,4, mbt.id(), true, productsRep);
-        Products mBTBraket2 = Utils.setProduct("mBTBraket2", "description mBTBraket2", "descripción corta", 13000,4, mbt.id(), true, productsRep);
-        Products ortopedia1 = Utils.setProduct("ortopedia1", "description ortopedia1", "descripción corta", 13000,4, ortopedia.id(), true, productsRep);
-        Products ortopedia2 = Utils.setProduct("ortopedia2", "description ortopedia2", "descripción corta", 13000,4, ortopedia.id(), true, productsRep);
-        Products pinzaDental1 = Utils.setProduct("pinzaDental1", "description pinzaDental1", "descripción corta", 13000,4, pinzasDental.id(), true, productsRep);
-        Products pinzaDental2 = Utils.setProduct("pinzaDental2", "description pinzaDental2", "descripción corta", 13000,4, pinzasDental.id(), true, productsRep);
-        Products pinzaOrtodoncia1 = Utils.setProduct("pinzaOrtodoncia1", "description pinzaOrtodoncia1", "descripción corta", 13000,4, pinzasOrtodoncia.id(), true, productsRep);
-        Products pinzaOrtodoncia2 = Utils.setProduct("pinzaOrtodoncia2", "description pinzaOrtodoncia2", "descripción corta", 13000,4, pinzasOrtodoncia.id(), true, productsRep);
-        Products portaAguja1 = Utils.setProduct("portaAguja1", "description portaAguja1", "descripción corta", 13000,4, portaAgujas.id(), true, productsRep);
-        Products portaAguja2 = Utils.setProduct("portaAguja2", "description portaAguja2", "descripción corta", 13000,4, portaAgujas.id(), true, productsRep);
-        Products protectorCepillo = Utils.setProduct("protectorCepillo", "description protectorCepillo", "descripción corta", 13000,4, cuidadoDental.id(), true, productsRep);
-        Products provisional1 = Utils.setProduct("provicionales1", "description provicionales1", "descripción corta", 13000,4, provisionales.id(), true, productsRep);
-        Products provisional2 = Utils.setProduct("provicionales2", "description provicionales2", "descripción corta", 13000,4, provisionales.id(), true, productsRep);
-        Products rebase1 = Utils.setProduct("rebase1", "description rebase1", "descripción corta", 13000,4, rebases.id(), true, productsRep);
-        Products rebase2 = Utils.setProduct("rebase2", "description rebase2", "descripción corta", 13000,4, rebases.id(), true, productsRep);
-        Products reconstructor1 = Utils.setProduct("reconstructor1", "description reconstructor1", "descripción corta", 13000,4, reconstructor.id(), true, productsRep);
-        Products reconstructor2 = Utils.setProduct("reconstructor2", "description reconstructor2", "descripción corta", 13000,4, reconstructor.id(), true, productsRep);
-        Products resina1 = Utils.setProduct("resina1", "description resina1", "descripción corta", 13000,4, resinas.id(), true, productsRep);
-        Products resina2 = Utils.setProduct("resina2", "description resina2", "descripción corta", 13000,4, resinas.id(), true, productsRep);
-        Products rothBraket1 = Utils.setProduct("rothBraket1", "description rothBraket1", "descripción corta", 13000,4, roth.id(), true, productsRep);
-        Products rothBraket2 = Utils.setProduct("rothBraket2", "description rothBraket2", "descripción corta", 13000,4, roth.id(), true, productsRep);
-        Products tapaBocas1 = Utils.setProduct("tapabocas1", "description tapabocas1", "descripción corta", 13000,4, desechables.id(), true, productsRep);
-        Products tigera1 = Utils.setProduct("tigera1", "description tigera1", "descripción corta", 13000,4, tijeras.id(), true, productsRep);
-        Products tubo1 = Utils.setProduct("tubo1", "description tubo1", "descripción corta", 13000,4, tubos.id(), true, productsRep);
-        Products tubo2 = Utils.setProduct("tubo2", "description tubo2", "descripción corta", 13000,4, tubos.id(), true, productsRep);
-
-        List<Images> images = new ArrayList<>();
         
-        imagesRep.save(new Images(null, "adhesivo1-2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\adhesivo2.jpg"), adhesivo1.getId()));
-        /* Images adhesivo13Image= */ imagesRep.save(new Images(null, "adhesivo1-3Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\alambre1.jpeg"), adhesivo1.getId()));
-        /* Images adhesivo14Image= */ imagesRep.save(new Images(null, "adhesivo1-4Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\alambre2.jpg"), adhesivo1.getId()));
-        Images adhesivo1Image= imagesRep.save(new Images(null, "adhesivo1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\adhesivo1.jpg"), adhesivo1.getId()));
+        Products adhesivo1 =  productsRep.save(new Products(null, "Adhesivo1", "description adhesivo1", "descripción corta", 13000,4, true, null, adhesivos.id()));
+        Products alambre1 =  productsRep.save(new Products(null, "Alambre1", "description alambre1", "descripción corta", 13000,4, true, null, alambres.id()));
+        Products alambre2 =  productsRep.save(new Products(null, "Alambre2", "description alambre2", "descripción corta", 13000,4, true, null, alambres.id()));
+        Products arco1 =  productsRep.save(new Products(null, "Arco1", "description arco1", "descripción corta", 13000,4, true, null, arcos.id()));
+        Products arco2 =  productsRep.save(new Products(null, "Arco2", "description arco2", "descripción corta", 13000,4, true, null, arcos.id()));
+        Products auxiliar1 =  productsRep.save(new Products(null, "Auxiliar1", "description Auxiliar1", "descripción corta", 13000,4, true, null, auxiliares.id()));
+        Products auxiliar2 =  productsRep.save(new Products(null, "auxiliar2", "description auxiliar2", "descripción corta", 13000,4, true, null, auxiliares.id()));
+        Products bisacrilico1 =  productsRep.save(new Products(null, "bisacrilico1", "description bisacrilico1", "descripción corta", 13000,4, true, null, bisacrilicos.id()));
+        Products bisacrilico2 =  productsRep.save(new Products(null, "bisacrilico2", "description bisacrilico2", "descripción corta", 13000,4, true, null, bisacrilicos.id()));
+        Products carrierBraket1 =  productsRep.save(new Products(null, "carrierBraket1", "description carrierBraket1", "descripción corta", 13000,4, true, null, brakets.id()));
+        Products cemento1 =  productsRep.save(new Products(null, "cemento1", "description cemento1", "descripción corta", 13000,4, true, null, cemento.id()));
+        Products cepilloOral =  productsRep.save(new Products(null, "cepilloOral", "description cepilloOral", "descripción corta", 13000,4, true, null, cuidadoDental.id()));
+        Products compomero1 =  productsRep.save(new Products(null, "compomero1", "description compomero1", "descripción corta", 13000,4, true, null, compomeros.id()));
+        Products compomero2 =  productsRep.save(new Products(null, "compomero2", "description compomero2", "descripción corta", 13000,4, true, null, compomeros.id()));
+        Products deltaForceBraket1 =  productsRep.save(new Products(null, "deltaForceBraket1", "description deltaForceBraket1", "descripción corta", 13000,4, true, null, brakets.id()));
+        Products distalizador1 =  productsRep.save(new Products(null, "distalizador1", "description distalizador1", "descripción corta", 13000,4, true, null, distalizador.id()));
+        Products distalizador2 =  productsRep.save(new Products(null, "distalizador2", "description distalizador2", "descripción corta", 13000,4, true, null, distalizador.id()));
+        Products elastomeros1 =  productsRep.save(new Products(null, "elastomeros1", "description elastomeros1", "descripción corta", 13000,4, true, null, elastomeros.id()));
+        Products elastomeros2 =  productsRep.save(new Products(null, "elastomeros2", "description elastomeros2", "descripción corta", 13000,4, true, null, elastomeros.id()));
+        Products estandarBraket1 =  productsRep.save(new Products(null, "estandarBraket1", "description estandarBraket1", "descripción corta", 13000,4, true, null, brakets.id()));
+        Products estandarBraket2 =  productsRep.save(new Products(null, "estandarBraket2", "description estandarBraket2", "descripción corta", 13000,4, true, null, brakets.id()));
+        Products guantesLatex =  productsRep.save(new Products(null, "guantesLatex", "description guantesLatex", "descripción corta", 13000,4, true, null, desechables.id()));
+        Products hojaBisturi1 =  productsRep.save(new Products(null, "hojaBisturi1", "description hojaBisturi1", "descripción corta", 13000,4, true, null, hojaBisturi.id()));
+        Products hojaBisturi2 =  productsRep.save(new Products(null, "hojaBisturi2", "description hojaBisturi2", "descripción corta", 13000,4, true, null, hojaBisturi.id()));
+        Products instrumentoOrtodoncia1 =  productsRep.save(new Products(null, "instrumentoOrtodoncia1", "description instrumentoOrtodoncia1", "descripción corta", 13000,4, true, null, instrumentosOrtodonticos.id()));
+        Products instrumentoOrtodoncia2 =  productsRep.save(new Products(null, "instrumentoOrtodoncia2", "description instrumentoOrtodoncia2", "descripción corta", 13000,4, true, null, instrumentosOrtodonticos.id()));
+        Products jeringa1 =  productsRep.save(new Products(null, "jeringa1", "description jeringa1", "descripción corta", 13000,4, true, null, jeringas.id()));
+        Products jeringa2 =  productsRep.save(new Products(null, "jeringa2", "description jeringa2", "descripción corta", 13000,4, true, null, jeringas.id()));
+        Products mango1 =  productsRep.save(new Products(null, "mango1", "description mango1", "descripción corta", 13000,4, true, null, mangoBisturi.id()));
+        Products mango2 =  productsRep.save(new Products(null, "mango2", "description mango2", "descripción corta", 13000,4, true, null, mangoBisturi.id()));
+        Products mBTBraket1 =  productsRep.save(new Products(null, "mBTBraket1", "description mBTBraket1", "descripción corta", 13000,4, true, null, mbt.id()));
+        Products mBTBraket2 =  productsRep.save(new Products(null, "mBTBraket2", "description mBTBraket2", "descripción corta", 13000,4, true, null, mbt.id()));
+        Products ortopedia1 =  productsRep.save(new Products(null, "ortopedia1", "description ortopedia1", "descripción corta", 13000,4, true, null, ortopedia.id()));
+        Products ortopedia2 =  productsRep.save(new Products(null, "ortopedia2", "description ortopedia2", "descripción corta", 13000,4, true, null, ortopedia.id()));
+        Products pinzaDental1 =  productsRep.save(new Products(null, "pinzaDental1", "description pinzaDental1", "descripción corta", 13000,4, true, null, pinzasDental.id()));
+        Products pinzaDental2 =  productsRep.save(new Products(null, "pinzaDental2", "description pinzaDental2", "descripción corta", 13000,4, true, null, pinzasDental.id()));
+        Products pinzaOrtodoncia1 =  productsRep.save(new Products(null, "pinzaOrtodoncia1", "description pinzaOrtodoncia1", "descripción corta", 13000,4, true, null, pinzasOrtodoncia.id()));
+        Products pinzaOrtodoncia2 =  productsRep.save(new Products(null, "pinzaOrtodoncia2", "description pinzaOrtodoncia2", "descripción corta", 13000,4, true, null, pinzasOrtodoncia.id()));
+        Products portaAguja1 =  productsRep.save(new Products(null, "portaAguja1", "description portaAguja1", "descripción corta", 13000,4, true, null, portaAgujas.id()));
+        Products portaAguja2 =  productsRep.save(new Products(null, "portaAguja2", "description portaAguja2", "descripción corta", 13000,4, true, null, portaAgujas.id()));
+        Products protectorCepillo =  productsRep.save(new Products(null, "protectorCepillo", "description protectorCepillo", "descripción corta", 13000,4, true, null, cuidadoDental.id()));
+        Products provisional1 =  productsRep.save(new Products(null, "provicionales1", "description provicionales1", "descripción corta", 13000,4, true, null, provisionales.id()));
+        Products provisional2 =  productsRep.save(new Products(null, "provicionales2", "description provicionales2", "descripción corta", 13000,4, true, null, provisionales.id()));
+        Products rebase1 =  productsRep.save(new Products(null, "rebase1", "description rebase1", "descripción corta", 13000,4, true, null, rebases.id()));
+        Products rebase2 =  productsRep.save(new Products(null, "rebase2", "description rebase2", "descripción corta", 13000,4, true, null, rebases.id()));
+        Products reconstructor1 =  productsRep.save(new Products(null, "reconstructor1", "description reconstructor1", "descripción corta", 13000,4, true, null, reconstructor.id()));
+        Products reconstructor2 =  productsRep.save(new Products(null, "reconstructor2", "description reconstructor2", "descripción corta", 13000,4, true, null, reconstructor.id()));
+        Products resina1 =  productsRep.save(new Products(null, "resina1", "description resina1", "descripción corta", 13000,4, true, null, resinas.id()));
+        Products resina2 =  productsRep.save(new Products(null, "resina2", "description resina2", "descripción corta", 13000,4, true, null, resinas.id()));
+        Products rothBraket1 =  productsRep.save(new Products(null, "rothBraket1", "description rothBraket1", "descripción corta", 13000,4, true, null, roth.id()));
+        Products rothBraket2 =  productsRep.save(new Products(null, "rothBraket2", "description rothBraket2", "descripción corta", 13000,4, true, null, roth.id()));
+        Products tapaBocas1 =  productsRep.save(new Products(null, "tapabocas1", "description tapabocas1", "descripción corta", 13000,4, true, null, desechables.id()));
+        Products tigera1 =  productsRep.save(new Products(null, "tigera1", "description tigera1", "descripción corta", 13000,4, true, null, tijeras.id()));
+        Products tubo1 =  productsRep.save(new Products(null, "tubo1", "description tubo1", "descripción corta", 13000,4, true, null, tubos.id()));
+        Products tubo2 =  productsRep.save(new Products(null, "tubo2", "description tubo2", "descripción corta", 13000,4, true, null, tubos.id()));
 
-        Images adhesivo2Image= imagesRep.save(new Images(null, "adhesivo2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\adhesivo2.jpg"), adhesivo2.getId()));
-        Images alambre1Image= imagesRep.save(new Images(null, "alambre1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\alambre1.jpeg"), alambre1.getId()));
-        Images alambre2Image= imagesRep.save(new Images(null, "alambre2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\alambre2.jpg"), alambre2.getId()));
-        Images arco1Image= imagesRep.save(new Images(null, "arco1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\arco1.jpg"), arco1.getId()));
-        Images arco2Image= imagesRep.save(new Images(null, "arco2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\arco2.jpg"), arco2.getId()));
-        Images auxiliar1Image= imagesRep.save(new Images(null, "auxiliar1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\auxiliar1.jpg"), auxiliar1.getId()));
-        Images auxiliar2Image= imagesRep.save(new Images(null, "auxiliar2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\auxiliar2.jpg"), auxiliar2.getId()));
-        Images bisacrilico1Image= imagesRep.save(new Images(null, "bisacrilico1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\bisacrilico1.jpg"), bisacrilico1.getId()));
-        Images bisacrilico2Image= imagesRep.save(new Images(null, "bisacrilico2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\bisacrilico2.jpg"), bisacrilico2.getId()));
-        Images carrierBraket1Image= imagesRep.save(new Images(null, "carrierBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\carrierBraket1.jpg"), carrierBraket1.getId()));
-        Images cemento1Image= imagesRep.save(new Images(null, "cemento1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\cemento1.jpg"), cemento1.getId()));
-        Images cepilloOralImage= imagesRep.save(new Images(null, "cepilloOralImage", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\CEPILLO-ORAL.jpg"), cepilloOral.getId()));
-        Images compomero1Image= imagesRep.save(new Images(null, "compomero1Image", "png", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\compomero1.png"), compomero1.getId()));
-        Images deltaForceBraket1Image= imagesRep.save(new Images(null, "deltaForceBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\dentalForceBraket1.jpg"), deltaForceBraket1.getId()));
-        Images distalizador1Image= imagesRep.save(new Images(null, "distalizador1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\distalizador1.jpg"), distalizador1.getId()));
-        Images distalizador2Image= imagesRep.save(new Images(null, "distalizador2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\distalizador2.jpg"), distalizador2.getId()));
-        Images elastomeros1Image= imagesRep.save(new Images(null, "elastomeros1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\elastomero1.jpg"), elastomeros1.getId()));
-        Images elastomeros2Image= imagesRep.save(new Images(null, "elastomeros2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\elastomero2.jpg"), elastomeros2.getId()));
-        Images estandarBraket1Image= imagesRep.save(new Images(null, "estandarBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\estandarBraket1.jpg"), estandarBraket1.getId()));
-        Images estandarBraket2Image= imagesRep.save(new Images(null, "estandarBraket2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\estandarBraket2.jpg"), estandarBraket2.getId()));
-        Images guantesLatexImage= imagesRep.save(new Images(null, "guantesLatexImage", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\Guantes-latex.jpg"), guantesLatex.getId()));
-        Images hojaBisturi1Image= imagesRep.save(new Images(null, "hojaBisturi1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\hojaBisturi1.jpg"), hojaBisturi1.getId()));
-        Images hojaBisturi2Image= imagesRep.save(new Images(null, "hojaBisturi2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\hojaBisturi2.jpg"), hojaBisturi2.getId()));
-        Images instrumentoOrtodoncia1Image= imagesRep.save(new Images(null, "instrumentoOrtodoncia1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\instrumentoOrtodoncia1.jpg"), instrumentoOrtodoncia1.getId()));
-        Images instrumentoOrtodoncia2Image= imagesRep.save(new Images(null, "instrumentoOrtodoncia2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\instrumentoOrtodoncia2.jpg"), instrumentoOrtodoncia2.getId()));
-        Images jeringa1Image= imagesRep.save(new Images(null, "jeringa1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\jeringa1.jpg"), jeringa1.getId()));
-        Images jeringa2Image= imagesRep.save(new Images(null, "jeringa2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\jeringa2.jpg"), jeringa2.getId()));
-        Images mango1Image= imagesRep.save(new Images(null, "mango1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\mango1.jpg"), mango1.getId()));
-        Images mango2Image= imagesRep.save(new Images(null, "mango2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\mango2.jpg"), mango2.getId()));
-        Images mBTBraket1Image= imagesRep.save(new Images(null, "MBTBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\MBTBraket1.jpg"), mBTBraket1.getId()));
-        Images mBTBraket2Image= imagesRep.save(new Images(null, "MBTBraket2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\MBTBraket2.jpg"), mBTBraket2.getId()));
-        Images ortopedia1Image= imagesRep.save(new Images(null, "ortopedia1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\ortopedia1.jpg"), ortopedia1.getId()));
-        Images ortopedia2Image= imagesRep.save(new Images(null, "ortopedia2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\ortopedia2.jpg"), ortopedia2.getId()));
-        Images pinza1Image= imagesRep.save(new Images(null, "pinza1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\pinza1.jpg"), pinzaDental1.getId()));
-        Images pinza2Image= imagesRep.save(new Images(null, "pinza2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\pinza2.jpg"), pinzaDental2.getId()));
-        Images pinza1Ortodoncia1Image= imagesRep.save(new Images(null, "pinza1Ortodoncia1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\pinzaOrtodoncia1.jpg"), pinzaOrtodoncia1.getId()));
-        Images pinza2Ortodoncia1Image= imagesRep.save(new Images(null, "pinza2Ortodoncia1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\pinzaOrtodoncia2.jpg"), pinzaOrtodoncia2.getId()));
-        Images portaaguja1Image= imagesRep.save(new Images(null, "portaaguja1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\portaaguja1.jpg"), portaAguja1.getId()));
-        Images portaaguja2Image= imagesRep.save(new Images(null, "portaaguja2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\portaaguja2.jpg"), portaAguja2.getId()));
-        Images protectorCepilloImage= imagesRep.save(new Images(null, "protectorCepilloImage", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\protectorCepillo.jpg"), protectorCepillo.getId()));
-        Images provisional1Image= imagesRep.save(new Images(null, "provisional1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\provisional1.jpg"), provisional1.getId()));
-        Images provisional2Image= imagesRep.save(new Images(null, "provisional2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\provisional2.jpg"), provisional2.getId()));
-        Images rebase1Image= imagesRep.save(new Images(null, "rebase1Image", "png", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\rebase1.png"), rebase1.getId()));
-        Images rebase2Image= imagesRep.save(new Images(null, "rebase2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\rebase2.jpg"), rebase2.getId()));
-        Images reconstructor1Image= imagesRep.save(new Images(null, "reconstructor1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\reconstructor1.jpg"), reconstructor1.getId()));
-        Images reconstructor2Image= imagesRep.save(new Images(null, "reconstructor2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\reconstructor2.jpg"), reconstructor2.getId()));
-        Images resina1Image= imagesRep.save(new Images(null, "resina1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\resina1.jpg"), resina1.getId()));
-        Images resina2Image= imagesRep.save(new Images(null, "resina2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\resina2.jpg"), resina2.getId()));
-        Images rothBraket1Image= imagesRep.save(new Images(null, "rothBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\rothBraket1.jpg"), rothBraket1.getId()));
-        Images rothBraket2Image= imagesRep.save(new Images(null, "rothBraket2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\rothBraket2.jpg"), rothBraket2.getId()));
-        Images tigera1Image= imagesRep.save(new Images(null, "tigera1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\tigera1.jpg"), tigera1.getId()));
-        Images tubo1Image= imagesRep.save(new Images(null, "tubo1Image", "png", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\tubo1.png"), tubo1.getId()));
-        Images tubo2Image= imagesRep.save(new Images(null, "tubo2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\tubo2.jpg"), tubo2.getId()));
+        
+        imagesRep.save(new Images(null, "adhesivo1-2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\adhesivo2.jpg"), adhesivo1.id()));
+        /* Images adhesivo13Image= */ imagesRep.save(new Images(null, "adhesivo1-3Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\alambre1.jpeg"), adhesivo1.id()));
+        /* Images adhesivo14Image= */ imagesRep.save(new Images(null, "adhesivo1-4Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\alambre2.jpg"), adhesivo1.id()));
+        Images adhesivo1Image= imagesRep.save(new Images(null, "adhesivo1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\adhesivo1.jpg"), adhesivo1.id()));
 
-        productsRep.saveAll(products);
+        Images alambre1Image= imagesRep.save(new Images(null, "alambre1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\alambre1.jpeg"), alambre1.id()));
+        Images alambre2Image= imagesRep.save(new Images(null, "alambre2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\alambre2.jpg"), alambre2.id()));
+        Images arco1Image= imagesRep.save(new Images(null, "arco1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\arco1.jpg"), arco1.id()));
+        Images arco2Image= imagesRep.save(new Images(null, "arco2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\arco2.jpg"), arco2.id()));
+        Images auxiliar1Image= imagesRep.save(new Images(null, "auxiliar1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\auxiliar1.jpg"), auxiliar1.id()));
+        Images auxiliar2Image= imagesRep.save(new Images(null, "auxiliar2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\auxiliar2.jpg"), auxiliar2.id()));
+        Images bisacrilico1Image= imagesRep.save(new Images(null, "bisacrilico1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\bisacrilico1.jpg"), bisacrilico1.id()));
+        Images bisacrilico2Image= imagesRep.save(new Images(null, "bisacrilico2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\bisacrilico2.jpg"), bisacrilico2.id()));
+        Images carrierBraket1Image= imagesRep.save(new Images(null, "carrierBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\carrierBraket1.jpg"), carrierBraket1.id()));
+        Images cemento1Image= imagesRep.save(new Images(null, "cemento1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\cemento1.jpg"), cemento1.id()));
+        Images cepilloOralImage= imagesRep.save(new Images(null, "cepilloOralImage", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\CEPILLO-ORAL.jpg"), cepilloOral.id()));
+        Images compomero1Image= imagesRep.save(new Images(null, "compomero1Image", "png", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\compomero1.png"), compomero1.id()));
+        Images deltaForceBraket1Image= imagesRep.save(new Images(null, "deltaForceBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\dentalForceBraket1.jpg"), deltaForceBraket1.id()));
+        Images distalizador1Image= imagesRep.save(new Images(null, "distalizador1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\distalizador1.jpg"), distalizador1.id()));
+        Images distalizador2Image= imagesRep.save(new Images(null, "distalizador2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\distalizador2.jpg"), distalizador2.id()));
+        Images elastomeros1Image= imagesRep.save(new Images(null, "elastomeros1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\elastomero1.jpg"), elastomeros1.id()));
+        Images elastomeros2Image= imagesRep.save(new Images(null, "elastomeros2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\elastomero2.jpg"), elastomeros2.id()));
+        Images estandarBraket1Image= imagesRep.save(new Images(null, "estandarBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\estandarBraket1.jpg"), estandarBraket1.id()));
+        Images estandarBraket2Image= imagesRep.save(new Images(null, "estandarBraket2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\estandarBraket2.jpg"), estandarBraket2.id()));
+        Images guantesLatexImage= imagesRep.save(new Images(null, "guantesLatexImage", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\Guantes-latex.jpg"), guantesLatex.id()));
+        Images hojaBisturi1Image= imagesRep.save(new Images(null, "hojaBisturi1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\hojaBisturi1.jpg"), hojaBisturi1.id()));
+        Images hojaBisturi2Image= imagesRep.save(new Images(null, "hojaBisturi2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\hojaBisturi2.jpg"), hojaBisturi2.id()));
+        Images instrumentoOrtodoncia1Image= imagesRep.save(new Images(null, "instrumentoOrtodoncia1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\instrumentoOrtodoncia1.jpg"), instrumentoOrtodoncia1.id()));
+        Images instrumentoOrtodoncia2Image= imagesRep.save(new Images(null, "instrumentoOrtodoncia2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\instrumentoOrtodoncia2.jpg"), instrumentoOrtodoncia2.id()));
+        Images jeringa1Image= imagesRep.save(new Images(null, "jeringa1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\jeringa1.jpg"), jeringa1.id()));
+        Images jeringa2Image= imagesRep.save(new Images(null, "jeringa2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\jeringa2.jpg"), jeringa2.id()));
+        Images mango1Image= imagesRep.save(new Images(null, "mango1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\mango1.jpg"), mango1.id()));
+        Images mango2Image= imagesRep.save(new Images(null, "mango2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\mango2.jpg"), mango2.id()));
+        Images mBTBraket1Image= imagesRep.save(new Images(null, "MBTBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\MBTBraket1.jpg"), mBTBraket1.id()));
+        Images mBTBraket2Image= imagesRep.save(new Images(null, "MBTBraket2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\MBTBraket2.jpg"), mBTBraket2.id()));
+        Images ortopedia1Image= imagesRep.save(new Images(null, "ortopedia1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\ortopedia1.jpg"), ortopedia1.id()));
+        Images ortopedia2Image= imagesRep.save(new Images(null, "ortopedia2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\ortopedia2.jpg"), ortopedia2.id()));
+        Images pinza1Image= imagesRep.save(new Images(null, "pinza1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\pinza1.jpg"), pinzaDental1.id()));
+        Images pinza2Image= imagesRep.save(new Images(null, "pinza2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\pinza2.jpg"), pinzaDental2.id()));
+        Images pinza1Ortodoncia1Image= imagesRep.save(new Images(null, "pinza1Ortodoncia1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\pinzaOrtodoncia1.jpg"), pinzaOrtodoncia1.id()));
+        Images pinza2Ortodoncia1Image= imagesRep.save(new Images(null, "pinza2Ortodoncia1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\pinzaOrtodoncia2.jpg"), pinzaOrtodoncia2.id()));
+        Images portaaguja1Image= imagesRep.save(new Images(null, "portaaguja1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\portaaguja1.jpg"), portaAguja1.id()));
+        Images portaaguja2Image= imagesRep.save(new Images(null, "portaaguja2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\portaaguja2.jpg"), portaAguja2.id()));
+        Images protectorCepilloImage= imagesRep.save(new Images(null, "protectorCepilloImage", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\protectorCepillo.jpg"), protectorCepillo.id()));
+        Images provisional1Image= imagesRep.save(new Images(null, "provisional1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\provisional1.jpg"), provisional1.id()));
+        Images provisional2Image= imagesRep.save(new Images(null, "provisional2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\provisional2.jpg"), provisional2.id()));
+        Images rebase1Image= imagesRep.save(new Images(null, "rebase1Image", "png", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\rebase1.png"), rebase1.id()));
+        Images rebase2Image= imagesRep.save(new Images(null, "rebase2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\rebase2.jpg"), rebase2.id()));
+        Images reconstructor1Image= imagesRep.save(new Images(null, "reconstructor1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\reconstructor1.jpg"), reconstructor1.id()));
+        Images reconstructor2Image= imagesRep.save(new Images(null, "reconstructor2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\reconstructor2.jpg"), reconstructor2.id()));
+        Images resina1Image= imagesRep.save(new Images(null, "resina1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\resina1.jpg"), resina1.id()));
+        Images resina2Image= imagesRep.save(new Images(null, "resina2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\resina2.jpg"), resina2.id()));
+        Images rothBraket1Image= imagesRep.save(new Images(null, "rothBraket1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\rothBraket1.jpg"), rothBraket1.id()));
+        Images rothBraket2Image= imagesRep.save(new Images(null, "rothBraket2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\rothBraket2.jpg"), rothBraket2.id()));
+        Images tigera1Image= imagesRep.save(new Images(null, "tigera1Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\tigera1.jpg"), tigera1.id()));
+        Images tubo1Image= imagesRep.save(new Images(null, "tubo1Image", "png", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\tubo1.png"), tubo1.id()));
+        Images tubo2Image= imagesRep.save(new Images(null, "tubo2Image", "jpeg", Utils.loadImageData("C:\\Users\\dj-os\\OneDrive\\Documentos\\Spring\\web-page\\dont-used\\example-images\\tubo2.jpg"), tubo2.id()));
 
-        imagesRep.saveAll(images);
-
-        adhesivo1.setIdMainImage(adhesivo1Image.id());
-        adhesivo2.setIdMainImage(adhesivo2Image.id());
-        alambre1.setIdMainImage(alambre1Image.id());
-        alambre2.setIdMainImage(alambre2Image.id());
-        arco1.setIdMainImage(arco1Image.id());
-        arco2.setIdMainImage(arco2Image.id());
-        auxiliar1.setIdMainImage(auxiliar1Image.id());
-        auxiliar2.setIdMainImage(auxiliar2Image.id());
-        bisacrilico1.setIdMainImage(bisacrilico1Image.id());
-        bisacrilico2.setIdMainImage(bisacrilico2Image.id());
-        carrierBraket1.setIdMainImage(carrierBraket1Image.id());
-        cemento1.setIdMainImage(cemento1Image.id());
-        cepilloOral.setIdMainImage(cepilloOralImage.id());
-        compomero1.setIdMainImage(compomero1Image.id());
-        deltaForceBraket1.setIdMainImage(deltaForceBraket1Image.id());
-        distalizador1.setIdMainImage(distalizador1Image.id());
-        distalizador2.setIdMainImage(distalizador2Image.id());
-        elastomeros1.setIdMainImage(elastomeros1Image.id());
-        elastomeros2.setIdMainImage(elastomeros2Image.id());
-        estandarBraket1.setIdMainImage(estandarBraket1Image.id());
-        estandarBraket2.setIdMainImage(estandarBraket2Image.id());
-        guantesLatex.setIdMainImage(guantesLatexImage.id());
-        hojaBisturi1.setIdMainImage(hojaBisturi1Image.id());
-        hojaBisturi2.setIdMainImage(hojaBisturi2Image.id());
-        instrumentoOrtodoncia1.setIdMainImage(instrumentoOrtodoncia1Image.id());
-        instrumentoOrtodoncia2.setIdMainImage(instrumentoOrtodoncia2Image.id());
-        jeringa1.setIdMainImage(jeringa1Image.id());
-        jeringa2.setIdMainImage(jeringa2Image.id());
-        mango1.setIdMainImage(mango1Image.id());
-        mango2.setIdMainImage(mango2Image.id());
-        mBTBraket1.setIdMainImage(mBTBraket1Image.id());
-        mBTBraket2.setIdMainImage(mBTBraket2Image.id());
-        ortopedia1.setIdMainImage(ortopedia1Image.id());
-        ortopedia2.setIdMainImage(ortopedia2Image.id());
-        pinzaDental1.setIdMainImage(pinza1Image.id());
-        pinzaDental2.setIdMainImage(pinza2Image.id());
-        pinzaOrtodoncia1.setIdMainImage(pinza1Ortodoncia1Image.id());
-        pinzaOrtodoncia1.setIdMainImage(pinza2Ortodoncia1Image.id());
-        portaAguja1.setIdMainImage(portaaguja1Image.id());
-        portaAguja2.setIdMainImage(portaaguja2Image.id());
-        protectorCepillo.setIdMainImage(protectorCepilloImage.id());
-        provisional1.setIdMainImage(provisional1Image.id());
-
-        provisional2.setIdMainImage(provisional2Image.id());
-        rebase1.setIdMainImage(rebase1Image.id());
-        rebase2.setIdMainImage(rebase2Image.id());
-        reconstructor1.setIdMainImage(reconstructor1Image.id());
-        reconstructor2.setIdMainImage(reconstructor2Image.id());
-        resina1.setIdMainImage(resina1Image.id());
-        resina2.setIdMainImage(resina2Image.id());
-        rothBraket1.setIdMainImage(rothBraket1Image.id());
-        rothBraket2.setIdMainImage(rothBraket2Image.id());
-
-        tigera1.setIdMainImage(tigera1Image.id());
-        tubo1.setIdMainImage(tubo1Image.id());
-        tubo2.setIdMainImage(tubo2Image.id());
-
-        products.addAll(List.of(
-            adhesivo1, adhesivo2, alambre1, alambre2, arco1, arco2, auxiliar1, auxiliar2, bisacrilico1,
-            bisacrilico2, carrierBraket1, cemento1, cepilloOral, compomero1, compomero2, deltaForceBraket1,
-            distalizador1, distalizador2, elastomeros1, elastomeros2, estandarBraket1, estandarBraket2,
-            guantesLatex, hojaBisturi1, hojaBisturi2, instrumentoOrtodoncia1, instrumentoOrtodoncia2,
-            jeringa1, jeringa2, mango1, mango2, mBTBraket1, mBTBraket2, ortopedia1, ortopedia2, pinzaDental1,
-            pinzaDental2, pinzaOrtodoncia1, pinzaOrtodoncia2, portaAguja1, portaAguja2, protectorCepillo,
-            provisional1, provisional2, rebase1, rebase2, reconstructor1, reconstructor2,
-            resina1, resina2, rothBraket1, rothBraket2, tapaBocas1, tigera1, tubo1, tubo2
-        ));
-
-        productsRep.saveAll(products);
+        adhesivo1 =  productsRep.save(new Products(null, "Adhesivo1", "description adhesivo1", "descripción corta", 13000,4, true, 
+        adhesivo1Image.id(), adhesivos.id()));
+        alambre1 =  productsRep.save(new Products(null, "Alambre1", "description alambre1", "descripción corta", 13000,4, true, 
+        alambre1Image.id(), alambres.id()));
+        alambre2 =  productsRep.save(new Products(null, "Alambre2", "description alambre2", "descripción corta", 13000,4, true, 
+        alambre2Image.id(), alambres.id()));
+        arco1 =  productsRep.save(new Products(null, "Arco1", "description arco1", "descripción corta", 13000,4, true, 
+        arco1Image.id(), arcos.id()));
+        arco2 =  productsRep.save(new Products(null, "Arco2", "description arco2", "descripción corta", 13000,4, true, 
+        arco2Image.id(), arcos.id()));
+        auxiliar1 =  productsRep.save(new Products(null, "Auxiliar1", "description Auxiliar1", "descripción corta", 13000,4, true, 
+        auxiliar1Image.id(), auxiliares.id()));
+        auxiliar2 =  productsRep.save(new Products(null, "auxiliar2", "description auxiliar2", "descripción corta", 13000,4, true, 
+        auxiliar2Image.id(), auxiliares.id()));
+        bisacrilico1 =  productsRep.save(new Products(null, "bisacrilico1", "description bisacrilico1", "descripción corta", 13000,4, true, 
+        bisacrilico1Image.id(), bisacrilicos.id()));
+        bisacrilico2 =  productsRep.save(new Products(null, "bisacrilico2", "description bisacrilico2", "descripción corta", 13000,4, true, 
+        bisacrilico2Image.id(), bisacrilicos.id()));
+        carrierBraket1 =  productsRep.save(new Products(null, "carrierBraket1", "description carrierBraket1", "descripción corta", 13000,4, true, 
+        carrierBraket1Image.id(), brakets.id()));
+        cemento1 =  productsRep.save(new Products(null, "cemento1", "description cemento1", "descripción corta", 13000,4, true, 
+        cemento1Image.id(), cemento.id()));
+        cepilloOral =  productsRep.save(new Products(null, "cepilloOral", "description cepilloOral", "descripción corta", 13000,4, true, 
+        cepilloOralImage.id(), cuidadoDental.id()));
+        compomero1 =  productsRep.save(new Products(null, "compomero1", "description compomero1", "descripción corta", 13000,4, true, 
+        compomero1Image.id(), compomeros.id()));
+        compomero2 =  productsRep.save(new Products(null, "compomero2", "description compomero2", "descripción corta", 13000,4, true, 
+        compomero2.id(), compomeros.id()));
+        deltaForceBraket1 =  productsRep.save(new Products(null, "deltaForceBraket1", "description deltaForceBraket1", "descripción corta", 13000,4, true, 
+        deltaForceBraket1Image.id(), brakets.id()));
+        distalizador1 =  productsRep.save(new Products(null, "distalizador1", "description distalizador1", "descripción corta", 13000,4, true, 
+        distalizador1Image.id(), distalizador.id()));
+        distalizador2 =  productsRep.save(new Products(null, "distalizador2", "description distalizador2", "descripción corta", 13000,4, true, 
+        distalizador2Image.id(), distalizador.id()));
+        elastomeros1 =  productsRep.save(new Products(null, "elastomeros1", "description elastomeros1", "descripción corta", 13000,4, true, 
+        elastomeros1Image.id(), elastomeros.id()));
+        elastomeros2 =  productsRep.save(new Products(null, "elastomeros2", "description elastomeros2", "descripción corta", 13000,4, true, 
+        elastomeros2Image.id(), elastomeros.id()));
+        estandarBraket1 =  productsRep.save(new Products(null, "estandarBraket1", "description estandarBraket1", "descripción corta", 13000,4, true, 
+        estandarBraket1Image.id(), brakets.id()));
+        estandarBraket2 =  productsRep.save(new Products(null, "estandarBraket2", "description estandarBraket2", "descripción corta", 13000,4, true, 
+        estandarBraket2Image.id(), brakets.id()));
+        guantesLatex =  productsRep.save(new Products(null, "guantesLatex", "description guantesLatex", "descripción corta", 13000,4, true, 
+        guantesLatexImage.id(), desechables.id()));
+        hojaBisturi1 =  productsRep.save(new Products(null, "hojaBisturi1", "description hojaBisturi1", "descripción corta", 13000,4, true, 
+        hojaBisturi1Image.id(), hojaBisturi.id()));
+        hojaBisturi2 =  productsRep.save(new Products(null, "hojaBisturi2", "description hojaBisturi2", "descripción corta", 13000,4, true, 
+        hojaBisturi2Image.id(), hojaBisturi.id()));
+        instrumentoOrtodoncia1 =  productsRep.save(new Products(null, "instrumentoOrtodoncia1", "description instrumentoOrtodoncia1", "descripción corta", 13000,4, true, 
+        instrumentoOrtodoncia1Image.id(), instrumentosOrtodonticos.id()));
+        instrumentoOrtodoncia2 =  productsRep.save(new Products(null, "instrumentoOrtodoncia2", "description instrumentoOrtodoncia2", "descripción corta", 13000,4, true, 
+        instrumentoOrtodoncia2Image.id(), instrumentosOrtodonticos.id()));
+        jeringa1 =  productsRep.save(new Products(null, "jeringa1", "description jeringa1", "descripción corta", 13000,4, true, 
+        jeringa1Image.id(), jeringas.id()));
+        jeringa2 =  productsRep.save(new Products(null, "jeringa2", "description jeringa2", "descripción corta", 13000,4, true, 
+        jeringa2Image.id(), jeringas.id()));
+        mango1 =  productsRep.save(new Products(null, "mango1", "description mango1", "descripción corta", 13000,4, true, 
+        mango1Image.id(), mangoBisturi.id()));
+        mango2 =  productsRep.save(new Products(null, "mango2", "description mango2", "descripción corta", 13000,4, true, 
+        mango2Image.id(), mangoBisturi.id()));
+        mBTBraket1 =  productsRep.save(new Products(null, "mBTBraket1", "description mBTBraket1", "descripción corta", 13000,4, true, 
+        mBTBraket1Image.id(), mbt.id()));
+        mBTBraket2 =  productsRep.save(new Products(null, "mBTBraket2", "description mBTBraket2", "descripción corta", 13000,4, true, 
+        mBTBraket2Image.id(), mbt.id()));
+        ortopedia1 =  productsRep.save(new Products(null, "ortopedia1", "description ortopedia1", "descripción corta", 13000,4, true, 
+        ortopedia1Image.id(), ortopedia.id()));
+        ortopedia2 =  productsRep.save(new Products(null, "ortopedia2", "description ortopedia2", "descripción corta", 13000,4, true, 
+        ortopedia2Image.id(), ortopedia.id()));
+        pinzaDental1 =  productsRep.save(new Products(null, "pinzaDental1", "description pinzaDental1", "descripción corta", 13000,4, true, 
+        pinza1Image.id(), pinzasDental.id()));
+        pinzaDental2 =  productsRep.save(new Products(null, "pinzaDental2", "description pinzaDental2", "descripción corta", 13000,4, true, 
+        pinza2Image.id(), pinzasDental.id()));
+        pinzaOrtodoncia1 =  productsRep.save(new Products(null, "pinzaOrtodoncia1", "description pinzaOrtodoncia1", "descripción corta", 13000,4, true, 
+        pinza1Ortodoncia1Image.id(), pinzasOrtodoncia.id()));
+        pinzaOrtodoncia2 =  productsRep.save(new Products(null, "pinzaOrtodoncia2", "description pinzaOrtodoncia2", "descripción corta", 13000,4, true, 
+        pinza2Ortodoncia1Image.id(), pinzasOrtodoncia.id()));
+        portaAguja1 =  productsRep.save(new Products(null, "portaAguja1", "description portaAguja1", "descripción corta", 13000,4, true, 
+        portaaguja1Image.id(), portaAgujas.id()));
+        portaAguja2 =  productsRep.save(new Products(null, "portaAguja2", "description portaAguja2", "descripción corta", 13000,4, true, 
+        portaaguja2Image.id(), portaAgujas.id()));
+        protectorCepillo =  productsRep.save(new Products(null, "protectorCepillo", "description protectorCepillo", "descripción corta", 13000,4, true, 
+        protectorCepilloImage.id(), cuidadoDental.id()));
+        provisional1 =  productsRep.save(new Products(null, "provicionales1", "description provicionales1", "descripción corta", 13000,4, true, 
+        provisional1Image.id(), provisionales.id()));
+        provisional2 =  productsRep.save(new Products(null, "provicionales2", "description provicionales2", "descripción corta", 13000,4, true, 
+        provisional2Image.id(), provisionales.id()));
+        rebase1 =  productsRep.save(new Products(null, "rebase1", "description rebase1", "descripción corta", 13000,4, true, 
+        rebase1Image.id(), rebases.id()));
+        rebase2 =  productsRep.save(new Products(null, "rebase2", "description rebase2", "descripción corta", 13000,4, true, 
+        rebase2Image.id(), rebases.id()));
+        reconstructor1 =  productsRep.save(new Products(null, "reconstructor1", "description reconstructor1", "descripción corta", 13000,4, true, 
+        reconstructor1Image.id(), reconstructor.id()));
+        reconstructor2 =  productsRep.save(new Products(null, "reconstructor2", "description reconstructor2", "descripción corta", 13000,4, true, 
+        reconstructor2Image.id(), reconstructor.id()));
+        resina1 =  productsRep.save(new Products(null, "resina1", "description resina1", "descripción corta", 13000,4, true, 
+        resina1Image.id(), resinas.id()));
+        resina2 =  productsRep.save(new Products(null, "resina2", "description resina2", "descripción corta", 13000,4, true, 
+        resina2Image.id(), resinas.id()));
+        rothBraket1 =  productsRep.save(new Products(null, "rothBraket1", "description rothBraket1", "descripción corta", 13000,4, true, 
+        rothBraket1Image.id(), roth.id()));
+        rothBraket2 =  productsRep.save(new Products(null, "rothBraket2", "description rothBraket2", "descripción corta", 13000,4, true, 
+        rothBraket2Image.id(), roth.id()));
+        tapaBocas1 =  productsRep.save(new Products(null, "tapabocas1", "description tapabocas1", "descripción corta", 13000,4, true, 
+        tapaBocas1.id(), desechables.id()));
+        tigera1 =  productsRep.save(new Products(null, "tigera1", "description tigera1", "descripción corta", 13000,4, true, 
+        tigera1Image.id(), tijeras.id()));
+        tubo1 =  productsRep.save(new Products(null, "tubo1", "description tubo1", "descripción corta", 13000,4, true, 
+        tubo1Image.id(), tubos.id()));
+        tubo2 =  productsRep.save(new Products(null, "tubo2", "description tubo2", "descripción corta", 13000,4, true, 
+        tubo2Image.id(), tubos.id()));
+        
     }   
 }
