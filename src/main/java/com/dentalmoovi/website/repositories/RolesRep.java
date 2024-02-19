@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.dentalmoovi.website.models.entities.Roles;
-import com.dentalmoovi.website.models.enums.RolesList;
+import com.dentalmoovi.website.models.entities.enums.RolesList;
 
 public interface RolesRep extends CrudRepository<Roles, Long>{
     @Query("SELECT * FROM roles WHERE role = :name_role")

@@ -30,28 +30,18 @@ class CategoriesSerUnitTest {
 
     @Test
     void getAllCategoriesTest(){
-        Categories parentCategoryX = new Categories();
-        parentCategoryX.setId(1L);
-        parentCategoryX.setName("parent1");
-        Categories parentCategoryY = new Categories();
-        parentCategoryY.setId(2L);
-        parentCategoryY.setName("parent2");
-        Categories subCategoryX1 = new Categories();
-        subCategoryX1.setId(3L);
-        subCategoryX1.setName("subCategoryX1");
-        subCategoryX1.setIdParentCategory(parentCategoryX.getId());
-        Categories subCategoryX2 = new Categories();
-        subCategoryX2.setId(4L);
-        subCategoryX2.setName("subCategoryX2");
-        subCategoryX1.setIdParentCategory(parentCategoryX.getId());
-        Categories subCategoryY1 = new Categories();
-        subCategoryY1.setId(5L);
-        subCategoryY1.setName("subCategoryY1");
-        subCategoryX1.setIdParentCategory(parentCategoryY.getId());
-        Categories subSubCategoryX2 = new Categories();
-        subSubCategoryX2.setId(6L);
-        subSubCategoryX2.setName("subSubCategoryX2");
-        subCategoryX1.setIdParentCategory(subCategoryX2.getId());
+        Categories parentCategoryX = new Categories(1L, "parent1", null);
+        
+        Categories parentCategoryY = new Categories(2L, "parent2", null);
+        
+        Categories subCategoryX1 = new Categories(3L, "subCategoryX1", parentCategoryX.id());
+        
+        Categories subCategoryX2 = new Categories(4L, "subCategoryX2", parentCategoryX.id());
+        
+        Categories subCategoryY1 = new Categories(5L, "subCategoryY1", parentCategoryY.id());
+        
+        Categories subSubCategoryX2 = new Categories(6L, "subSubCategoryX2", subCategoryX2.id());
+        
 
         when(categoriesRep.findParentCategories()).thenReturn(List.of(parentCategoryX, parentCategoryY));
         when(categoriesRep.findByParentCategory(Mockito.any())).thenAnswer(invocation -> {

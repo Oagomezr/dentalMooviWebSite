@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+/* import org.slf4j.Logger;
+import org.slf4j.LoggerFactory; */
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,11 +22,15 @@ import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Addresses;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
-import com.dentalmoovi.website.models.enums.RolesList;
+import com.dentalmoovi.website.models.entities.enums.Departaments;
+import com.dentalmoovi.website.models.entities.enums.MunicipalyCity;
+import com.dentalmoovi.website.models.entities.enums.RolesList;
 import com.dentalmoovi.website.models.responses.AddressesResponse;
 import com.dentalmoovi.website.repositories.AddressesRep;
 import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
+import com.dentalmoovi.website.repositories.enums.DepartamentsRep;
+import com.dentalmoovi.website.repositories.enums.MunicipalyRep;
 import com.dentalmoovi.website.security.MainUser;
 import com.dentalmoovi.website.services.cache.CacheSer;
 
@@ -42,7 +46,9 @@ public class UserSer {
     private final UserRep userRep;
     private final RolesRep rolesRep;
     private final AddressesRep addressesRep;
-    private static Logger logger = LoggerFactory.getLogger(UserSer.class);
+    private final MunicipalyRep municipalyRep;
+    private final DepartamentsRep departamentsRep;
+    //private static Logger logger = LoggerFactory.getLogger(UserSer.class);
 
     @Value("${spring.mail.otherPassword}")
     private String ref; 
@@ -159,6 +165,7 @@ public class UserSer {
         return new MessageDTO("User updated");
     }
 
+    @SuppressWarnings("null")
     @Cacheable("getAddresses")
     public AddressesResponse getAddresses(String cacheRef){
         Users user = getUserFromRep(cacheRef);
@@ -168,12 +175,19 @@ public class UserSer {
         
         idsAddresses.stream().forEach(id ->{
 
-            @SuppressWarnings("null")
             Addresses address = addressesRep.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found"));
+
+            MunicipalyCity municipaly = municipalyRep.findById(address.idMunicipalyCity())
+                .orElseThrow(() -> new RuntimeException("Municipaly not found"));
+
+            Departaments departament = departamentsRep.findById(municipaly.id_departament())
+                .orElseThrow(() -> new RuntimeException("Departament not found"));
+
+            AddressesDTO addressDTO = new AddressesDTO(
+                address.id(), address.address(), address.phone(), address.description(), 
+                municipaly.name(), departament.name(), 0);
                 
-            AddressesDTO addressDTO = Utils.setAddressDTO(id, address.getDepartament(), address.getLocation(), 
-                address.getAddress(), address.getPhone(), address.getDescription());
             addressesDTO.add(addressDTO);
         });
         AddressesResponse response = new AddressesResponse();
@@ -185,10 +199,11 @@ public class UserSer {
     public MessageDTO createAddress(AddressesDTO addressDTO, String cacheRef){
             
         Users user = getUserFromRep(cacheRef);
-        
-        Addresses address = Utils.setAddress(addressDTO.getDepartament(), 
-            addressDTO.getLocation(), addressDTO.getAddress(), addressDTO.getPhone(), 
-            addressDTO.getDescription(), addressesRep);
+
+        Addresses address = new Addresses(
+            null, addressDTO.address(), addressDTO.phone(), addressDTO.description(), addressDTO.idMunicipaly());
+
+        addressesRep.save(address);
         
         user.addAddress(address);
         userRep.save(user);
@@ -198,15 +213,11 @@ public class UserSer {
 
     @CacheEvict(value = "getAddresses", key = "#cacheRef")
     public MessageDTO updateAddress(AddressesDTO addressDTO, String cacheRef){
-        Addresses address = addressesRep.findById(addressDTO.getId())
-            .orElseThrow(() -> new RuntimeException("Address not found"));
-        logger.info(address.getDescription());
-        address.setDepartament(addressDTO.getDepartament());
-        address.setLocation(addressDTO.getLocation());
-        address.setAddress(addressDTO.getAddress());
-        address.setPhone(addressDTO.getPhone());
-        address.setDescription(addressDTO.getDescription());
-        addressesRep.save(address);
+        addressesRep.save(
+            new Addresses(
+                addressDTO.id(), addressDTO.address(), addressDTO.phone(), 
+                addressDTO.description(), addressDTO.idMunicipaly())
+        );
         return new MessageDTO("Address updated");
     }
 

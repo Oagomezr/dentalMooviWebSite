@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
-import com.dentalmoovi.website.models.enums.StatusOrderList;
+import com.dentalmoovi.website.models.entities.enums.StatusOrderList;
+import com.dentalmoovi.website.models.entities.many_to_many.OrdersProducts;
 
 import lombok.Data;
 
@@ -21,19 +22,19 @@ public class Orders {
     private Long idAddress;
 
     @MappedCollection(idColumn = "id_order")
-    private Set<ProductsRef> products = new HashSet<>();
+    private Set<OrdersProducts> products = new HashSet<>();
 
-    public void addProduct(Long idProudct, int amount){
-        this.products.add(new ProductsRef(idProudct, amount));
+    public void addProduct(Long idProduct, int amount){
+        this.products.add(new OrdersProducts(id ,idProduct, amount));
     }
 
     public Set<Long> getProductsIds(){
         return this.products.stream()
-                    .map(ProductsRef::getIdProduct)
+                    .map(OrdersProducts::idProduct)
                     .collect(Collectors.toSet());
     }
 
     public void deleteProduct(Long productId) {
-        this.products.removeIf(productsRef -> productsRef.getIdProduct().equals(productId));
+        this.products.removeIf(productsRef -> productsRef.idProduct().equals(productId));
     }
 }

@@ -45,7 +45,7 @@ class CategoriesSerIntegrationTest {
             String nameParentCategory = parentCategoryDTO.getCategoryAndParents().get(0);
             Categories parentCategory = categoriesRep.findByName(nameParentCategory)
                                         .orElseThrow(() -> new RuntimeException("Category not found"));
-            List<Categories> expected = categoriesRep.findByParentCategory(parentCategory.getId());
+            List<Categories> expected = categoriesRep.findByParentCategory(parentCategory.id());
             List<CategoriesDTO> result = parentCategoryDTO.getChildrenCategories();
             assertEquals(expected.size(), result.size());
             //Test sub-Subcategories

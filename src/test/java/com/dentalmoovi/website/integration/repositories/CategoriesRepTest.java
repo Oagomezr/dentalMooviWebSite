@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.repositories.CategoriesRep;
 
@@ -29,15 +28,18 @@ class CategoriesRepTest {
     @BeforeAll
     static void setUp(@Autowired CategoriesRep categoriesRep){
         //parentCategories
-        parentCategoryOne = Utils.setCategory("parentCategoryOne", null, categoriesRep);
-        Utils.setCategory("parentCategoryTwo", null, categoriesRep);
+        parentCategoryOne = categoriesRep.save(new Categories(null, "parentCategoryOne", null));
+        categoriesRep.save(new Categories(null, "parentCategoryTwo", null));
 
         //subCategories
-        subCategoryOne1 = Utils.setCategory("subCategoryOne1", parentCategoryOne.getId(), categoriesRep);
-        subCategoryOne2 = Utils.setCategory("subCategoryOne2", parentCategoryOne.getId(), categoriesRep);
+        subCategoryOne1 = categoriesRep.save(new Categories(null, "subCategoryOne1", parentCategoryOne.id()));
+        subCategoryOne2 = categoriesRep.save(new Categories(null, "subCategoryOne2", parentCategoryOne.id()));
+
+        subCategoryOne1 = categoriesRep.save(new Categories(null, "subCategoryOne1", parentCategoryOne.id()));
+        subCategoryOne2 = categoriesRep.save(new Categories(null, "subCategoryOne2", parentCategoryOne.id()));
 
         //subSubCategory
-        Utils.setCategory("subSubCategoryOne1", subCategoryOne1.getId(), categoriesRep);
+        categoriesRep.save(new Categories( null, "subSubCategoryOne1", subCategoryOne1.id()));
     }
 
     @Test
@@ -48,15 +50,15 @@ class CategoriesRepTest {
 
     @Test
     void subCategoriesTest(){
-        List<Categories> subCategoriesLVL1 = categoriesRep.findByParentCategory(parentCategoryOne.getId());
-        List<Categories> subCategoriesLVL2 = categoriesRep.findByParentCategory(subCategoryOne1.getId());
+        List<Categories> subCategoriesLVL1 = categoriesRep.findByParentCategory(parentCategoryOne.id());
+        List<Categories> subCategoriesLVL2 = categoriesRep.findByParentCategory(subCategoryOne1.id());
         assertEquals(2, subCategoriesLVL1.size());
         assertEquals(1, subCategoriesLVL2.size());
     }
 
     @Test
     void findByNameTest() throws Exception{
-        Categories category = categoriesRep.findByName(subCategoryOne2.getName())
+        Categories category = categoriesRep.findByName(subCategoryOne2.name())
                                 .orElseThrow(() -> new Exception("Category not found"));
         assertEquals(subCategoryOne2, category);
     }

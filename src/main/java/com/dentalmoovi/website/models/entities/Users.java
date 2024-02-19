@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
-import com.dentalmoovi.website.models.enums.GenderList;
+import com.dentalmoovi.website.models.entities.enums.GenderList;
+import com.dentalmoovi.website.models.entities.many_to_many.UsersRoles;
+import com.dentalmoovi.website.models.entities.many_to_many.UsersAddresses;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,32 +30,32 @@ public class Users {
     private String password;
 
     @MappedCollection(idColumn = "id_user")
-    private Set<RolesRef> roles = new HashSet<>();
+    private Set<UsersRoles> roles = new HashSet<>();
 
     @MappedCollection(idColumn = "id_user")
-    private Set<AddressesRef> addresses = new HashSet<>();
+    private Set<UsersAddresses> addresses = new HashSet<>();
 
     public void addRole(Roles role){
-        this.roles.add(new RolesRef(role.getId()));
+        this.roles.add(new UsersRoles(id, role.getId()));
     }
 
     public Set<Long> getRolesIds(){
         return this.roles.stream()
-                    .map(RolesRef::getIdRole)
+                    .map(UsersRoles::idRole)
                     .collect(Collectors.toSet());
     }
 
     public void addAddress(Addresses address){
-        this.addresses.add(new AddressesRef(address.getId()));
+        this.addresses.add(new UsersAddresses(id,address.id()));
     }
 
     public Set<Long> getAddressesIds(){
         return this.addresses.stream()
-                    .map(AddressesRef::getIdAddress)
+                    .map(UsersAddresses::idAddress)
                     .collect(Collectors.toSet());
     }
 
     public void deleteAddress(Long addressId) {
-        this.addresses.removeIf(addressRef -> addressRef.getIdAddress().equals(addressId));
+        this.addresses.removeIf(addressRef -> addressRef.idAddress().equals(addressId));
     }
 }

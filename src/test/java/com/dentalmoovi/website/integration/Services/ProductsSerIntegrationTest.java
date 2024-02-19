@@ -43,21 +43,21 @@ class ProductsSerIntegrationTest {
         List<String> allCategories = new ArrayList<>();
         parentsCategories.stream().forEach(parentCategory ->{
             allCategories.addAll(getSubCategories(parentCategory));
-            allCategories.add(parentCategory.getName());
+            allCategories.add(parentCategory.name());
         });
 
         assertEquals(35, allCategories.size());
 
         int totalProductsExpected = allCategories.stream().mapToInt(category -> productsRep.findByCategoryName(category).size()).sum();
-        int totalProductsResult = parentsCategories.stream().mapToInt(parentCategory -> productsSer.getProductsByCategory(parentCategory.getName(),1,9,false).getTotalProducts()).sum();
+        int totalProductsResult = parentsCategories.stream().mapToInt(parentCategory -> productsSer.getProductsByCategory(parentCategory.name(),1,9,false).getTotalProducts()).sum();
         assertEquals(totalProductsExpected, totalProductsResult);
     }
 
     private List<String> getSubCategories(Categories parentCategory) {
-        List<Categories> subCategories = categoriesRep.findByParentCategory(parentCategory.getId());
+        List<Categories> subCategories = categoriesRep.findByParentCategory(parentCategory.id());
         List<String> subcategoriesNames = new ArrayList<>();
         subCategories.stream().forEach(subCategory ->{
-            subcategoriesNames.add(subCategory.getName());
+            subcategoriesNames.add(subCategory.name());
             subcategoriesNames.addAll(getSubCategories(subCategory));
         });
         return subcategoriesNames;

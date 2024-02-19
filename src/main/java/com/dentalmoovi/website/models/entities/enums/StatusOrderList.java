@@ -1,4 +1,4 @@
-package com.dentalmoovi.website.models.enums;
+package com.dentalmoovi.website.models.entities.enums;
 
 public enum StatusOrderList {
     COMPLETE, CANCEL, PENDING

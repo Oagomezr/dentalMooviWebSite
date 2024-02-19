@@ -13,8 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
-import com.dentalmoovi.website.models.enums.GenderList;
-import com.dentalmoovi.website.models.enums.RolesList;
+import com.dentalmoovi.website.models.entities.enums.GenderList;
+import com.dentalmoovi.website.models.entities.enums.RolesList;
 import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
 

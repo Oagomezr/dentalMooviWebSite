@@ -7,7 +7,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.CategoriesDTO;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.entities.Categories;
@@ -29,9 +28,9 @@ public class CategoriesSer {
         List<Categories> parentCategories = categoriesRep.findParentCategories();
         List<CategoriesDTO> parentCategoriesDTO = new ArrayList<>();
         parentCategories.stream().forEach(parentCategory -> {
-            List<String> itself = List.of(parentCategory.getName());
+            List<String> itself = List.of(parentCategory.name());
             List<CategoriesDTO> subCategories = getSubCategories(parentCategory, itself);
-            CategoriesDTO parentCategoryDTO = setParentCategoryDTO(List.of(parentCategory.getName()), subCategories);
+            CategoriesDTO parentCategoryDTO = setParentCategoryDTO(List.of(parentCategory.name()), subCategories);
             parentCategoriesDTO.add(parentCategoryDTO);
         });
         return setCategoriesResponse(parentCategoriesDTO);
@@ -41,8 +40,7 @@ public class CategoriesSer {
     public MessageDTO updateCategoryName(String categoryName, String newName){
         Categories category = categoriesRep.findByName(categoryName)
             .orElseThrow(() -> new RuntimeException(categoryNotFound));
-        category.setName(newName);
-        categoriesRep.save(category);
+        categoriesRep.save(new Categories(category.id(), newName, category.idParentCategory()));
         return new MessageDTO("Category updated");
     }
 
@@ -51,24 +49,25 @@ public class CategoriesSer {
         Categories category = categoriesRep.findByName(categoryName)
             .orElseThrow(() -> new RuntimeException(categoryNotFound));
         if (newPosition.equals("-")) {
-            category.setIdParentCategory(null);
+            Categories categoryUpdated = new Categories(category.id(), category.name(), null);
+            categoriesRep.save(categoryUpdated);
         }else{
             Categories newParentCategory = categoriesRep.findByName(newPosition)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
-            category.setIdParentCategory(newParentCategory.getId());
+            Categories categoryUpdated = new Categories(category.id(), category.name(), newParentCategory.id());
+            categoriesRep.save(categoryUpdated);
         }
-        categoriesRep.save(category);
         return new MessageDTO("Category updated");
     }
 
     @CacheEvict(cacheNames = {"getAllCategories", "productsByCategory"}, allEntries = true)
     public MessageDTO addCategory(String parentCategoryName, String newCategoryName){
         if (parentCategoryName.equals("-")) {
-            Utils.setCategory(newCategoryName, null, categoriesRep);
+            categoriesRep.save(new Categories(null, newCategoryName, null));
         }else{
             Categories parentCategory = categoriesRep.findByName(parentCategoryName)
                 .orElseThrow(() -> new RuntimeException(categoryNotFound));
-            Utils.setCategory(newCategoryName, parentCategory.getId(), categoriesRep);
+            categoriesRep.save(new Categories(null, newCategoryName, parentCategory.id()));
         }
         return new MessageDTO("Category created");
     }
@@ -83,13 +82,13 @@ public class CategoriesSer {
     }
 
     private List<CategoriesDTO> getSubCategories(Categories parentCategory, List<String> parents) {
-        List<Categories> subCategories = categoriesRep.findByParentCategory(parentCategory.getId());
+        List<Categories> subCategories = categoriesRep.findByParentCategory(parentCategory.id());
         List<CategoriesDTO> subCategoriesDTO = new ArrayList<>();
         if(subCategories.isEmpty()) return subCategoriesDTO;  
 
         subCategories.stream().forEach(subCategory ->{
             List<String> itselfAndParents = new ArrayList<>(parents);
-            itselfAndParents.add(0, subCategory.getName());
+            itselfAndParents.add(0, subCategory.name());
             List<CategoriesDTO> subcategoriesOfSubcategory = getSubCategories(subCategory, itselfAndParents);
             CategoriesDTO subCategoryDTO = setParentCategoryDTO(itselfAndParents, subcategoriesOfSubcategory);
             subCategoriesDTO.add(subCategoryDTO);

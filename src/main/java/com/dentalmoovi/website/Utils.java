@@ -1,20 +1,15 @@
 package com.dentalmoovi.website;
 
 import com.dentalmoovi.website.models.cart.CartRequest;
-import com.dentalmoovi.website.models.dtos.AddressesDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
-import com.dentalmoovi.website.models.entities.Addresses;
-import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Images;
 import com.dentalmoovi.website.models.entities.Orders;
 import com.dentalmoovi.website.models.entities.Products;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
-import com.dentalmoovi.website.models.enums.GenderList;
-import com.dentalmoovi.website.models.enums.RolesList;
-import com.dentalmoovi.website.models.enums.StatusOrderList;
-import com.dentalmoovi.website.repositories.AddressesRep;
-import com.dentalmoovi.website.repositories.CategoriesRep;
+import com.dentalmoovi.website.models.entities.enums.GenderList;
+import com.dentalmoovi.website.models.entities.enums.RolesList;
+import com.dentalmoovi.website.models.entities.enums.StatusOrderList;
 import com.dentalmoovi.website.repositories.ImgRep;
 import com.dentalmoovi.website.repositories.OrdersRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
@@ -62,14 +57,6 @@ public class Utils {
         cookie.setMaxAge(1);
         cookie.setDomain("localhost");
         hsr.addCookie(cookie);
-    }
-
-    public static Categories setCategory(String name, Long idParentCategory, CategoriesRep repository){
-        Categories category = new Categories();
-        category.setName(name);
-        category.setIdParentCategory(idParentCategory);
-        category = repository.save(category);
-        return category;
     }
 
     public static Products setProduct(String name, String description, String shortDescription, double unitPrice, int stock, 
@@ -153,28 +140,6 @@ public class Utils {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error al convertir a JSON: " + e.getMessage());
         }
-    }
-
-    public static Addresses setAddress(String departament, String location, String addressLocation, String phone, String description, AddressesRep rep){
-        Addresses address = new Addresses();
-        address.setDepartament(departament);
-        address.setLocation(location);
-        address.setAddress(addressLocation);
-        address.setPhone(phone);
-        address.setDescription(description);
-        address = rep.save(address);
-        return address;
-    }
-
-    public static AddressesDTO setAddressDTO(long id, String departament, String location, String address, String phone, String description){
-        AddressesDTO addressDTO = new AddressesDTO();
-        addressDTO.setId(id);
-        addressDTO.setDepartament(departament);
-        addressDTO.setLocation(location);
-        addressDTO.setAddress(address);
-        addressDTO.setPhone(phone);
-        addressDTO.setDescription(description);
-        return addressDTO;
     }
 
     public static Orders setOrder(StatusOrderList status, long idUser, long idAddress, CartRequest req, OrdersRep rep){

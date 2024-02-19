@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.UserDTO;
-import com.dentalmoovi.website.models.enums.GenderList;
+import com.dentalmoovi.website.models.entities.enums.GenderList;
 import com.dentalmoovi.website.services.cache.CacheSer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

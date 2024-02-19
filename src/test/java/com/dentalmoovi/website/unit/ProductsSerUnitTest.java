@@ -34,26 +34,26 @@ class ProductsSerUnitTest {
 
     private static Categories parentCategoryX = setCategory(1L, "parent1", null);
     private static Categories parentCategoryY = setCategory(2L, "parent2", null);
-    private static Categories subCategoryX1 = setCategory(3L, "subCategoryX1", parentCategoryX.getId());
-    private static Categories subCategoryX2 = setCategory(4L, "subCategoryX2", parentCategoryX.getId());
-    private static Categories subCategoryY1 = setCategory(5L, "subCategoryY1", parentCategoryY.getId());
-    private static Categories subSubCategoryX2 = setCategory(6L, "subSubCategoryX2", subCategoryX2.getId());
+    private static Categories subCategoryX1 = setCategory(3L, "subCategoryX1", parentCategoryX.id());
+    private static Categories subCategoryX2 = setCategory(4L, "subCategoryX2", parentCategoryX.id());
+    private static Categories subCategoryY1 = setCategory(5L, "subCategoryY1", parentCategoryY.id());
+    private static Categories subSubCategoryX2 = setCategory(6L, "subSubCategoryX2", subCategoryX2.id());
 
-    private static Products productosubX1one = setProduct(1L,"productosubX1one",  "description productosubX1one", 4, 1, subCategoryX1.getId(), true);
-    private static Products productosubX1two = setProduct(2L,"productosubX1two", "description productosubX1two", 4, 1, subCategoryX1.getId(), true);
-    private static Products productosubX1three = setProduct(3L,"productosubX1three", "description productosubX1three", 4, 1, subCategoryX1.getId(), true);
-    private static Products productosubX1four = setProduct(4L,"productosubX1four", "description productosubX1four", 4, 1, subCategoryX1.getId(), true);
-    private static Products productosubX1five = setProduct(5L,"productosubX1five", "description productosubX1five", 4, 1, subCategoryX1.getId(), true);
-    private static Products productosubX1six = setProduct(6L,"productosubX1six", "description productosubX1six", 4, 1, subCategoryX1.getId(), true);
-    private static Products productosubX2one = setProduct(7L,"productosubX2one", "description productosubX2one", 4, 1, subCategoryX2.getId(), true);
-    private static Products productosubX2two = setProduct(8L,"productosubX2two", "description productosubX2two", 4, 1, subCategoryX2.getId(), true);
-    private static Products productosubX2three = setProduct(9L,"productosubX2three",  "description productosubX2three", 4, 1, subCategoryX2.getId(), true);
-    private static Products productosubY1one = setProduct(10L,"productosubY1one", "description productosubY1one", 4, 1, subCategoryY1.getId(), true);
-    private static Products productosubY1two = setProduct(11L,"productosubY1two", "description productosubY1two", 4, 1, subCategoryY1.getId(), true);
-    private static Products productosubY1three = setProduct(12L,"productosubY1three",  "description productosubY1three", 4, 1, subCategoryY1.getId(), true);
-    private static Products productosubY1four = setProduct(13L,"productosubY1four", "description productosubY1four", 4, 1, subCategoryY1.getId(), true);
-    private static Products productosubSubX1one = setProduct(14L,"productosubSubX1one",  "description productosubSubX1one", 4, 1, subSubCategoryX2.getId(), true);
-    private static Products productosubSubX1two = setProduct(15L,"productosubSubX1two", "description productosubSubX1two", 4, 1, subSubCategoryX2.getId(), true);
+    private static Products productosubX1one = setProduct(1L,"productosubX1one",  "description productosubX1one", 4, 1, subCategoryX1.id(), true);
+    private static Products productosubX1two = setProduct(2L,"productosubX1two", "description productosubX1two", 4, 1, subCategoryX1.id(), true);
+    private static Products productosubX1three = setProduct(3L,"productosubX1three", "description productosubX1three", 4, 1, subCategoryX1.id(), true);
+    private static Products productosubX1four = setProduct(4L,"productosubX1four", "description productosubX1four", 4, 1, subCategoryX1.id(), true);
+    private static Products productosubX1five = setProduct(5L,"productosubX1five", "description productosubX1five", 4, 1, subCategoryX1.id(), true);
+    private static Products productosubX1six = setProduct(6L,"productosubX1six", "description productosubX1six", 4, 1, subCategoryX1.id(), true);
+    private static Products productosubX2one = setProduct(7L,"productosubX2one", "description productosubX2one", 4, 1, subCategoryX2.id(), true);
+    private static Products productosubX2two = setProduct(8L,"productosubX2two", "description productosubX2two", 4, 1, subCategoryX2.id(), true);
+    private static Products productosubX2three = setProduct(9L,"productosubX2three",  "description productosubX2three", 4, 1, subCategoryX2.id(), true);
+    private static Products productosubY1one = setProduct(10L,"productosubY1one", "description productosubY1one", 4, 1, subCategoryY1.id(), true);
+    private static Products productosubY1two = setProduct(11L,"productosubY1two", "description productosubY1two", 4, 1, subCategoryY1.id(), true);
+    private static Products productosubY1three = setProduct(12L,"productosubY1three",  "description productosubY1three", 4, 1, subCategoryY1.id(), true);
+    private static Products productosubY1four = setProduct(13L,"productosubY1four", "description productosubY1four", 4, 1, subCategoryY1.id(), true);
+    private static Products productosubSubX1one = setProduct(14L,"productosubSubX1one",  "description productosubSubX1one", 4, 1, subSubCategoryX2.id(), true);
+    private static Products productosubSubX1two = setProduct(15L,"productosubSubX1two", "description productosubSubX1two", 4, 1, subSubCategoryX2.id(), true);
 
     @Test
     void getProductsByCategoryTest(){
@@ -223,10 +223,7 @@ class ProductsSerUnitTest {
     }
 
     private static Categories setCategory(Long id, String name, Long idparentCategory){
-        Categories category = new Categories();
-        category.setId(id);
-        category.setName(name);
-        category.setIdParentCategory(idparentCategory);
+        Categories category = new Categories(id, name, idparentCategory);
         return category;
     }
 

@@ -93,10 +93,10 @@ public class ProductsSer {
 
             //Get all subcategories
             private List<String> getNamesCategories(Categories parentCategory) {
-                List<Categories> subCategories = categoriesRep.findByParentCategory(parentCategory.getId());
+                List<Categories> subCategories = categoriesRep.findByParentCategory(parentCategory.id());
                 List<String> subcategoriesNames = new ArrayList<>();
                 subCategories.stream().forEach(subCategory ->{
-                    subcategoriesNames.add(subCategory.getName());
+                    subcategoriesNames.add(subCategory.name());
                     subcategoriesNames.addAll(getNamesCategories(subCategory));
                 });
 
@@ -144,10 +144,10 @@ public class ProductsSer {
             //It's a function with the aim of find the location products inside the categories
             @SuppressWarnings("null")
             private List<String> getLocationProduct(Categories category){
-                List<String> location = new ArrayList<>(List.of(category.getName()));
-                if(category.getIdParentCategory() != null) 
+                List<String> location = new ArrayList<>(List.of(category.name()));
+                if(category.idParentCategory() != null) 
                     location.addAll(getLocationProduct(
-                        categoriesRep.findById(category.getIdParentCategory())
+                        categoriesRep.findById(category.idParentCategory())
                         .orElseThrow(() -> new RuntimeException(categoryNotFound))
                     )
                 );
@@ -363,12 +363,17 @@ public class ProductsSer {
         if (Boolean.TRUE.equals(productsRep.existsByName("Nombre del nuevo producto"))) {
             Products product = productsRep.findByName("Nombre del nuevo producto")
                 .orElseThrow(() -> new RuntimeException(productNotFound));
-            product.setIdCategory(category.getId());
+            product.setIdCategory(category.id());
             productsRep.save(product);
             return false;
         }
         
-        Utils.setProduct("Nombre del nuevo producto", "Descripción del nuevo producto", "descripción corta del nuevo producto", 0, 0, category.getId(), false, productsRep);
+        Utils.setProduct(
+            "Nombre del nuevo producto", 
+            "Descripción del nuevo producto", 
+            "descripción corta del nuevo producto", 
+            0, 0, category.id(), false, productsRep);
+            
         return true;
     }
 

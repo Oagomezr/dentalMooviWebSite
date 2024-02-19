@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.cors.CorsConfiguration;
 
-import com.dentalmoovi.website.models.enums.RolesList;
+import com.dentalmoovi.website.models.entities.enums.RolesList;
 import com.dentalmoovi.website.security.jwt.JWTauthFilter;
 import com.dentalmoovi.website.security.jwt.JWTentryPoint;
 

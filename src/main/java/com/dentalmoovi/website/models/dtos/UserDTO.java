@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.dentalmoovi.website.models.enums.GenderList;
+import com.dentalmoovi.website.models.entities.enums.GenderList;
 
 import lombok.Getter;
 import lombok.Setter;

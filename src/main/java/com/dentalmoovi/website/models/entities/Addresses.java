@@ -2,15 +2,12 @@ package com.dentalmoovi.website.models.entities;
 
 import org.springframework.data.annotation.Id;
 
-import lombok.Data;
+import jakarta.annotation.Nonnull;
 
-@Data
-public class Addresses {
-    @Id
-    private Long id;
-    private String departament;
-    private String location;
-    private String address;
-    private String phone;
-    private String description;
-}
+public record Addresses(
+    @Id Long id,
+    String address,
+    String phone,
+    String description,
+    @Nonnull Integer idMunicipalyCity
+) {}

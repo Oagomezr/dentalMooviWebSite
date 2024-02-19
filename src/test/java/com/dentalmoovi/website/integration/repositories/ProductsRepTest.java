@@ -32,25 +32,25 @@ class ProductsRepTest {
     
     @BeforeAll
     static void setUp(@Autowired CategoriesRep categoriesRep, @Autowired ProductsRep productsRep){
-        categoryX = Utils.setCategory("categoryX", null, categoriesRep);
-        categoryY = Utils.setCategory("categoryY", null, categoriesRep);
+        categoryX = categoriesRep.save(new Categories(null, "categoryX", null));
+        categoryY = categoriesRep.save(new Categories(null, "categoryY", null));
 
-        productX1 = Utils.setProduct("productX1", "description productX1","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX2", "description productX2","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX3", "description productX3","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX4", "description productX4","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX5", "description productX5","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productX6", "description productX6","shortDescription", 1200, 4, categoryX.getId(), true, productsRep);
-        Utils.setProduct("productY1", "description productY1","shortDescription", 1200, 4, categoryY.getId(), true, productsRep);
-        Utils.setProduct("productY2", "description productY2","shortDescription", 1200, 4, categoryY.getId(), true, productsRep);
-        Utils.setProduct("productY3", "description productY3","shortDescription", 1200, 4, categoryY.getId(), true, productsRep);
-        Utils.setProduct("productY4", "description productY4","shortDescription", 1200, 4, categoryY.getId(), true, productsRep);
+        productX1 = Utils.setProduct("productX1", "description productX1","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
+        Utils.setProduct("productX2", "description productX2","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
+        Utils.setProduct("productX3", "description productX3","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
+        Utils.setProduct("productX4", "description productX4","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
+        Utils.setProduct("productX5", "description productX5","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
+        Utils.setProduct("productX6", "description productX6","shortDescription", 1200, 4, categoryX.id(), true, productsRep);
+        Utils.setProduct("productY1", "description productY1","shortDescription", 1200, 4, categoryY.id(), true, productsRep);
+        Utils.setProduct("productY2", "description productY2","shortDescription", 1200, 4, categoryY.id(), true, productsRep);
+        Utils.setProduct("productY3", "description productY3","shortDescription", 1200, 4, categoryY.id(), true, productsRep);
+        Utils.setProduct("productY4", "description productY4","shortDescription", 1200, 4, categoryY.id(), true, productsRep);
     }
 
     @Test
     void productsByCategoryNameTest(){
-        List<Products> productsCategoryX = productsRep.findByCategoryName(categoryX.getName());
-        List<Products> productsCategoryY = productsRep.findByCategoryName(categoryY.getName());
+        List<Products> productsCategoryX = productsRep.findByCategoryName(categoryX.name());
+        List<Products> productsCategoryY = productsRep.findByCategoryName(categoryY.name());
         assertEquals(6, productsCategoryX.size());
         assertEquals(4, productsCategoryY.size());
     }
