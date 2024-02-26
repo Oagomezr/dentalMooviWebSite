@@ -42,11 +42,11 @@ class CategoriesSerIntegrationTest {
     private void testSubCategories(List<CategoriesDTO> parents){
         if(parents.size() == 0) return;
         parents.stream().forEach(parentCategoryDTO ->{
-            String nameParentCategory = parentCategoryDTO.getCategoryAndParents().get(0);
+            String nameParentCategory = parentCategoryDTO.categoryAndParents().get(0);
             Categories parentCategory = categoriesRep.findByName(nameParentCategory)
                                         .orElseThrow(() -> new RuntimeException("Category not found"));
             List<Categories> expected = categoriesRep.findByParentCategory(parentCategory.id());
-            List<CategoriesDTO> result = parentCategoryDTO.getChildrenCategories();
+            List<CategoriesDTO> result = parentCategoryDTO.childrenCategories();
             assertEquals(expected.size(), result.size());
             //Test sub-Subcategories
             testSubCategories(result);

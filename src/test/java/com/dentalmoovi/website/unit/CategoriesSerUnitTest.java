@@ -60,12 +60,12 @@ class CategoriesSerUnitTest {
         });
 
         CategoriesResponse response = categoriesSer.getAllCategories();
-        CategoriesDTO result1 = response.getData().get(0).getChildrenCategories().get(1);
+        CategoriesDTO result1 = response.getData().get(0).childrenCategories().get(1);
         List<String> expected1 = List.of("subCategoryX2","parent1");
-        CategoriesDTO result2 = result1.getChildrenCategories().get(0);
+        CategoriesDTO result2 = result1.childrenCategories().get(0);
         List<String> expected2 = List.of("subSubCategoryX2","subCategoryX2","parent1");
         //assertEquals(expected1, response.getData().get(0).getCategoryAndParents());
-        assertEquals(expected1, result1.getCategoryAndParents());
-        assertEquals(expected2, result2.getCategoryAndParents());
+        assertEquals(expected1, result1.categoryAndParents());
+        assertEquals(expected2, result2.categoryAndParents());
     }
 }

@@ -85,10 +85,10 @@ class ProductsSerIntegrationTest {
             Products product = productsRep.findByName(keyWord)
                     .orElseThrow(() -> new RuntimeException("Product not found"));
             ProductsDTO productResult = productsSer.getProduct(keyWord, false);
-            assertEquals(product.name(), productResult.getNameProduct());
-            assertEquals(product.unitPrice(), productResult.getUnitPrice());
-            assertEquals(product.description(), productResult.getDescription());
-            assertEquals(product.stock(), productResult.getStock());
+            assertEquals(product.name(), productResult.nameProduct());
+            assertEquals(product.unitPrice(), productResult.unitPrice());
+            assertEquals(product.description(), productResult.description());
+            assertEquals(product.stock(), productResult.stock());
         });
     }
 }

@@ -10,19 +10,17 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import com.dentalmoovi.website.models.entities.enums.StatusOrderList;
 import com.dentalmoovi.website.models.entities.many_to_many.OrdersProducts;
 
-import lombok.Data;
-
-@Data
-public class Orders {
-    @Id
-    private Long id;
-    private byte[] orderFile;
-    private StatusOrderList status;
-    private Long idUser;
-    private Long idAddress;
-
-    @MappedCollection(idColumn = "id_order")
-    private Set<OrdersProducts> products = new HashSet<>();
+public record Orders(
+    @Id Long id,
+    byte[] orderFile,
+    StatusOrderList status,
+    Long idUser,
+    Long idAddress,
+    @MappedCollection(idColumn = "id_order") Set<OrdersProducts> products
+) {
+    public Orders{
+        if (products == null) products = new HashSet<>(); 
+    }
 
     public void addProduct(Long idProduct, int amount){
         this.products.add(new OrdersProducts(id ,idProduct, amount));

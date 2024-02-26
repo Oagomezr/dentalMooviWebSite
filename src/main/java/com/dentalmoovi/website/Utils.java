@@ -53,20 +53,6 @@ public class Utils {
         hsr.addCookie(cookie);
     }
 
-    /* public static Products setProduct(String name, String description, String shortDescription, double unitPrice, int stock, 
-                                        Long idCategory, boolean openToPublic, ProductsRep repository){
-        Products product = new Products();
-        product.setName(name);
-        product.setDescription(description);
-        product.setShortDescription(shortDescription);
-        product.setUnitPrice(unitPrice);
-        product.setStock(stock);
-        product.setIdCategory(idCategory);
-        product.setOpenToPublic(openToPublic);
-        product = repository.save(product);
-        return product;
-    } */
-
     public static Users setUser(String firstName, String lastName, String email, String celPhone, GenderList gender,
                                 String password, LocalDate birthdate, Roles role , UserRep repository){
         Users user = new Users();
@@ -81,13 +67,6 @@ public class Utils {
         user = repository.save(user);
         return user;
     }
-
-    /* public static Roles setRole(RolesList roleType, RolesRep repository){
-        Roles role = new Roles();
-        role.setRole(roleType);
-        role = repository.save(role);
-        return role;
-    } */
 
     public static byte[] loadImageData(String imagePath) {
         try {
@@ -127,10 +106,7 @@ public class Utils {
     }
 
     public static Orders setOrder(StatusOrderList status, long idUser, long idAddress, CartRequest req, OrdersRep rep){
-        Orders order = new Orders();
-        order.setStatus(status);
-        order.setIdUser(idUser);
-        order.setIdAddress(idAddress);
+        Orders order = new Orders(null, null, status, idUser, idAddress, null);
         req.getData().forEach(elem ->
             order.addProduct(elem.getId(), elem.getAmount()));
         return rep.save(order);

@@ -165,7 +165,7 @@ class ProductsSerUnitTest {
 
         productsTest.stream().forEach(productTest ->{
             ProductsDTO expected = productsSer.getProduct(productTest.name(),false);
-            assertEquals(expected.getNameProduct(), productTest.name());
+            assertEquals(expected.nameProduct(), productTest.name());
         });
     }
 

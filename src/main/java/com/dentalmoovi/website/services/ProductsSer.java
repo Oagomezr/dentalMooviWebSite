@@ -130,12 +130,12 @@ public class ProductsSer {
                 //Get Product images
                 List<ImagesDTO> productImagesDTO = getProductImages(product, true);
 
-                ProductsDTO productsDTO = setProductDTO(product.id() , name, product.unitPrice(), product.description(), 
-                                            product.shortDescription(), product.stock(), productImagesDTO);
-                productsDTO.setLocation(location);
+                String hidden = null;
 
-                if (admin && !product.openToPublic())
-                    productsDTO.setHidden("yes");
+                if (admin && !product.openToPublic()) hidden = "yes";
+
+                ProductsDTO productsDTO = setProductDTO(product.id() , name, product.unitPrice(), product.description(), 
+                    product.shortDescription(), product.stock(), productImagesDTO, location, hidden);
 
                 return productsDTO;
             }
@@ -448,9 +448,11 @@ public class ProductsSer {
             try {
                 if(product.openToPublic() || all){
                     List<ImagesDTO> productImagesDTO = getProductImages(product, false);
+                    String hidden = null;
+                    
+                    if (!product.openToPublic()) hidden = "Yes";
                     ProductsDTO productDTO = setProductDTO(product.id() , product.name(), product.unitPrice(), 
-                        product.description(), product.shortDescription(), product.stock(), productImagesDTO);
-                    if (!product.openToPublic()) productDTO.setHidden("Yes");
+                        product.description(), product.shortDescription(), product.stock(), productImagesDTO, null, hidden);
                     productsDTOList.add(productDTO);
                 }
             } catch (Exception e) {
@@ -503,24 +505,15 @@ public class ProductsSer {
     }
 
     private ImagesDTO setImageDTO(long id ,String name, String contenType, String base64){
-        ImagesDTO imageDTO = new ImagesDTO();
-        imageDTO.setId(id);
-        imageDTO.setName(name);
-        imageDTO.setContentType(contenType);
-        imageDTO.setImageBase64(base64);
+        ImagesDTO imageDTO = new ImagesDTO(id, name, contenType, base64);
         return imageDTO;
     }
 
-    private ProductsDTO setProductDTO(long id, String name, double unitPrice, String description, 
-                                        String shortDescription ,int stock, List<ImagesDTO> imagesDTO){
-        ProductsDTO productDTO = new ProductsDTO();
-        productDTO.setId(id);
-        productDTO.setNameProduct(name);
-        productDTO.setUnitPrice(unitPrice);
-        productDTO.setDescription(description);
-        productDTO.setShortDescription(shortDescription);
-        productDTO.setStock(stock);
-        productDTO.setImages(imagesDTO);
+    private ProductsDTO setProductDTO(long id, String name, double unitPrice, String description, String shortDescription 
+                    ,int stock, List<ImagesDTO> imagesDTO, List<String> location, String openToPublic ){
+        ProductsDTO productDTO = 
+            new ProductsDTO(
+                id, name, unitPrice, description, shortDescription, stock, imagesDTO, location, openToPublic);
         return productDTO;
     }
 

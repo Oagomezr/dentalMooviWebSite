@@ -97,9 +97,7 @@ public class CategoriesSer {
     }
 
     private CategoriesDTO setParentCategoryDTO(List<String> itselfAndParents, List<CategoriesDTO> childrenCategories){
-        CategoriesDTO categoryDTO = new CategoriesDTO();
-        categoryDTO.setCategoryAndParents(itselfAndParents);
-        categoryDTO.setChildrenCategories(childrenCategories);
+        CategoriesDTO categoryDTO = new CategoriesDTO(itselfAndParents, childrenCategories);
         return categoryDTO;
     }
 

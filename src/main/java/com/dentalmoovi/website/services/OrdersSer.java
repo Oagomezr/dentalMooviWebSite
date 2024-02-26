@@ -49,7 +49,7 @@ public class OrdersSer {
 
     private boolean admin = false;
 
-    Orders order = new Orders();
+    Orders order = new Orders(null, null, null, null, null, null);
     Users user = new Users();
 
     public void downloadOrder(CartRequest req, long idAddress, boolean admin, HttpServletResponse response){
@@ -72,8 +72,10 @@ public class OrdersSer {
     public File generateOrder(CartRequest req, long idAddress) throws Exception{
         File pdfFile = generatePdf(req, idAddress);
         byte[] pdfContent = Files.readAllBytes(pdfFile.toPath());
-        order.setOrderFile(pdfContent);
-        order = ordersRep.save(order);
+        order = ordersRep.save(
+            new Orders(
+                order.id(), pdfContent, order.status(), order.idUser(), 
+                order.idAddress(), order.products()));
 
         return pdfFile;
     }
@@ -91,6 +93,7 @@ public class OrdersSer {
         
         order = Utils.setOrder(StatusOrderList.PENDING, user.getId(), idAddress, req, ordersRep);
 
+
         Addresses address = addressesRep.findById(idAddress)
             .orElseThrow(() -> new RuntimeException("Address not found"));
 
@@ -102,7 +105,7 @@ public class OrdersSer {
 
         OrderFormat orderData = getProductsOrdered(req);
 
-        orderData.setOrderNumber(order.getId());
+        orderData.setOrderNumber(order.id());
         orderData.setCustomerName(user.getFirstName());
         orderData.setCustomerLastName(user.getLastName());
         orderData.setCelPhone(address.phone());

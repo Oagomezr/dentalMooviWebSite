@@ -2,19 +2,14 @@ package com.dentalmoovi.website.models.dtos;
 
 import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class ProductsDTO {
-    private long id;
-    private String nameProduct;
-    private double unitPrice;
-    private String description;
-    private String shortDescription;
-    private int stock;
-    private List<ImagesDTO> images;
-    private List<String> location;
-    private String hidden;
-}
+public record ProductsDTO(
+    long id,
+    String nameProduct,
+    double unitPrice,
+    String description,
+    String shortDescription,
+    int stock,
+    List<ImagesDTO> images,
+    List<String> location,
+    String hidden
+) {}
