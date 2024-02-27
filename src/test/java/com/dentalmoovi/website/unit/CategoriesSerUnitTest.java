@@ -60,7 +60,7 @@ class CategoriesSerUnitTest {
         });
 
         CategoriesResponse response = categoriesSer.getAllCategories();
-        CategoriesDTO result1 = response.getData().get(0).childrenCategories().get(1);
+        CategoriesDTO result1 = response.data().get(0).childrenCategories().get(1);
         List<String> expected1 = List.of("subCategoryX2","parent1");
         CategoriesDTO result2 = result1.childrenCategories().get(0);
         List<String> expected2 = List.of("subSubCategoryX2","subCategoryX2","parent1");

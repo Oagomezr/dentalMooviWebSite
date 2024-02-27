@@ -22,15 +22,17 @@ import com.dentalmoovi.website.models.entities.enums.RolesList;
 import com.dentalmoovi.website.security.jwt.JWTauthFilter;
 import com.dentalmoovi.website.security.jwt.JWTentryPoint;
 
-import lombok.RequiredArgsConstructor;
-
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JWTentryPoint jWTentryPoint;
     
+    
+    public SecurityConfig(JWTentryPoint jWTentryPoint) {
+        this.jWTentryPoint = jWTentryPoint;
+    }
+
     @Bean
     public SecurityFilterChain sfc(HttpSecurity http) throws Exception{
 

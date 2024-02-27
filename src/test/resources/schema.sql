@@ -1,4 +1,7 @@
-DROP TABLE IF EXISTS categories, images, products, users, roles, users_roles;
+USE dental_moovi;
+DROP DATABASE prueba;
+CREATE DATABASE prueba;
+USE prueba;
 
 CREATE TABLE categories (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

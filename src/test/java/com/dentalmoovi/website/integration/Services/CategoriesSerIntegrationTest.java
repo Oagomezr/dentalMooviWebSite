@@ -32,7 +32,7 @@ class CategoriesSerIntegrationTest {
     void getAllCategoriesTest(){
         //Test parent categories first
         CategoriesResponse response = categoriesSer.getAllCategories();
-        List<CategoriesDTO> resultParents = response.getData();
+        List<CategoriesDTO> resultParents = response.data();
         List<Categories> expectedParents = categoriesRep.findParentCategories();
         assertEquals(expectedParents.size(), resultParents.size());
         //Test subcategories

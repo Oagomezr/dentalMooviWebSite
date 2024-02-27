@@ -34,10 +34,8 @@ import com.dentalmoovi.website.repositories.enums.DepartamentsRep;
 import com.dentalmoovi.website.repositories.enums.MunicipalyRep;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class OrdersSer {
     private final OrdersRep ordersRep;
     private final UserRep userRep;
@@ -47,10 +45,21 @@ public class OrdersSer {
     private final DepartamentsRep departamentsRep;
     private final MunicipalyRep municipalyRep;
 
+    public OrdersSer(OrdersRep ordersRep, UserRep userRep, ProductsSer productsSer, AddressesRep addressesRep,
+            SpringTemplateEngine ste, DepartamentsRep departamentsRep, MunicipalyRep municipalyRep) {
+        this.ordersRep = ordersRep;
+        this.userRep = userRep;
+        this.productsSer = productsSer;
+        this.addressesRep = addressesRep;
+        this.ste = ste;
+        this.departamentsRep = departamentsRep;
+        this.municipalyRep = municipalyRep;
+    }
+
     private boolean admin = false;
 
-    Orders order = new Orders(null, null, null, null, null, null);
-    Users user = new Users();
+    Orders order;
+    Users user;
 
     public void downloadOrder(CartRequest req, long idAddress, boolean admin, HttpServletResponse response){
         this.admin = admin;
@@ -89,9 +98,9 @@ public class OrdersSer {
     @SuppressWarnings("null")
     private Context getOrderContext(CartRequest req, long idAddress) throws Exception{
 
-        user = admin ? getUser(req.getIdUser()) : getUser();
+        user = admin ? getUser(req.idUser()) : getUser();
         
-        order = Utils.setOrder(StatusOrderList.PENDING, user.getId(), idAddress, req, ordersRep);
+        order = Utils.setOrder(StatusOrderList.PENDING, user.id(), idAddress, req, ordersRep);
 
 
         Addresses address = addressesRep.findById(idAddress)
@@ -103,18 +112,16 @@ public class OrdersSer {
         Departaments departament = departamentsRep.findById(municipaly.id_departament())
             .orElseThrow(() -> new RuntimeException("Departament not found"));
 
-        OrderFormat orderData = getProductsOrdered(req);
+        CartResponse cartResponse = productsSer.getShoppingCartProducts(req, admin, true);
+        
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        String hour = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
 
-        orderData.setOrderNumber(order.id());
-        orderData.setCustomerName(user.getFirstName());
-        orderData.setCustomerLastName(user.getLastName());
-        orderData.setCelPhone(address.phone());
-        orderData.setDate(LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-        orderData.setHour(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
-        orderData.setDepartament(departament.name());
-        orderData.setLocation(municipaly.name());
-        orderData.setAddress(address.address());
-        orderData.setEnterprise(null);
+        OrderFormat orderData = 
+            new OrderFormat(
+                order.id(), user.firstName(), user.lastName(), address.phone(), date, hour, departament.name(), 
+                municipaly.name(), address.address(), null, cartResponse.data(), 
+                String.format("%,.2f", cartResponse.total()));
 
         Context context = new Context();
         context.setVariable("order", orderData);
@@ -132,17 +139,6 @@ public class OrdersSer {
     private Users getUser(long id){
         return userRep.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    private OrderFormat getProductsOrdered(CartRequest req) throws Exception{
-        OrderFormat orderData = new OrderFormat();
-
-        CartResponse cartResponse = productsSer.getShoppingCartProducts(req, admin, true);
-        
-        orderData.setProducts(cartResponse.getData());
-
-        orderData.setTotal(String.format("%,.2f", cartResponse.getTotal()));
-        return orderData;
     }
 
     private String loadAndFillTemplate(Context context) {

@@ -49,7 +49,7 @@ class ProductsSerIntegrationTest {
         assertEquals(35, allCategories.size());
 
         int totalProductsExpected = allCategories.stream().mapToInt(category -> productsRep.findByCategoryName(category).size()).sum();
-        int totalProductsResult = parentsCategories.stream().mapToInt(parentCategory -> productsSer.getProductsByCategory(parentCategory.name(),1,9,false).getTotalProducts()).sum();
+        int totalProductsResult = parentsCategories.stream().mapToInt(parentCategory -> productsSer.getProductsByCategory(parentCategory.name(),1,9,false).totalProducts()).sum();
         assertEquals(totalProductsExpected, totalProductsResult);
     }
 
@@ -71,9 +71,9 @@ class ProductsSerIntegrationTest {
             List<Products> productsFound = productsRep.findByNameContaining(keyWord,9,0);
             ProductsResponse response7 = productsSer.getProductsByContaining(keyWord, true, 1, 9, false);
             ProductsResponse response = productsSer.getProductsByContaining(keyWord, false, 1, 9, false);
-            assertEquals(products7Found.size(), response7.getTotalProducts());
-            assertEquals(productsFound.size(), response.getTotalProducts());
-            assertTrue(response.getPaginatedProducts() <= 9);
+            assertEquals(products7Found.size(), response7.totalProducts());
+            assertEquals(productsFound.size(), response.totalProducts());
+            assertTrue(response.paginatedProducts() <= 9);
         });
         
     }

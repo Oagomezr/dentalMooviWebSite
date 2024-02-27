@@ -11,15 +11,17 @@ import com.dentalmoovi.website.models.cart.CartRequest;
 import com.dentalmoovi.website.services.OrdersSer;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
 
 @Controller
 @RequestMapping
 @CrossOrigin(origins = "http://localhost:4200")
-@RequiredArgsConstructor
 public class OrdersController {
     private final OrdersSer ordersSer;
+
+    public OrdersController(OrdersSer ordersSer) {
+        this.ordersSer = ordersSer;
+    }
 
     @PostMapping("/user/generateOrder/{idAddress}")
     public void generateOrderByUser(@RequestBody CartRequest req, @PathVariable long idAddress, HttpServletResponse response) {

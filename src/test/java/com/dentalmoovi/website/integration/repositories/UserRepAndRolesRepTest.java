@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.entities.enums.GenderList;
@@ -43,8 +42,10 @@ class UserRepAndRolesRepTest {
         userRole = rolesRep.save(new Roles(null, RolesList.USER_ROLE));
         adminRole = rolesRep.save(new Roles(null, RolesList.ADMIN_ROLE));
 
-        user1 = Utils.setUser("one", "number", "one@mail.com", "0123456789", GenderList.FEMALE, "12345", null, userRole, usersRep);
-        user2 = Utils.setUser("two", "number", "two@mail.com", "9876543210", GenderList.MALE, "12345", null, userRole, usersRep);
+        user1 = new Users(null, "one", "number",  "one@mail.com",  "0123456789", null, GenderList.FEMALE, "12345", null, null);
+        user1.addRole(userRole);
+        user2 = new Users(null, "two", "number", "two@mail.com", "9876543210", null, GenderList.MALE, "12345", null, null);
+        user2.addRole(userRole);
     }
 
     @Test
@@ -61,9 +62,9 @@ class UserRepAndRolesRepTest {
     @Test
     void findByEmailTest() throws Exception{
 
-        Users userOne = usersRep.findByEmail(user1.getEmail()).
+        Users userOne = usersRep.findByEmail(user1.email()).
                         orElseThrow(() -> new Exception("User not found"));
-        Users userTwo = usersRep.findByEmail(user2.getEmail()).
+        Users userTwo = usersRep.findByEmail(user2.email()).
                         orElseThrow(() -> new Exception("User not found"));
 
         assertEquals(userOne, user1);
@@ -72,7 +73,7 @@ class UserRepAndRolesRepTest {
 
     @Test
     void existsByEmail(){
-        boolean trueCase = usersRep.existsByEmail(user1.getEmail());
+        boolean trueCase = usersRep.existsByEmail(user1.email());
         boolean falseCase = usersRep.existsByEmail("noExist@neverExist.no.exist");
         assertTrue(trueCase);
         assertFalse(falseCase);

@@ -33,16 +33,19 @@ import com.dentalmoovi.website.repositories.CategoriesRep;
 import com.dentalmoovi.website.repositories.ImgRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
 
-import lombok.RequiredArgsConstructor;
-
-
 @Service
-@RequiredArgsConstructor
 public class ProductsSer {
     
     private final ProductsRep productsRep;
     private final CategoriesRep categoriesRep;
     private final ImgRep imagesRep;
+
+    public ProductsSer(ProductsRep productsRep, CategoriesRep categoriesRep, ImgRep imagesRep) {
+        this.productsRep = productsRep;
+        this.categoriesRep = categoriesRep;
+        this.imagesRep = imagesRep;
+    }
+
     private String categoryNotFound = "Category not found";
     private String productNotFound = "Product not found";
 
@@ -82,12 +85,7 @@ public class ProductsSer {
 
                 /*One of the best practices in programming is not send List or Arrays as response,
                 instead Objects as response*/
-                ProductsResponse productsResponse = new ProductsResponse();
-                productsResponse.setTotalProducts(allProducts.size());
-                productsResponse.setPaginatedProducts(productsDTO.size());
-                productsResponse.setData(productsDTO);
-                
-                return productsResponse;
+                return new ProductsResponse(allProducts.size(), productsDTO.size(), productsDTO);
             }
 
             //Get all subcategories
@@ -172,12 +170,7 @@ public class ProductsSer {
             List<ProductsDTO> productsDTO = convertToProductsDTOList(productsFound, all);
 
             //Put the DTOs inside the Object
-            ProductsResponse productsResponse = new ProductsResponse();
-            productsResponse.setTotalProducts(productsDTO.size());
-            productsResponse.setPaginatedProducts(productsDTO.size());
-            productsResponse.setData(productsDTO);
-            return productsResponse;
-
+            return new ProductsResponse(productsDTO.size(), productsDTO.size(), productsDTO);
         }
 
         //Get all query results
@@ -187,11 +180,7 @@ public class ProductsSer {
         List<ProductsDTO> productsDTO = convertToProductsDTOList(allProductsFound, all);
 
         //Put the DTOs inside the Object
-        ProductsResponse productsResponse = new ProductsResponse();
-        productsResponse.setTotalProducts(productsRep.countProductsByContaining(name));
-        productsResponse.setPaginatedProducts(productsDTO.size());
-        productsResponse.setData(productsDTO);
-        return productsResponse;
+        return new ProductsResponse(productsRep.countProductsByContaining(name), productsDTO.size(), productsDTO);
     }
 
     @CacheEvict(
@@ -388,14 +377,13 @@ public class ProductsSer {
     }
 
     public CartResponse getShoppingCartProducts(CartRequest req, boolean admin, boolean pdf) throws Exception{
-        CartResponse cartResponse = new CartResponse();
 
         List<CartDtoRespose> data = new ArrayList<>();
 
         double total = 0;
         int amountOfProducts = 0;
-        for (CartDtoRequest elem : req.getData()) {
-            Products product = productsRep.findById(elem.getId())
+        for (CartDtoRequest elem : req.data()) {
+            Products product = productsRep.findById(elem.id())
                 .orElseThrow(() -> new RuntimeException(productNotFound));
 
             
@@ -407,36 +395,40 @@ public class ProductsSer {
             if (!product.openToPublic() && !admin)
                 throw new RuntimeException("That product does not exist");
                 
-            CartDtoRespose cart = new CartDtoRespose();
+            
+
+            ImagesDTO cartImage = null;
+            String cartPrizePDF = null;
+            String cartSubtotalPDF = null;
+            double cartPrize = 0;
+            double cartSubtotal = 0;
             
             if (product.idMainImage() != null) {
                 @SuppressWarnings("null")
                 Images mainImage = imagesRep.findById(product.idMainImage())
                     .orElseThrow(() -> new RuntimeException("Image not found"));
-                cart.setImage(setImageDTO(mainImage));
+                cartImage = setImageDTO(mainImage);
             }
 
             if (pdf) {
-                cart.setPrizePDF(String.format("%,.2f", product.unitPrice()));
-                cart.setSubtotalPDF(String.format("%,.2f", product.unitPrice()*elem.getAmount()));
+                cartPrizePDF = String.format("%,.2f", product.unitPrice());
+                cartSubtotalPDF = String.format("%,.2f", product.unitPrice()*elem.amount());
             }else{
-                cart.setPrize(product.unitPrice());
-                cart.setSubtotal(product.unitPrice()*elem.getAmount());
+                cartPrize = product.unitPrice();
+                cartSubtotal = product.unitPrice()*elem.amount();
             }
 
-            cart.setId(elem.getId());
-            cart.setProductName(product.name());
-            cart.setAmount(elem.getAmount());
+            CartDtoRespose cart = 
+                new CartDtoRespose(
+                    elem.id(), cartImage, product.name(), cartPrize, elem.amount(), cartSubtotal, 
+                    cartPrizePDF, cartSubtotalPDF);
             
-            total += product.unitPrice()*elem.getAmount();
-            amountOfProducts += elem.getAmount();
+            total += product.unitPrice()*elem.amount();
+            amountOfProducts += elem.amount();
             data.add(cart);
         }
 
-        cartResponse.setData(data);
-        cartResponse.setTotal(total);
-        cartResponse.setAmountOfProducts(amountOfProducts);
-        return cartResponse;
+        return new CartResponse(data, total, amountOfProducts);
     }
 
     //This only converts our database data to DTOs

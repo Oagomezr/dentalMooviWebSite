@@ -8,7 +8,7 @@ spring:
         import: optional:extraInfo.yml 
 
     datasource:
-        url: jdbc:mysql://localhost:3306/dentalmoovi_test
+        url: jdbc:mysql://localhost:3306/prueba
         username: root
         password: ${dataBasePasswordMySQL}
         driver-class-name: com.mysql.cj.jdbc.Driver

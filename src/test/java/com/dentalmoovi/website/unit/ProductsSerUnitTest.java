@@ -115,10 +115,10 @@ class ProductsSerUnitTest {
         ProductsResponse response1 = productsSer.getProductsByCategory("parent1", 1, 9, false);
         ProductsResponse response2 = productsSer.getProductsByCategory("parent2", 1, 9, false);
 
-        assertEquals(11, response1.getTotalProducts());
-        assertEquals(9, response1.getPaginatedProducts());
-        assertEquals(4, response2.getTotalProducts());
-        assertEquals(4, response2.getPaginatedProducts());
+        assertEquals(11, response1.totalProducts());
+        assertEquals(9, response1.paginatedProducts());
+        assertEquals(4, response2.totalProducts());
+        assertEquals(4, response2.paginatedProducts());
     }
 
     @SuppressWarnings("null")
@@ -215,8 +215,8 @@ class ProductsSerUnitTest {
         List<Integer> expected2 = List.of(15,6,2,1);
 
         for(int i=0; i<keyWordsForSearch.size(); i++){
-            int response1 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), true, 1, 7, false).getTotalProducts();
-            int response2 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), false, 1, 9, false).getTotalProducts();
+            int response1 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), true, 1, 7, false).totalProducts();
+            int response2 = productsSer.getProductsByContaining(keyWordsForSearch.get(i), false, 1, 9, false).totalProducts();
             assertEquals(expected1.get(i), response1);
             assertEquals(expected2.get(i), response2);
         }

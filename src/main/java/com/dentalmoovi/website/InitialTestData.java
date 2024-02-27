@@ -20,10 +20,8 @@ import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
 
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 @Profile("test")
 public class InitialTestData {
     private final CategoriesRep categoriesRep;
@@ -31,6 +29,16 @@ public class InitialTestData {
     private final ImgRep imagesRep;
     private final RolesRep rolesRep;
     private final UserRep userRep;
+
+    public InitialTestData(CategoriesRep categoriesRep, ProductsRep productsRep, ImgRep imagesRep, RolesRep rolesRep,
+            UserRep userRep, String password) {
+        this.categoriesRep = categoriesRep;
+        this.productsRep = productsRep;
+        this.imagesRep = imagesRep;
+        this.rolesRep = rolesRep;
+        this.userRep = userRep;
+        this.password = password;
+    }
 
     @Value("${spring.mail.otherPassword}")
     private String password;
@@ -48,7 +56,7 @@ public class InitialTestData {
         rolesRep.save(new Roles(null, RolesList.ADMIN_ROLE));
 
         //User Part ---------------------------------------------------------------
-        UserDTO dentalMooviDTO = Utils.setUserDTO("Dental", "Moovi", email, "314-453-6435", GenderList.UNDEFINED, null, "123456", password);
+        UserDTO dentalMooviDTO = new UserDTO(null, "Dental", "Moovi", email, "314-453-6435", null, GenderList.UNDEFINED, "123456", password);
 
             //create admin role
             Roles adminRole = rolesRep.findByRole(RolesList.ADMIN_ROLE)
@@ -57,12 +65,18 @@ public class InitialTestData {
                 .orElseThrow(() -> new RuntimeException("Role not found"));
 
             //encrypt the password
-            String hashedPassword = new BCryptPasswordEncoder().encode(dentalMooviDTO.getPassword()); 
+            String hashedPassword = new BCryptPasswordEncoder().encode(dentalMooviDTO.password()); 
 
             //set and save user
-            Users adminUser = Utils.setUser(dentalMooviDTO.getFirstName(), dentalMooviDTO.getLastName(), 
-                dentalMooviDTO.getEmail(), dentalMooviDTO.getCelPhone(), dentalMooviDTO.getGender(), hashedPassword, dentalMooviDTO.getBirthdate(), adminRole, userRep);
+            Users adminUser = 
+                new Users(
+                    null, dentalMooviDTO.firstName(), dentalMooviDTO.lastName(), dentalMooviDTO.email(), 
+                    dentalMooviDTO.celPhone(), null, dentalMooviDTO.gender(), hashedPassword, 
+                    null, null);
+
             adminUser.addRole(userRole);
+            adminUser.addRole(adminRole);
+            
             adminUser = userRep.save(adminUser);
 
         // Parent categories

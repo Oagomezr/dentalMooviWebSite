@@ -12,9 +12,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Roles;
+import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.entities.enums.GenderList;
 import com.dentalmoovi.website.models.entities.enums.RolesList;
 import com.dentalmoovi.website.repositories.RolesRep;
@@ -45,20 +45,22 @@ class UserSerIntegrationTest {
         
         Roles defaultRole = rolesRep.findByRole(RolesList.USER_ROLE)
                     .orElseThrow(() -> new RuntimeException("Role not found"));
-        Utils.setUser("example", "test", "example@test.com", "333-3333-333", GenderList.UNDEFINED, "12345", null, defaultRole, userRep);
+        Users user = new Users(null, "example", "test", "example@test.com", "333-3333-333", null, GenderList.UNDEFINED, "12345", null, null);
+        user.addRole(defaultRole);
+        userRep.save(user);
 
 
-        UserDTO userDTO1 = Utils.setUserDTO("example", "test", "example@test.com", "333-3333-3333", GenderList.UNDEFINED, null, "123456", "password");
-        UserDTO userDTO2 = Utils.setUserDTO("example2", "test2", "example2@test.com", "222-2222-2222", GenderList.UNDEFINED, null, "654321", "password");
-        UserDTO userDTO3 = Utils.setUserDTO("example3", "test3", "example3@test.com", "111-1111-1111", GenderList.UNDEFINED, null, "123456", "password");
+        UserDTO userDTO1 = new UserDTO(null, "example", "test", "example@test.com", "333-3333-3333", null, GenderList.UNDEFINED, "123456", "password");
+        UserDTO userDTO2 = new UserDTO(null, "example2", "test2", "example2@test.com", "222-2222-2222", null, GenderList.UNDEFINED, "654321", "password");
+        UserDTO userDTO3 = new UserDTO(null, "example3", "test3", "example3@test.com", "111-1111-1111", null, GenderList.UNDEFINED, "123456", "password");
 
         cacheSer.addToOrUpdateRegistrationCache("example2@test.com", "123456");
         cacheSer.addToOrUpdateRegistrationCache("example3@test.com", "123456");
 
         assertThrows(RuntimeException.class, () -> userSer.createUser(userDTO1));
         assertThrows(RuntimeException.class, () -> userSer.createUser(userDTO2));
-        userDTO2.setCode("123456");
-        assertDoesNotThrow(() -> userSer.createUser(userDTO2));
+        UserDTO userDTO4 = new UserDTO(null, "example2", "test2", "example2@test.com", "222-2222-2222", null, GenderList.UNDEFINED, "123456", "password");
+        assertDoesNotThrow(() -> userSer.createUser(userDTO4));
 
         assertEquals("User Created", userSer.createUser(userDTO3));
     }

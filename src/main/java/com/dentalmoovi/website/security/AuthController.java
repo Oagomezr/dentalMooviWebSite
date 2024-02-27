@@ -27,12 +27,10 @@ import com.dentalmoovi.website.services.cache.CacheSer;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/public")
 @CrossOrigin(origins = "http://localhost:4200")
-@RequiredArgsConstructor
 public class AuthController {
     private final JWTprovider jWTprovider;
     private final UserSer userSer;
@@ -40,19 +38,28 @@ public class AuthController {
     private final AuthenticationManager am;
     private static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
+    
+
+    public AuthController(JWTprovider jWTprovider, UserSer userSer, CacheSer cacheSer, AuthenticationManager am) {
+        this.jWTprovider = jWTprovider;
+        this.userSer = userSer;
+        this.cacheSer = cacheSer;
+        this.am = am;
+    }
+
     @Value("${jwt.accessTokenByCookieName}")
     private String cookieName;
 
     @PostMapping("/isAuthorized")
     public ResponseEntity<Boolean> checkRole(@RequestBody LoginDTO loginUser) {
 
-        String userDetails = userSer.getUserDetails(loginUser.getUserName());
+        String userDetails = userSer.getUserDetails(loginUser.userName());
         boolean isAdmin = userDetails.charAt(0) == 'A';
 
         if (isAdmin) {
             try {
                 
-                getAuth(loginUser.getUserName(), loginUser.getPassword());
+                getAuth(loginUser.userName(), loginUser.password());
 
                 String subject = "Codigo de inicio de sesión";
                 String body =   
@@ -60,7 +67,7 @@ public class AuthController {
                 "Si no realizo ningun inicio de sesión por favor comuniquelo inmediatamente al numero 314-453-6435\n\n"+
                 "El codigo de confirmación es: ";
 
-                userSer.sendEmailNotification(loginUser.getUserName(), subject, body);
+                userSer.sendEmailNotification(loginUser.userName(), subject, body);
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
@@ -76,17 +83,17 @@ public class AuthController {
         if(bidBindingResult.hasErrors())
             return new ResponseEntity<>(new MessageDTO("Revise sus credenciales"), HttpStatus.BAD_REQUEST);
         try {
-            String userDetails = userSer.getUserDetails(loginUser.getUserName());
+            String userDetails = userSer.getUserDetails(loginUser.userName());
             if(userDetails.charAt(0) == 'A'){
                 //get verification code
-                String code = cacheSer.getFromRegistrationCache(loginUser.getUserName());
+                String code = cacheSer.getFromRegistrationCache(loginUser.userName());
 
                 //verify if code sended is equals the verification code
-                if(!loginUser.getCode().equals(code)) 
+                if(!loginUser.code().equals(code)) 
                     throw new RuntimeException("That code is incorrect");
             }
 
-            Authentication auth = getAuth(loginUser.getUserName(), loginUser.getPassword());
+            Authentication auth = getAuth(loginUser.userName(), loginUser.password());
             SecurityContextHolder.getContext().setAuthentication(auth);
             String jwt = jWTprovider.generateToken(auth);
             Utils.createCookie(hsr, cookieName, jwt, false, -1, "localhost");

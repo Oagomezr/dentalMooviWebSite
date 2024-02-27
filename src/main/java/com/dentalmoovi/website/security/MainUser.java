@@ -13,15 +13,20 @@ import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.repositories.RolesRep;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 public class MainUser implements UserDetails{
 
     private String cacheRef;
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
+
+    public MainUser(String cacheRef, String email, String password,
+            Collection<? extends GrantedAuthority> authorities) {
+        this.cacheRef = cacheRef;
+        this.email = email;
+        this.password = password;
+        this.authorities = authorities;
+    }
 
     public static MainUser build(Users user, RolesRep rolesRep, String ref){
         Set<Long> rolesIds = user.getRolesIds();
@@ -36,9 +41,9 @@ public class MainUser implements UserDetails{
             .map(role -> new SimpleGrantedAuthority(role.role().name()))
             .collect(Collectors.toList());
 
-        String cacheRef = String.valueOf(user.getId() + ref.length());
+        String cacheRef = String.valueOf(user.id() + ref.length());
 
-        return new MainUser(cacheRef, user.getEmail(), user.getPassword(), authorities);
+        return new MainUser(cacheRef, user.email(), user.password(), authorities);
     }
 
     @Override

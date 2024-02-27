@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.enums.GenderList;
@@ -87,8 +86,8 @@ class UserSetUnitTest {
     @Test
     void createUserTest(){
 
-        UserDTO userDTO1 = Utils.setUserDTO("userDTO1", "DTO", "test@exist.co", "333-3333-3333", GenderList.UNDEFINED, null, "123456", "password");
-        UserDTO userDTO2 = Utils.setUserDTO("userDTO2", "DTO", "testno@exist.co", "222-2222-2222", GenderList.UNDEFINED, null, "654321", "password");
+        UserDTO userDTO1 = new UserDTO(null, "userDTO1", "DTO", "test@exist.co", "333-3333-3333", null, GenderList.UNDEFINED, "123456", "password");
+        UserDTO userDTO2 = new UserDTO(null, "userDTO2", "DTO", "testno@exist.co", "222-2222-2222", null, GenderList.UNDEFINED, "654321", "password");
         Roles defaultRole = new Roles(1L, RolesList.USER_ROLE);
 
         when(cacheSer.getFromRegistrationCache(Mockito.any())).thenAnswer(invocation -> {
@@ -105,11 +104,11 @@ class UserSetUnitTest {
 
         assertThrows(RuntimeException.class, () -> userSer.createUser(userDTO1));
         assertThrows(RuntimeException.class, () -> userSer.createUser(userDTO2));
-        userDTO2.setCode("123456");
-        assertDoesNotThrow(() -> userSer.createUser(userDTO2));
+        UserDTO userDTO3 = new UserDTO(null, "userDTO2", "DTO", "testno@exist.co", "222-2222-2222", null, GenderList.UNDEFINED, "123456", "password");
+        assertDoesNotThrow(() -> userSer.createUser(userDTO3));
 
         verify(userRep, times(1)).save(any());
 
-        assertEquals("User Created", userSer.createUser(userDTO2));
+        assertEquals("User Created", userSer.createUser(userDTO3));
     }
 }

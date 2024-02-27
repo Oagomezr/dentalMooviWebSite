@@ -102,9 +102,7 @@ public class CategoriesSer {
     }
 
     private CategoriesResponse setCategoriesResponse(List<CategoriesDTO> data){
-        CategoriesResponse categoriesResponse = new CategoriesResponse();
-        categoriesResponse.setData(data);
-        return categoriesResponse;
+        return new CategoriesResponse(data);
     }
 
 

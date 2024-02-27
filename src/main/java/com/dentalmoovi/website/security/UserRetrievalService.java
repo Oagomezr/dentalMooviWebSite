@@ -7,12 +7,13 @@ import org.springframework.stereotype.Service;
 
 import com.dentalmoovi.website.services.UserSer;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class UserRetrievalService implements UserDetailsService{
     private final UserSer userSer;
+
+    public UserRetrievalService(UserSer userSer) {
+        this.userSer = userSer;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

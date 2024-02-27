@@ -1,14 +1,9 @@
 package com.dentalmoovi.website;
 
 import com.dentalmoovi.website.models.cart.CartRequest;
-import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.Orders;
-import com.dentalmoovi.website.models.entities.Roles;
-import com.dentalmoovi.website.models.entities.Users;
-import com.dentalmoovi.website.models.entities.enums.GenderList;
 import com.dentalmoovi.website.models.entities.enums.StatusOrderList;
 import com.dentalmoovi.website.repositories.OrdersRep;
-import com.dentalmoovi.website.repositories.UserRep;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.lang.NonNull;
@@ -53,7 +47,7 @@ public class Utils {
         hsr.addCookie(cookie);
     }
 
-    public static Users setUser(String firstName, String lastName, String email, String celPhone, GenderList gender,
+    /* public static Users setUser(String firstName, String lastName, String email, String celPhone, GenderList gender,
                                 String password, LocalDate birthdate, Roles role , UserRep repository){
         Users user = new Users();
         user.setFirstName(firstName);
@@ -66,7 +60,7 @@ public class Utils {
         user.addRole(role);
         user = repository.save(user);
         return user;
-    }
+    } */
 
     public static byte[] loadImageData(String imagePath) {
         try {
@@ -77,9 +71,9 @@ public class Utils {
         }
     }
 
-    public static UserDTO setUserDTO(String name, String lastName, String email, String celPhone, GenderList gender, 
+    /* public static UserDTO setUserDTO(String name, String lastName, String email, String celPhone, GenderList gender, 
                     LocalDate birthdate, String code, String password){
-        UserDTO userDTO = new UserDTO();
+        UserDTO userDTO = new UserDTO(null, null, null, null, null, null, null, null, null);
         userDTO.setFirstName(name);
         userDTO.setLastName(lastName);
         userDTO.setEmail(email);
@@ -89,7 +83,7 @@ public class Utils {
         userDTO.setCode(code);
         userDTO.setPassword(password);
         return userDTO;
-    }
+    } */
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static String transformToJSON(Object object) {
@@ -107,8 +101,8 @@ public class Utils {
 
     public static Orders setOrder(StatusOrderList status, long idUser, long idAddress, CartRequest req, OrdersRep rep){
         Orders order = new Orders(null, null, status, idUser, idAddress, null);
-        req.getData().forEach(elem ->
-            order.addProduct(elem.getId(), elem.getAmount()));
+        req.data().forEach(elem ->
+            order.addProduct(elem.id(), elem.amount()));
         return rep.save(order);
     }
 

@@ -4,13 +4,9 @@ import java.util.List;
 
 import com.dentalmoovi.website.models.dtos.ProductsDTO;
 
-import lombok.Getter;
-import lombok.Setter;
+public record ProductsResponse(
+    int totalProducts,
+    int paginatedProducts,
+    List<ProductsDTO> data
+) {}
 
-@Setter
-@Getter
-public class ProductsResponse {
-    private int totalProducts;
-    private int paginatedProducts;
-    private List<ProductsDTO> data;
-}

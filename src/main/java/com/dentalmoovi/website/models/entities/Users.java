@@ -12,28 +12,22 @@ import com.dentalmoovi.website.models.entities.enums.GenderList;
 import com.dentalmoovi.website.models.entities.many_to_many.UsersRoles;
 import com.dentalmoovi.website.models.entities.many_to_many.UsersAddresses;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Users {
-    @Id
-    private Long id;
-    private String firstName;
-    private String lastName;
-    @EqualsAndHashCode.Include
-    private String email;
-    private String celPhone;
-    private LocalDate birthdate;
-    private GenderList gender;
-    private String password;
-
-    @MappedCollection(idColumn = "id_user")
-    private Set<UsersRoles> roles = new HashSet<>();
-
-    @MappedCollection(idColumn = "id_user")
-    private Set<UsersAddresses> addresses = new HashSet<>();
+public record Users(
+    @Id Long id,
+    String firstName,
+    String lastName,
+    String email,
+    String celPhone,
+    LocalDate birthdate,
+    GenderList gender,
+    String password,
+    @MappedCollection(idColumn = "id_user") Set<UsersRoles> roles,
+    @MappedCollection(idColumn = "id_user") Set<UsersAddresses> addresses
+) {
+    public Users{
+        if (roles == null) roles = new HashSet<>(); 
+        if (addresses == null) addresses = new HashSet<>(); 
+    }
 
     public void addRole(Roles role){
         this.roles.add(new UsersRoles(id, role.id()));

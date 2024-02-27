@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.AddressesDTO;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
@@ -34,10 +33,7 @@ import com.dentalmoovi.website.repositories.enums.MunicipalyRep;
 import com.dentalmoovi.website.security.MainUser;
 import com.dentalmoovi.website.services.cache.CacheSer;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class UserSer {
 
     Random random = new Random();
@@ -52,6 +48,17 @@ public class UserSer {
 
     @Value("${spring.mail.otherPassword}")
     private String ref; 
+
+    public UserSer(CacheSer cacheSer, EmailSer emailSer, UserRep userRep, RolesRep rolesRep, AddressesRep addressesRep,
+            MunicipalyRep municipalyRep, DepartamentsRep departamentsRep) {
+        this.cacheSer = cacheSer;
+        this.emailSer = emailSer;
+        this.userRep = userRep;
+        this.rolesRep = rolesRep;
+        this.addressesRep = addressesRep;
+        this.municipalyRep = municipalyRep;
+        this.departamentsRep = departamentsRep;
+    }
 
     public void sendEmailNotification(String email, String subject, String body) {
         String retrictReplay = cacheSer.getFromReplayCodeRestrict(email);
@@ -83,14 +90,14 @@ public class UserSer {
             /* ¡¡PLEASE PAY CLOSE ATTENTION ONLY THIS "createUser()" METHOD TO UNDERSTAND THIS SERVICE!! */ 
             String createUser() throws RuntimeException{
                 //verify if email exist
-                if(checkEmailExists(userDTO.getEmail())) 
+                if(checkEmailExists(userDTO.email())) 
                     throw new RuntimeException("That user already exist");
 
                 //get verification code
-                String code = cacheSer.getFromRegistrationCache(userDTO.getEmail());
+                String code = cacheSer.getFromRegistrationCache(userDTO.email());
 
                 //verify if code sended is equals the verification code
-                if(!userDTO.getCode().equals(code)) 
+                if(!userDTO.code().equals(code)) 
                     throw new RuntimeException("That code is incorrect");
 
                 //create default role
@@ -98,11 +105,16 @@ public class UserSer {
                     .orElseThrow(() -> new RuntimeException("Role not found"));
 
                 //encrypt the password
-                String hashedPassword = new BCryptPasswordEncoder().encode(userDTO.getPassword()); 
+                String hashedPassword = new BCryptPasswordEncoder().encode(userDTO.password()); 
 
                 //set and save user
-                Utils.setUser(userDTO.getFirstName(), userDTO.getLastName(), 
-                    userDTO.getEmail(), userDTO.getCelPhone(), userDTO.getGender(), hashedPassword, userDTO.getBirthdate(), defaultRole, userRep);
+                Users newUser = 
+                    new Users(
+                        null, userDTO.firstName(), userDTO.lastName(), userDTO.email(), userDTO.celPhone(), 
+                        userDTO.birthdate(), userDTO.gender(), hashedPassword, null, null);
+                newUser.addRole(defaultRole);
+                
+                userRep.save(newUser);
 
                 return "User Created";
             }
@@ -120,7 +132,7 @@ public class UserSer {
 
     @Cacheable("getName")
     public MessageDTO getName(String cacheRef){
-        return new MessageDTO(getUserAuthenticated(cacheRef).getFirstName());
+        return new MessageDTO(getUserAuthenticated(cacheRef).firstName());
     }
     
     @Cacheable("getUserAuthenticated")
@@ -131,7 +143,7 @@ public class UserSer {
         Users user= userRep.findByEmail(userName)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return Utils.setUserDTO(user.getFirstName(), user.getLastName(), user.getEmail(), user.getCelPhone(), user.getGender(), user.getBirthdate(), null, null);
+        return new UserDTO(null, user.firstName(), user.lastName(), user.email(), user.celPhone(), user.birthdate(), user.gender(), null, null);
     }
 
     public MainUser getMainUser(String email){
@@ -154,14 +166,9 @@ public class UserSer {
 
     @CacheEvict(value = {"getName", "getUserAuthenticated"}, key = "#cacheRef")
     public MessageDTO updateUserInfo(UserDTO userDTO, String cacheRef){
-        Users user = userRep.findByEmail(getUserAuthenticated(cacheRef).getEmail())
+        Users user = userRep.findByEmail(getUserAuthenticated(cacheRef).email())
             .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setBirthdate(userDTO.getBirthdate());
-        user.setGender(userDTO.getGender());
-        user.setCelPhone(userDTO.getCelPhone());
-        userRep.save(user);
+        userRep.save(new Users(user.id(), userDTO.firstName(), userDTO.lastName(), user.email(), userDTO.celPhone(), userDTO.birthdate(), userDTO.gender(), user.password(), null, null));
         return new MessageDTO("User updated");
     }
 
@@ -190,9 +197,8 @@ public class UserSer {
                 
             addressesDTO.add(addressDTO);
         });
-        AddressesResponse response = new AddressesResponse();
-        response.setData(addressesDTO);
-        return response;
+
+        return new AddressesResponse(addressesDTO);
     }
 
     @CacheEvict(value = {"getAddresses", "getUserByRep"},  key = "#cacheRef")
@@ -232,7 +238,7 @@ public class UserSer {
 
     @Cacheable("getUserByRep")
     private Users getUserFromRep(String cacheRef){
-        return userRep.findByEmail(getUserAuthenticated(cacheRef).getEmail())
+        return userRep.findByEmail(getUserAuthenticated(cacheRef).email())
             .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

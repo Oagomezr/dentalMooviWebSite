@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.entities.enums.GenderList;
 import com.dentalmoovi.website.services.cache.CacheSer;
@@ -34,7 +33,7 @@ class UserControllerTest {
     @SuppressWarnings("null")
     @Test
     void createUserTest() throws Exception{
-        UserDTO userDTO = Utils.setUserDTO("example", "test", "example@test.com", "333-3333-3333", GenderList.UNDEFINED, null, "123456", "password");
+        UserDTO userDTO = new UserDTO(null, "example", "test", "example@test.com", "333-3333-3333", null, GenderList.UNDEFINED, "123456", "password");
 
         String userJson = objectMapper.writeValueAsString(userDTO);
 
