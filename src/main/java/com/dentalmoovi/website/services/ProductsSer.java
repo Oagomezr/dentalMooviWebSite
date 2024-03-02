@@ -132,10 +132,8 @@ public class ProductsSer {
 
                 if (admin && !product.openToPublic()) hidden = "yes";
 
-                ProductsDTO productsDTO = setProductDTO(product.id() , name, product.unitPrice(), product.description(), 
+                return new ProductsDTO(product.id() , name, product.unitPrice(), product.description(), 
                     product.shortDescription(), product.stock(), productImagesDTO, location, hidden);
-
-                return productsDTO;
             }
 
             //It's a function with the aim of find the location products inside the categories
@@ -443,7 +441,7 @@ public class ProductsSer {
                     String hidden = null;
                     
                     if (!product.openToPublic()) hidden = "Yes";
-                    ProductsDTO productDTO = setProductDTO(product.id() , product.name(), product.unitPrice(), 
+                    ProductsDTO productDTO = new ProductsDTO(product.id() , product.name(), product.unitPrice(), 
                         product.description(), product.shortDescription(), product.stock(), productImagesDTO, null, hidden);
                     productsDTOList.add(productDTO);
                 }
@@ -472,7 +470,7 @@ public class ProductsSer {
                 String imgName = productImage.name();
                 String contentType = productImage.contentType();
                 String base64Image = Base64.getEncoder().encodeToString(productImage.data());
-                ImagesDTO imageDTO = setImageDTO(idImage ,imgName, contentType, base64Image);
+                ImagesDTO imageDTO = new ImagesDTO(idImage ,imgName, contentType, base64Image);
 
                 if (mainImage.equals(productImage)) productImagesDTO.add(0, imageDTO);
                 else productImagesDTO.add(imageDTO);
@@ -493,21 +491,6 @@ public class ProductsSer {
         String contentType = image.contentType();
         String base64Image = Base64.getEncoder().encodeToString(image.data());
 
-        return setImageDTO(idMainImage , imgName, contentType, base64Image);
+        return new ImagesDTO(idMainImage , imgName, contentType, base64Image);
     }
-
-    private ImagesDTO setImageDTO(long id ,String name, String contenType, String base64){
-        ImagesDTO imageDTO = new ImagesDTO(id, name, contenType, base64);
-        return imageDTO;
-    }
-
-    private ProductsDTO setProductDTO(long id, String name, double unitPrice, String description, String shortDescription 
-                    ,int stock, List<ImagesDTO> imagesDTO, List<String> location, String openToPublic ){
-        ProductsDTO productDTO = 
-            new ProductsDTO(
-                id, name, unitPrice, description, shortDescription, stock, imagesDTO, location, openToPublic);
-        return productDTO;
-    }
-
-    
 }

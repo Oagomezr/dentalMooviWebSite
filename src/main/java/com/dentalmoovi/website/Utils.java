@@ -2,8 +2,10 @@ package com.dentalmoovi.website;
 
 import com.dentalmoovi.website.models.cart.CartRequest;
 import com.dentalmoovi.website.models.entities.Orders;
+import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.entities.enums.StatusOrderList;
 import com.dentalmoovi.website.repositories.OrdersRep;
+import com.dentalmoovi.website.repositories.UserRep;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,21 +49,6 @@ public class Utils {
         hsr.addCookie(cookie);
     }
 
-    /* public static Users setUser(String firstName, String lastName, String email, String celPhone, GenderList gender,
-                                String password, LocalDate birthdate, Roles role , UserRep repository){
-        Users user = new Users();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setCelPhone(celPhone);
-        user.setGender(gender);
-        user.setPassword(password);
-        user.setBirthdate(birthdate);
-        user.addRole(role);
-        user = repository.save(user);
-        return user;
-    } */
-
     public static byte[] loadImageData(String imagePath) {
         try {
             Path path = Paths.get(imagePath);
@@ -70,20 +57,6 @@ public class Utils {
             throw new RuntimeException("Error to load the image: " + imagePath, e);
         }
     }
-
-    /* public static UserDTO setUserDTO(String name, String lastName, String email, String celPhone, GenderList gender, 
-                    LocalDate birthdate, String code, String password){
-        UserDTO userDTO = new UserDTO(null, null, null, null, null, null, null, null, null);
-        userDTO.setFirstName(name);
-        userDTO.setLastName(lastName);
-        userDTO.setEmail(email);
-        userDTO.setCelPhone(celPhone);
-        userDTO.setGender(gender);
-        userDTO.setBirthdate(birthdate);
-        userDTO.setCode(code);
-        userDTO.setPassword(password);
-        return userDTO;
-    } */
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static String transformToJSON(Object object) {
@@ -109,5 +82,10 @@ public class Utils {
     public static String getToken(@NonNull HttpServletRequest request, @NonNull String  cookieName){
         Cookie cookie = WebUtils.getCookie( request, cookieName);
         return cookie != null ? cookie.getValue() : null;
+    }
+
+    public static Users getUserByEmail(String email, UserRep userRep){
+        return userRep.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User "+email+" not found"));
     }
 }

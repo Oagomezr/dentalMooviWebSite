@@ -11,10 +11,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.AddressesDTO;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
@@ -140,15 +140,13 @@ public class UserSer {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String userName = userDetails.getUsername();
-        Users user= userRep.findByEmail(userName)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        Users user= Utils.getUserByEmail(userName, userRep);
 
         return new UserDTO(null, user.firstName(), user.lastName(), user.email(), user.celPhone(), user.birthdate(), user.gender(), null, null);
     }
 
     public MainUser getMainUser(String email){
-        Users user = userRep.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Users user = Utils.getUserByEmail(email, userRep);
 
         return MainUser.build(user, rolesRep, ref);
     }
@@ -166,8 +164,7 @@ public class UserSer {
 
     @CacheEvict(value = {"getName", "getUserAuthenticated"}, key = "#cacheRef")
     public MessageDTO updateUserInfo(UserDTO userDTO, String cacheRef){
-        Users user = userRep.findByEmail(getUserAuthenticated(cacheRef).email())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        Users user = Utils.getUserByEmail(getUserAuthenticated(cacheRef).email(), userRep);
         userRep.save(new Users(user.id(), userDTO.firstName(), userDTO.lastName(), user.email(), userDTO.celPhone(), userDTO.birthdate(), userDTO.gender(), user.password(), null, null));
         return new MessageDTO("User updated");
     }
@@ -238,7 +235,11 @@ public class UserSer {
 
     @Cacheable("getUserByRep")
     private Users getUserFromRep(String cacheRef){
-        return userRep.findByEmail(getUserAuthenticated(cacheRef).email())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        return Utils.getUserByEmail(getUserAuthenticated(cacheRef).email(), userRep);
     }
+
+    /* private Users getUserByEmail(String email){
+        return userRep.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User "+email+" not found"));
+    } */
 }

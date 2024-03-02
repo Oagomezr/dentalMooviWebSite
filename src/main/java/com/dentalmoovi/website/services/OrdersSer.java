@@ -102,7 +102,6 @@ public class OrdersSer {
         
         order = Utils.setOrder(StatusOrderList.PENDING, user.id(), idAddress, req, ordersRep);
 
-
         Addresses address = addressesRep.findById(idAddress)
             .orElseThrow(() -> new RuntimeException("Address not found"));
 
@@ -132,8 +131,7 @@ public class OrdersSer {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String userName = userDetails.getUsername();
-        return userRep.findByEmail(userName)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        return Utils.getUserByEmail(userName, userRep);
     }
 
     private Users getUser(long id){
