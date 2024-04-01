@@ -9,7 +9,8 @@ import org.springframework.data.repository.query.Param;
 import com.dentalmoovi.website.models.entities.Users;
 
 public interface UserRep extends CrudRepository<Users, Long>{
-    Boolean existsByEmail(@Param("email") String email);
+    Boolean existsByEmailIgnoreCase(@Param("email") String email);
+
     @Query("SELECT * FROM users WHERE email = :email")
     Optional<Users> findByEmail(@Param("email") String email);
 }

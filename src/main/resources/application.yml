@@ -48,6 +48,8 @@ server:
             cookie:
                 http-only: true
             timeout: 20m
+    error:
+        include-message: always
 
 jwt:
     secret: ${jwtSecret}

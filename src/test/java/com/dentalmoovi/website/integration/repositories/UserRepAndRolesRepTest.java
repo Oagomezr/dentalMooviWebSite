@@ -73,8 +73,8 @@ class UserRepAndRolesRepTest {
 
     @Test
     void existsByEmail(){
-        boolean trueCase = usersRep.existsByEmail(user1.email());
-        boolean falseCase = usersRep.existsByEmail("noExist@neverExist.no.exist");
+        boolean trueCase = usersRep.existsByEmailIgnoreCase(user1.email());
+        boolean falseCase = usersRep.existsByEmailIgnoreCase("noExist@neverExist.no.exist");
         assertTrue(trueCase);
         assertFalse(falseCase);
     }

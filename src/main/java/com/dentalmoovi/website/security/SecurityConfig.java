@@ -22,6 +22,8 @@ import com.dentalmoovi.website.models.entities.enums.RolesList;
 import com.dentalmoovi.website.security.jwt.JWTauthFilter;
 import com.dentalmoovi.website.security.jwt.JWTentryPoint;
 
+import jakarta.servlet.DispatcherType;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -49,8 +51,8 @@ public class SecurityConfig {
                     return config;
                 })
             )
-            .authorizeHttpRequests(authRequest ->
-                authRequest
+            .authorizeHttpRequests(authRequest ->authRequest
+                    .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                     .requestMatchers("/public/**").permitAll()
                     .requestMatchers("/favicon.ico").permitAll()
                     .requestMatchers("/user/**").hasAuthority(RolesList.USER_ROLE.name())

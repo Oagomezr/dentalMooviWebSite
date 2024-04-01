@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/* import org.slf4j.Logger;
-import org.slf4j.LoggerFactory; */
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -44,7 +42,6 @@ public class UserSer {
     private final AddressesRep addressesRep;
     private final MunicipalyRep municipalyRep;
     private final DepartamentsRep departamentsRep;
-    //private static Logger logger = LoggerFactory.getLogger(UserSer.class);
 
     @Value("${spring.mail.otherPassword}")
     private String ref; 
@@ -90,7 +87,7 @@ public class UserSer {
             /* ¡¡PLEASE PAY CLOSE ATTENTION ONLY THIS "createUser()" METHOD TO UNDERSTAND THIS SERVICE!! */ 
             String createUser() throws RuntimeException{
                 //verify if email exist
-                if(checkEmailExists(userDTO.email())) 
+                if(checkEmailExists(userDTO.email(), true)) 
                     throw new RuntimeException("That user already exist");
 
                 //get verification code
@@ -98,7 +95,7 @@ public class UserSer {
 
                 //verify if code sended is equals the verification code
                 if(!userDTO.code().equals(code)) 
-                    throw new RuntimeException("That code is incorrect");
+                    throw new RuntimeException("The code: "+code+" is incorrect");
 
                 //create default role
                 Roles defaultRole = rolesRep.findByRole(RolesList.USER_ROLE)
@@ -125,9 +122,9 @@ public class UserSer {
     }
 
     //verify if user exist
-    @Cacheable("checkEmail")
-    public boolean checkEmailExists(String value) {
-        return userRep.existsByEmail(value);
+    public boolean checkEmailExists(String value, boolean signup) {
+        boolean result = userRep.existsByEmailIgnoreCase(value);
+        return signup ? result : !result;
     }
 
     @Cacheable("getName")

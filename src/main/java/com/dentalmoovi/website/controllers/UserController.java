@@ -1,5 +1,7 @@
 package com.dentalmoovi.website.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,6 +27,9 @@ import com.dentalmoovi.website.services.UserSer;
 public class UserController {
     private final UserSer userSer;
 
+    
+    private static Logger logger = LoggerFactory.getLogger(UserController.class);
+
     public UserController(UserSer userSer) {
         this.userSer = userSer;
     }
@@ -35,7 +40,8 @@ public class UserController {
             userSer.createUser(userDTO);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            logger.error(e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 
@@ -47,9 +53,9 @@ public class UserController {
         userSer.sendEmailNotification(email, subject, body);
     }
 
-    @GetMapping("/public/{email}")
-    public boolean checkEmailExists(@PathVariable String email) {
-        return userSer.checkEmailExists(email);
+    @GetMapping("/public/{email}/{signup}")
+    public boolean checkEmailExists(@PathVariable String email, @PathVariable boolean signup) {
+        return userSer.checkEmailExists(email, signup);
     }
 
     

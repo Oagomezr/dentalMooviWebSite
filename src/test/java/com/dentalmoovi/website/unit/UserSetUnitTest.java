@@ -53,7 +53,7 @@ class UserSetUnitTest {
 
     @BeforeEach
     void beforeEach(){
-        lenient().when(userRep.existsByEmail(Mockito.any())).thenAnswer(invocation -> {
+        lenient().when(userRep.existsByEmailIgnoreCase(Mockito.any())).thenAnswer(invocation -> {
             String email = invocation.getArgument(0);
             switch (email) {
                 case "test@exist.com":
@@ -78,8 +78,10 @@ class UserSetUnitTest {
 
     @Test
     void checkEmailExistsTest(){
-        assertTrue(userSer.checkEmailExists("test@exist.com"));
-        assertFalse(userSer.checkEmailExists("test@noExist.com"));
+        assertTrue(userSer.checkEmailExists("test@exist.com", true));
+        assertFalse(userSer.checkEmailExists("test@noExist.com", true));
+        assertTrue(userSer.checkEmailExists("test@noExist.com", false));
+        assertFalse(userSer.checkEmailExists("test@exist.com", false));
     }
 
     @SuppressWarnings("null")
