@@ -5,7 +5,7 @@ spring:
         import: optional:extraInfo.yml 
 
     datasource:
-        url: jdbc:mysql://localhost:3306/dental_moovi
+        url: jdbc:mysql://localhost:3306/dental_moovi?useUnicode=true&characterEncoding=UTF-8
         username: root
         password: ${dataBasePasswordMySQL}
         driver-class-name: com.mysql.cj.jdbc.Driver

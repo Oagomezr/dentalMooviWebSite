@@ -203,7 +203,7 @@ public class UserSer {
         Addresses address = new Addresses(
             null, addressDTO.address(), addressDTO.phone(), addressDTO.description(), addressDTO.idMunicipaly());
 
-        addressesRep.save(address);
+        address = addressesRep.save(address);
         
         user.addAddress(address);
         userRep.save(user);

@@ -40,7 +40,7 @@ public record Users(
     }
 
     public void addAddress(Addresses address){
-        this.addresses.add(new UsersAddresses(id,address.id()));
+        this.addresses.add(new UsersAddresses(id, address.id()));
     }
 
     public Set<Long> getAddressesIds(){

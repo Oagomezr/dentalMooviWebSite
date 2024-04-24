@@ -7,6 +7,6 @@ public record AddressesDTO(
     String description,
     String location,
     String departament,
-    int idMunicipaly
+    Integer idMunicipaly
 ) {
 }
