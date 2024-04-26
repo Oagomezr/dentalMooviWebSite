@@ -7,8 +7,8 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +29,7 @@ import com.dentalmoovi.website.repositories.UserRep;
 import com.dentalmoovi.website.repositories.enums.DepartamentsRep;
 import com.dentalmoovi.website.repositories.enums.MunicipalyRep;
 import com.dentalmoovi.website.security.MainUser;
+import com.dentalmoovi.website.security.PwDTO;
 import com.dentalmoovi.website.services.cache.CacheSer;
 
 @Service
@@ -42,6 +43,8 @@ public class UserSer {
     private final AddressesRep addressesRep;
     private final MunicipalyRep municipalyRep;
     private final DepartamentsRep departamentsRep;
+
+    private static final BCryptPasswordEncoder pwe = new BCryptPasswordEncoder();
 
     @Value("${spring.mail.otherPassword}")
     private String ref; 
@@ -102,7 +105,7 @@ public class UserSer {
                     .orElseThrow(() -> new RuntimeException("Role not found"));
 
                 //encrypt the password
-                String hashedPassword = new BCryptPasswordEncoder().encode(userDTO.password()); 
+                String hashedPassword = pwe.encode(userDTO.password()); 
 
                 //set and save user
                 Users newUser = 
@@ -133,18 +136,19 @@ public class UserSer {
     }
     
     @Cacheable("getUserAuthenticated")
-    public UserDTO getUserAuthenticated(String cacheRef){
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal();
-        String userName = userDetails.getUsername();
-        Users user= Utils.getUserByEmail(userName, userRep);
+    public Users getUserAuthenticated(String cacheRef){
+        String userName = getUsername(cacheRef);
+        return Utils.getUserByEmail(userName, userRep);
+    }
 
+    @Cacheable("getUserAuthDTO")
+    public UserDTO getUserAuthDTO(String cacheRef){
+        Users user = getUserAuthenticated(cacheRef);
         return new UserDTO(null, user.firstName(), user.lastName(), user.email(), user.celPhone(), user.birthdate(), user.gender(), null, null);
     }
 
     public MainUser getMainUser(String email){
         Users user = Utils.getUserByEmail(email, userRep);
-
         return MainUser.build(user, rolesRep, ref);
     }
 
@@ -166,13 +170,11 @@ public class UserSer {
         return new MessageDTO("User updated");
     }
 
-    @SuppressWarnings("null")
     @Cacheable("getAddresses")
     public AddressesResponse getAddresses(String cacheRef){
-        Users user = getUserFromRep(cacheRef);
+        Users user = getUserAuthenticated(cacheRef);
         List<Long> idsAddresses = new ArrayList<>(user.getAddressesIds());
         List<AddressesDTO> addressesDTO = new ArrayList<>();
-
         
         idsAddresses.stream().forEach(id ->{
 
@@ -198,7 +200,7 @@ public class UserSer {
     @CacheEvict(value = {"getAddresses", "getUserByRep"},  key = "#cacheRef")
     public MessageDTO createAddress(AddressesDTO addressDTO, String cacheRef){
             
-        Users user = getUserFromRep(cacheRef);
+        Users user = getUserAuthenticated(cacheRef);
 
         Addresses address = new Addresses(
             null, addressDTO.address(), addressDTO.phone(), addressDTO.description(), addressDTO.idMunicipaly());
@@ -223,20 +225,36 @@ public class UserSer {
 
     @CacheEvict(value = {"getAddresses", "getUserByRep"}, key = "#cacheRef")
     public MessageDTO deleteAddress(long id, String cacheRef){
-        Users user = getUserFromRep(cacheRef);
+        Users user = getUserAuthenticated(cacheRef);
         user.deleteAddress(id);
         userRep.save(user);
         addressesRep.deleteById(id);
         return new MessageDTO("Address deleted");
     }
 
-    @Cacheable("getUserByRep")
-    private Users getUserFromRep(String cacheRef){
-        return Utils.getUserByEmail(getUserAuthenticated(cacheRef).email(), userRep);
+    public MessageDTO changePw(PwDTO dto, String cacheRef){
+        Users user = getUserAuthenticated(cacheRef);
+        boolean valid = pwe.matches(dto.oldP(), user.password());
+
+        if (valid) {
+            String pwNew = pwe.encode(dto.newP());
+            userRep.save(new Users(
+                user.id(), user.firstName(), user.lastName(), user.email(), user.celPhone(), 
+                user.birthdate(), user.gender(), pwNew, user.roles(), user.addresses()));
+            return new MessageDTO("Password updated successfully");
+        }
+        throw new RuntimeException("Incorrect Password");
     }
 
-    /* private Users getUserByEmail(String email){
-        return userRep.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User "+email+" not found"));
-    } */
+    @Cacheable("getUserName")
+    private String getUsername(String cacheRef){
+        Authentication authentication = 
+            SecurityContextHolder.getContext().getAuthentication();
+
+        // Verify if the user is authenticated
+        if (authentication != null && authentication.isAuthenticated()) 
+            return authentication.getName(); //Get username
+        
+        throw new RuntimeException("The user is not authenticated");
+    }
 }

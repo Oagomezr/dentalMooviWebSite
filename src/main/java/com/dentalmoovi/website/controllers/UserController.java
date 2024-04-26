@@ -17,6 +17,7 @@ import com.dentalmoovi.website.models.dtos.AddressesDTO;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.responses.AddressesResponse;
+import com.dentalmoovi.website.security.PwDTO;
 import com.dentalmoovi.website.services.UserSer;
 
 @RestController
@@ -55,7 +56,7 @@ public class UserController {
     @GetMapping("/user/getUser/{cacheRef}")
     public ResponseEntity<UserDTO> getUserAuthenticated(@PathVariable String cacheRef){
         try {
-            UserDTO userDTO = userSer.getUserAuthenticated(cacheRef);
+            UserDTO userDTO = userSer.getUserAuthDTO(cacheRef);
             return ResponseEntity.ok(userDTO);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -111,5 +112,15 @@ public class UserController {
     @GetMapping("/user/name/{cacheRef}")
     public ResponseEntity<MessageDTO> getName(@PathVariable String cacheRef){
         return ResponseEntity.ok(userSer.getName(cacheRef));
+    }
+
+    @PutMapping("/user/upw/{cacheRef}")
+    public ResponseEntity<MessageDTO> updatePw(
+        @RequestBody PwDTO pwDto, @PathVariable String cacheRef){
+        try {
+            return ResponseEntity.ok(userSer.changePw(pwDto, cacheRef));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 }

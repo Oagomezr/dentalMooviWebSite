@@ -38,8 +38,6 @@ public class AuthController {
     private final AuthenticationManager am;
     private static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    
-
     public AuthController(JWTprovider jWTprovider, UserSer userSer, CacheSer cacheSer, AuthenticationManager am) {
         this.jWTprovider = jWTprovider;
         this.userSer = userSer;

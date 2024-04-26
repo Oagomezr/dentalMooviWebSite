@@ -1,6 +1,7 @@
 package com.dentalmoovi.website;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 //import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ import com.dentalmoovi.website.repositories.UserRep;
 import jakarta.annotation.PostConstruct;
 
 @Component
-//@Profile("test")
+@Profile("test")
 public class InitialTestData {
     private final CategoriesRep categoriesRep;
     private final ProductsRep productsRep;
