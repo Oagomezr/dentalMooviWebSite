@@ -163,10 +163,16 @@ public class UserSer {
         return mainUser.getCacheRef();
     }
 
-    @CacheEvict(value = {"getName", "getUserAuthenticated"}, key = "#cacheRef")
+    @CacheEvict(value = {"getName", "getUserAuthenticated", "getUserAuthDTO"}, key = "#cacheRef")
     public MessageDTO updateUserInfo(UserDTO userDTO, String cacheRef){
-        Users user = Utils.getUserByEmail(getUserAuthenticated(cacheRef).email(), userRep);
-        userRep.save(new Users(user.id(), userDTO.firstName(), userDTO.lastName(), user.email(), userDTO.celPhone(), userDTO.birthdate(), userDTO.gender(), user.password(), null, null));
+        Users user = Utils.getUserByEmail(getUsername(cacheRef), userRep);
+        
+        userRep.save(
+            new Users(
+                user.id(), userDTO.firstName(), userDTO.lastName(), user.email(), 
+                userDTO.celPhone(), userDTO.birthdate(), userDTO.gender(), 
+                user.password(), user.roles(), user.addresses()));
+
         return new MessageDTO("User updated");
     }
 

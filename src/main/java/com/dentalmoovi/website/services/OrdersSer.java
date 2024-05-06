@@ -95,7 +95,6 @@ public class OrdersSer {
         return renderPdf(html);
     }
 
-    @SuppressWarnings("null")
     private Context getOrderContext(CartRequest req, long idAddress) throws Exception{
 
         user = admin ? getUser(req.idUser()) : getUser();

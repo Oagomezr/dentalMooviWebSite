@@ -31,7 +31,6 @@ public class MainUser implements UserDetails{
     public static MainUser build(Users user, RolesRep rolesRep, String ref){
         Set<Long> rolesIds = user.getRolesIds();
 
-        @SuppressWarnings("null")
         List<Roles> roles = rolesIds.stream()
             .map(idRole -> rolesRep.findById(idRole)
                 .orElseThrow(() -> new RuntimeException("Role not found")))
