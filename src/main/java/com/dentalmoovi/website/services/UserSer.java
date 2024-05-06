@@ -2,6 +2,7 @@ package com.dentalmoovi.website.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +23,8 @@ import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.entities.enums.Departaments;
 import com.dentalmoovi.website.models.entities.enums.MunicipalyCity;
 import com.dentalmoovi.website.models.entities.enums.RolesList;
+import com.dentalmoovi.website.models.exceptions.AlreadyExistException;
+import com.dentalmoovi.website.models.exceptions.IncorrectException;
 import com.dentalmoovi.website.models.responses.AddressesResponse;
 import com.dentalmoovi.website.repositories.AddressesRep;
 import com.dentalmoovi.website.repositories.RolesRep;
@@ -91,14 +94,14 @@ public class UserSer {
             String createUser() throws RuntimeException{
                 //verify if email exist
                 if(checkEmailExists(userDTO.email(), true)) 
-                    throw new RuntimeException("That user already exist");
+                    throw new AlreadyExistException("That user already exist");
 
                 //get verification code
                 String code = cacheSer.getFromRegistrationCache(userDTO.email());
 
                 //verify if code sended is equals the verification code
                 if(!userDTO.code().equals(code)) 
-                    throw new RuntimeException("The code: "+code+" is incorrect");
+                    throw new IncorrectException("The code: "+code+" is incorrect");
 
                 //create default role
                 Roles defaultRole = rolesRep.findByRole(RolesList.USER_ROLE)
@@ -249,7 +252,7 @@ public class UserSer {
                 user.birthdate(), user.gender(), pwNew, user.roles(), user.addresses()));
             return new MessageDTO("Password updated successfully");
         }
-        throw new RuntimeException("Incorrect Password");
+        throw new IncorrectException("Incorrect Password");
     }
 
     @Cacheable("getUserName")
@@ -261,6 +264,6 @@ public class UserSer {
         if (authentication != null && authentication.isAuthenticated()) 
             return authentication.getName(); //Get username
         
-        throw new RuntimeException("The user is not authenticated");
+        throw new NoSuchElementException("The user is not authenticated");
     }
 }

@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,6 +33,7 @@ import com.dentalmoovi.website.repositories.OrdersRep;
 import com.dentalmoovi.website.repositories.UserRep;
 import com.dentalmoovi.website.repositories.enums.DepartamentsRep;
 import com.dentalmoovi.website.repositories.enums.MunicipalyRep;
+import com.itextpdf.text.DocumentException;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -122,7 +124,7 @@ public class OrdersSer {
                 String.format("%,.2f", cartResponse.total()));
 
         Context context = new Context();
-        context.setVariable("order", orderData);
+        context.setVariable(orderName, orderData);
         return context;
     }
 
@@ -139,11 +141,11 @@ public class OrdersSer {
     }
 
     private String loadAndFillTemplate(Context context) {
-        return ste.process("order", context);
+        return ste.process(orderName, context);
     }
 
-    private File renderPdf(String html) throws Exception {
-        File file = File.createTempFile("order", ".pdf");
+    private File renderPdf(String html) throws IOException, DocumentException{
+        File file = File.createTempFile(orderName, ".pdf");
         OutputStream outputStream = new FileOutputStream(file);
         ITextRenderer renderer = new ITextRenderer(20f * 4f / 3f, 20);
         renderer.setDocumentFromString(html);
@@ -153,4 +155,6 @@ public class OrdersSer {
         file.deleteOnExit();
         return file;
     }
+
+    private String orderName = "order";
 }

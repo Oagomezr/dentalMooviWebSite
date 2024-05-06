@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.awt.image.BufferedImage;
 
 import java.awt.Graphics2D;
@@ -28,6 +29,7 @@ import com.dentalmoovi.website.models.dtos.ProductsDTO;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Images;
 import com.dentalmoovi.website.models.entities.Products;
+import com.dentalmoovi.website.models.exceptions.IncorrectException;
 import com.dentalmoovi.website.models.responses.ProductsResponse;
 import com.dentalmoovi.website.repositories.CategoriesRep;
 import com.dentalmoovi.website.repositories.ImgRep;
@@ -115,7 +117,7 @@ public class ProductsSer {
                     .orElseThrow(() -> new RuntimeException(productNotFound));
 
                 if (!admin && !product.openToPublic())
-                    throw new RuntimeException("Something wrong");
+                    throw new NoSuchElementException("Something wrong");
                 
                 //Get product's category
                 Categories category = categoriesRep.findById(product.idCategory())
@@ -343,7 +345,7 @@ public class ProductsSer {
             break;
         
             default:
-                throw new RuntimeException("Invalid option");
+                throw new IncorrectException("Invalid option");
         }
         return new MessageDTO("Info updated");
     }
@@ -356,8 +358,8 @@ public class ProductsSer {
         Categories category = categoriesRep.findByName(categoryName)
             .orElseThrow(() -> new RuntimeException(productNotFound));
 
-        if (Boolean.TRUE.equals(productsRep.existsByName("Nombre del nuevo producto"))) {
-            Products product = productsRep.findByName("Nombre del nuevo producto")
+        if (Boolean.TRUE.equals(productsRep.existsByName(nameProduct))) {
+            Products product = productsRep.findByName(nameProduct)
                 .orElseThrow(() -> new RuntimeException(productNotFound));
             productsRep.save(new Products(
                     product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
@@ -366,13 +368,13 @@ public class ProductsSer {
         }
 
         productsRep.save(new Products(
-            null, "Nombre del nuevo producto", "Descripción del nuevo producto", "descripción corta del nuevo producto", 0, 
+            null, nameProduct, "Descripción del nuevo producto", "descripción corta del nuevo producto", 0, 
             0, false, null, category.id()));
             
         return true;
     }
 
-    public CartResponse getShoppingCartProducts(CartRequest req, boolean admin, boolean pdf) throws Exception{
+    public CartResponse getShoppingCartProducts(CartRequest req, boolean admin, boolean pdf){
 
         List<CartDtoRespose> data = new ArrayList<>();
 
@@ -389,9 +391,8 @@ public class ProductsSer {
                 product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory());
 
             if (!product.openToPublic() && !admin)
-                throw new RuntimeException("That product does not exist");
+                throw new NoSuchElementException("That product does not exist");
                 
-            
 
             ImagesDTO cartImage = null;
             String cartPrizePDF = null;
@@ -489,4 +490,6 @@ public class ProductsSer {
 
         return new ImagesDTO(idMainImage , imgName, contentType, base64Image);
     }
+
+    private String nameProduct = "Nombre del nuevo producto";
 }
