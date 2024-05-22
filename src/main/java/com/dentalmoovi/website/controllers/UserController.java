@@ -17,6 +17,7 @@ import com.dentalmoovi.website.models.dtos.AddressesDTO;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.UserDTO;
 import com.dentalmoovi.website.models.responses.AddressesResponse;
+import com.dentalmoovi.website.security.LoginDTO;
 import com.dentalmoovi.website.security.PwDTO;
 import com.dentalmoovi.website.services.UserSer;
 
@@ -43,7 +44,7 @@ public class UserController {
     @PostMapping("/public/sendEmail")
     public void sendMessage(@RequestBody String email){
         String subject = "Codigo de confirmación";
-        String body = "Dental Moovi recibió una solicitud de registro.\n\n"+
+        String body = "Dental Moovi recibió una solicitud.\n\n"+
                         "El codigo de confirmación es: ";
         userSer.sendEmailNotification(email, subject, body);
     }
@@ -119,6 +120,16 @@ public class UserController {
         @RequestBody PwDTO pwDto, @PathVariable String cacheRef){
         try {
             return ResponseEntity.ok(userSer.changePw(pwDto, cacheRef));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @PutMapping("/public/rpw")
+    public ResponseEntity<MessageDTO> rememberPw(
+        @RequestBody LoginDTO userCredentials){
+        try {
+            return ResponseEntity.ok(userSer.rememberPw(userCredentials));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

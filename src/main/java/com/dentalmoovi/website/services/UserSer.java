@@ -8,6 +8,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.mail.MailException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,6 +32,7 @@ import com.dentalmoovi.website.repositories.RolesRep;
 import com.dentalmoovi.website.repositories.UserRep;
 import com.dentalmoovi.website.repositories.enums.DepartamentsRep;
 import com.dentalmoovi.website.repositories.enums.MunicipalyRep;
+import com.dentalmoovi.website.security.LoginDTO;
 import com.dentalmoovi.website.security.MainUser;
 import com.dentalmoovi.website.security.PwDTO;
 import com.dentalmoovi.website.services.cache.CacheSer;
@@ -246,13 +248,38 @@ public class UserSer {
         boolean valid = pwe.matches(dto.oldP(), user.password());
 
         if (valid) {
-            String pwNew = pwe.encode(dto.newP());
-            userRep.save(new Users(
-                user.id(), user.firstName(), user.lastName(), user.email(), user.celPhone(), 
-                user.birthdate(), user.gender(), pwNew, user.roles(), user.addresses()));
-            return new MessageDTO("Password updated successfully");
+            return updatePw(user, dto.newP());
         }
         throw new IncorrectException("Incorrect Password");
+    }
+
+    public MessageDTO rememberPw(LoginDTO userCredentials){ 
+        //get verification code
+        String code = cacheSer.getFromRegistrationCache(userCredentials.userName());
+
+        //verify if code sended is equals the verification code
+        if(!userCredentials.code().equals(code)) 
+            throw new IncorrectException("The code: "+code+" is incorrect");
+
+        cacheSer.removeFromRegistrationCache(userCredentials.userName());
+
+        String newPw = generateRandomString(10);
+
+        String subject = "Recuperación de contraseña";
+        String body = "Dental Moovi recibió una solicitud de recuperación de contraseña.\n\n"+
+                        "Su nueva contraseña es: " + newPw + "\n\n"+
+                        "Recuerde que puede cambiarla a travez de la pagina Web de Dental Moovi";
+
+        Users user = Utils.getUserByEmail(userCredentials.userName(), userRep);
+
+        try {
+            emailSer.sendEmail(userCredentials.userName(), subject, body);
+            return updatePw(user, newPw);
+        } catch (MailException e) {
+            // Manage the exception in case it cannot send the email
+            e.printStackTrace();
+            throw new MailException(e.getMessage()) {};
+        }
     }
 
     @Cacheable("getUserName")
@@ -265,5 +292,28 @@ public class UserSer {
             return authentication.getName(); //Get username
         
         throw new NoSuchElementException("The user is not authenticated");
+    }
+
+    private MessageDTO updatePw(Users user, String pw){
+        String pwNew = pwe.encode(pw);
+        userRep.save(new Users(
+            user.id(), user.firstName(), user.lastName(), user.email(), user.celPhone(), 
+            user.birthdate(), user.gender(), pwNew, user.roles(), user.addresses()));
+        return new MessageDTO("Password updated successfully");
+    }
+
+    private String generateRandomString(int length){
+        // Characters that will use to generate random string
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~%$#";
+        StringBuilder stringBuilder = new StringBuilder();
+
+        // Generate random string
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(characters.length());
+            char randomChar = characters.charAt(index);
+            stringBuilder.append(randomChar);
+        }
+
+        return stringBuilder.toString();
     }
 }

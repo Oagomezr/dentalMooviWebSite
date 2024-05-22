@@ -80,7 +80,7 @@ public class OrdersSer {
         }
     }
 
-    public File generateOrder(CartRequest req, long idAddress) throws Exception{
+    public File generateOrder(CartRequest req, long idAddress) throws IOException, DocumentException{
         File pdfFile = generatePdf(req, idAddress);
         byte[] pdfContent = Files.readAllBytes(pdfFile.toPath());
         order = ordersRep.save(
@@ -91,13 +91,13 @@ public class OrdersSer {
         return pdfFile;
     }
 
-    private File generatePdf(CartRequest req, long idAddress) throws Exception{
+    private File generatePdf(CartRequest req, long idAddress) throws IOException, DocumentException{
         Context context = getOrderContext(req, idAddress);
         String html = loadAndFillTemplate(context);
         return renderPdf(html);
     }
 
-    private Context getOrderContext(CartRequest req, long idAddress) throws Exception{
+    private Context getOrderContext(CartRequest req, long idAddress){
 
         user = admin ? getUser(req.idUser()) : getUser();
         

@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
+import com.dentalmoovi.website.models.exceptions.IncorrectException;
 import com.dentalmoovi.website.security.jwt.JWTprovider;
 import com.dentalmoovi.website.services.UserSer;
 import com.dentalmoovi.website.services.cache.CacheSer;
@@ -88,7 +89,7 @@ public class AuthController {
 
                 //verify if code sended is equals the verification code
                 if(!loginUser.code().equals(code)) 
-                    throw new RuntimeException("That code is incorrect");
+                    throw new IncorrectException("That code is incorrect");
             }
 
             Authentication auth = getAuth(loginUser.userName(), loginUser.password());
