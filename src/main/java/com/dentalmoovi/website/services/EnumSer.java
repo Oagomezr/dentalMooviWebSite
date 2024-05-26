@@ -3,12 +3,15 @@ package com.dentalmoovi.website.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.dentalmoovi.website.models.dtos.Enum1DTO;
+import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.enums.Departaments;
 import com.dentalmoovi.website.models.entities.enums.MunicipalyCity;
 import com.dentalmoovi.website.models.responses.EnumResponse1;
+import com.dentalmoovi.website.repositories.CategoriesRep;
 import com.dentalmoovi.website.repositories.enums.DepartamentsRep;
 import com.dentalmoovi.website.repositories.enums.MunicipalyRep;
 
@@ -16,6 +19,7 @@ import com.dentalmoovi.website.repositories.enums.MunicipalyRep;
 public class EnumSer {
     private final DepartamentsRep dRep;
     private final MunicipalyRep mcRep;
+    private final CategoriesRep cRep;
 
     public EnumResponse1 getDepartamentsByContaining(String name){
         List<Departaments> departaments = dRep.findDepartamentByContaining(name);
@@ -33,8 +37,19 @@ public class EnumSer {
         return new EnumResponse1(municipalyDTO);
     }
 
-    public EnumSer(DepartamentsRep dRep, MunicipalyRep mcRep) {
+    @Cacheable(cacheNames = "getAdminCategories")
+    public EnumResponse1 getCategoriesAdmin(String name){
+        List<Categories> categories = cRep.findByContaining(name);
+        List<Enum1DTO> categoriesDTO = new ArrayList<>();
+        categories.stream().forEach(category ->
+            categoriesDTO.add(new Enum1DTO(category.id().intValue() , category.name())));
+
+        return new EnumResponse1(categoriesDTO);
+    }
+
+    public EnumSer(DepartamentsRep dRep, MunicipalyRep mcRep, CategoriesRep cRep) {
         this.dRep = dRep;
         this.mcRep = mcRep;
+        this.cRep = cRep;
     }
 }

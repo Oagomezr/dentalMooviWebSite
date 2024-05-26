@@ -304,7 +304,7 @@ public class UserSer {
 
     private String generateRandomString(int length){
         // Characters that will use to generate random string
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~%$#";
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~%$#|!&/()='";
         StringBuilder stringBuilder = new StringBuilder();
 
         // Generate random string

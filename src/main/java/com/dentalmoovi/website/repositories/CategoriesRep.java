@@ -20,4 +20,7 @@ public interface CategoriesRep extends CrudRepository<Categories, Long>{
 
     @Query("SELECT * FROM categories WHERE name = :name")
     Optional<Categories> findByName(@Param("name") String name);
+
+    @Query("SELECT * FROM categories WHERE name LIKE UPPER(CONCAT('%', :name, '%')) LIMIT 7")
+    List<Categories> findByContaining(@Param("name") String name);
 }

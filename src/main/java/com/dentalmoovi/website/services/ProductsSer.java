@@ -134,7 +134,7 @@ public class ProductsSer {
                 if (admin && !product.openToPublic()) hidden = "yes";
 
                 return new ProductsDTO(product.id() , name, product.unitPrice(), product.description(), 
-                    product.shortDescription(), product.stock(), productImagesDTO, location, hidden);
+                    product.shortDescription(), product.stock(), productImagesDTO, location, hidden, category.name());
             }
 
             //It's a function with the aim of find the location products inside the categories
@@ -343,6 +343,11 @@ public class ProductsSer {
                     product.id(), product.name(), product.description(), newInfo, product.unitPrice(), 
                     product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
             break;
+            case 5:
+                productsRep.save(new Products(
+                    product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
+                    product.stock(), product.openToPublic(), product.idMainImage(), Long.valueOf(newInfo)));
+            break;
         
             default:
                 throw new IncorrectException("Invalid option");
@@ -440,7 +445,7 @@ public class ProductsSer {
                     
                     if (!product.openToPublic()) hidden = "Yes";
                     ProductsDTO productDTO = new ProductsDTO(product.id() , product.name(), product.unitPrice(), 
-                        product.description(), product.shortDescription(), product.stock(), productImagesDTO, null, hidden);
+                        product.description(), product.shortDescription(), product.stock(), productImagesDTO, null, hidden, null);
                     productsDTOList.add(productDTO);
                 }
             } catch (Exception e) {

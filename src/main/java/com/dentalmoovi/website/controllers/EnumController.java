@@ -34,6 +34,15 @@ public class EnumController {
         }
     }
 
+    @GetMapping("/admin/categories/{name}")
+    public ResponseEntity<Object> getCategoriesByAdmin(@PathVariable String name) {
+        try{
+            return ResponseEntity.ok(enumSer.getCategoriesAdmin(name));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     public EnumController(EnumSer enumSer) {
         this.enumSer = enumSer;
     }
