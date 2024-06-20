@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.entities.Roles;
 import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.repositories.RolesRep;
@@ -40,7 +41,7 @@ public class MainUser implements UserDetails{
             .map(role -> new SimpleGrantedAuthority(role.role().name()))
             .collect(Collectors.toList());
 
-        String cacheRef = String.valueOf(user.id() + ref.length());
+        String cacheRef = Utils.generateRandomString(2)+ String.valueOf(user.id() + ref.length())+Utils.generateRandomString(2);
 
         return new MainUser(cacheRef, user.email(), user.password(), authorities);
     }

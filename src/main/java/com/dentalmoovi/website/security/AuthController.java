@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,28 +20,23 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.dentalmoovi.website.Utils;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
-import com.dentalmoovi.website.models.exceptions.IncorrectException;
 import com.dentalmoovi.website.security.jwt.JWTprovider;
 import com.dentalmoovi.website.services.UserSer;
-import com.dentalmoovi.website.services.cache.CacheSer;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/public")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
     private final JWTprovider jWTprovider;
     private final UserSer userSer;
-    private final CacheSer cacheSer;
     private final AuthenticationManager am;
     private static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    public AuthController(JWTprovider jWTprovider, UserSer userSer, CacheSer cacheSer, AuthenticationManager am) {
+    public AuthController(JWTprovider jWTprovider, UserSer userSer, AuthenticationManager am) {
         this.jWTprovider = jWTprovider;
         this.userSer = userSer;
-        this.cacheSer = cacheSer;
         this.am = am;
     }
 
@@ -84,12 +78,8 @@ public class AuthController {
         try {
             String userDetails = userSer.getUserDetails(loginUser.userName());
             if(userDetails.charAt(0) == 'A'){
-                //get verification code
-                String code = cacheSer.getFromRegistrationCache(loginUser.userName());
-
-                //verify if code sended is equals the verification code
-                if(!loginUser.code().equals(code)) 
-                    throw new IncorrectException("That code is incorrect");
+                userSer.validateCode(loginUser.userName(), loginUser.code());
+                userSer.removeCache(loginUser.userName());
             }
 
             Authentication auth = getAuth(loginUser.userName(), loginUser.password());

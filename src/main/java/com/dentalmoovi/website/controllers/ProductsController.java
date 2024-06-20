@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +26,6 @@ import io.jsonwebtoken.io.IOException;
 
 @RestController
 @RequestMapping
-@CrossOrigin(origins = "http://localhost:4200")
 public class ProductsController {
     private final ProductsSer productsSer;
 
@@ -69,7 +67,7 @@ public class ProductsController {
     }
 
     @PutMapping("/admin/products/updateMainImage/{productName}")
-    public ResponseEntity<MessageDTO> updateCategoryLocation(@PathVariable String productName, @RequestBody long idImage) {
+    public ResponseEntity<MessageDTO> updateMainImage(@PathVariable String productName, @RequestBody long idImage) {
         try{
             return ResponseEntity.ok(productsSer.updateMainImage(idImage, productName));
         } catch (Exception e) {
@@ -99,6 +97,7 @@ public class ProductsController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @PutMapping("/admin/products/visibility/{productName}")
     public ResponseEntity<MessageDTO> changeVisibilityProduct(@PathVariable String productName, @RequestBody boolean visibility) {
         try{

@@ -27,4 +27,12 @@ public class CacheConfig {
                 .maximumSize(1000) // Set the max cache's size
                 .build();
     }
+
+    @Bean
+    public Cache<String, Integer> numberOfTriesCode() {
+        return Caffeine.newBuilder()
+                .expireAfterWrite(20, TimeUnit.MINUTES) // Set expiration time
+                .maximumSize(1000) // Set the max cache's size
+                .build();
+    }
 }

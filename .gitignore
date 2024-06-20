@@ -35,5 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
-extraInfo.yml
+.env
 /dontused/
+docker-compose.yml
+Dockerfile

@@ -1,5 +1,6 @@
 package com.dentalmoovi.website.models.entities;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ public record Orders(
     @Id Long id,
     byte[] orderFile,
     StatusOrderList status,
+    LocalDateTime date,
     Long idUser,
     Long idAddress,
     @MappedCollection(idColumn = "id_order") Set<OrdersProducts> products

@@ -2,7 +2,6 @@ package com.dentalmoovi.website.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +22,6 @@ import com.dentalmoovi.website.services.UserSer;
 
 @RestController
 @RequestMapping
-@CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
     private final UserSer userSer;
 
@@ -54,72 +52,72 @@ public class UserController {
         return userSer.checkEmailExists(email, signup);
     }
     
-    @GetMapping("/user/getUser/{cacheRef}")
-    public ResponseEntity<UserDTO> getUserAuthenticated(@PathVariable String cacheRef){
+    @GetMapping("/user/getUser")
+    public ResponseEntity<UserDTO> getUserAuthenticated(){
         try {
-            UserDTO userDTO = userSer.getUserAuthDTO(cacheRef);
+            UserDTO userDTO = userSer.getUserAuthDTO();
             return ResponseEntity.ok(userDTO);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
     
-    @PutMapping("/user/update/{cacheRef}")
-    public ResponseEntity<MessageDTO> updateUser(@RequestBody UserDTO userDTO, @PathVariable String cacheRef){
+    @PutMapping("/user/update")
+    public ResponseEntity<MessageDTO> updateUser(@RequestBody UserDTO userDTO){
         try {
-            return ResponseEntity.ok(userSer.updateUserInfo(userDTO, cacheRef));
+            return ResponseEntity.ok(userSer.updateUserInfo(userDTO));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
-    @PostMapping("/user/addAddress/{cacheRef}")
-    public ResponseEntity<MessageDTO> createAddress(@RequestBody AddressesDTO addressDTO, @PathVariable String cacheRef){
+    @PostMapping("/user/addAddress")
+    public ResponseEntity<MessageDTO> createAddress(@RequestBody AddressesDTO addressDTO){
         try {
-            userSer.createAddress(addressDTO, cacheRef);
+            userSer.createAddress(addressDTO);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
-    @GetMapping("/user/getAddresses/{cacheRef}")
-    public ResponseEntity<AddressesResponse> getAddresses(@PathVariable String cacheRef){
+    @GetMapping("/user/getAddresses")
+    public ResponseEntity<AddressesResponse> getAddresses(){
         try {
-            return ResponseEntity.ok(userSer.getAddresses(cacheRef));
+            return ResponseEntity.ok(userSer.getAddresses());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
-    @PutMapping("/user/updateAddress/{cacheRef}")
-    public ResponseEntity<MessageDTO> updateAddress(@RequestBody AddressesDTO addressDTO, @PathVariable String cacheRef){
+    @PutMapping("/user/updateAddress")
+    public ResponseEntity<MessageDTO> updateAddress(@RequestBody AddressesDTO addressDTO){
         try {
-            return ResponseEntity.ok(userSer.updateAddress(addressDTO, cacheRef));
+            return ResponseEntity.ok(userSer.updateAddress(addressDTO));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
-    @DeleteMapping("/user/deleteAddress/{id}/{cacheRef}")
-    public ResponseEntity<MessageDTO> deleteAddress(@PathVariable long id, @PathVariable String cacheRef){
+    @DeleteMapping("/user/deleteAddress/{id}")
+    public ResponseEntity<MessageDTO> deleteAddress(@PathVariable long id){
         try{
-            return ResponseEntity.ok(userSer.deleteAddress(id, cacheRef));
+            return ResponseEntity.ok(userSer.deleteAddress(id));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @GetMapping("/user/name/{cacheRef}")
-    public ResponseEntity<MessageDTO> getName(@PathVariable String cacheRef){
-        return ResponseEntity.ok(userSer.getName(cacheRef));
+    @GetMapping("/user/name")
+    public ResponseEntity<MessageDTO> getName(){
+        return ResponseEntity.ok(userSer.getName());
     }
 
-    @PutMapping("/user/upw/{cacheRef}")
+    @PutMapping("/user/upw")
     public ResponseEntity<MessageDTO> updatePw(
-        @RequestBody PwDTO pwDto, @PathVariable String cacheRef){
+        @RequestBody PwDTO pwDto){
         try {
-            return ResponseEntity.ok(userSer.changePw(pwDto, cacheRef));
+            return ResponseEntity.ok(userSer.changePw(pwDto));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

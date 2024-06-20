@@ -2,6 +2,7 @@ package com.dentalmoovi.website.security;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +31,8 @@ public class SecurityConfig {
 
     private final JWTentryPoint jWTentryPoint;
     
+    @Value("${server.frontUrl}")
+    private String urlFront;
     
     public SecurityConfig(JWTentryPoint jWTentryPoint) {
         this.jWTentryPoint = jWTentryPoint;
@@ -43,7 +46,7 @@ public class SecurityConfig {
             .cors(cors ->
                 cors.configurationSource(request-> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:4200"));
+                    config.setAllowedOrigins(List.of(urlFront));
                     config.setAllowedMethods(List.of("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH","OPTIONS"));
                     config.setAllowCredentials(true);
                     config.addExposedHeader("Message");

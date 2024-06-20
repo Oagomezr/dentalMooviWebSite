@@ -2,7 +2,6 @@ package com.dentalmoovi.website.services;
 
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.awt.image.BufferedImage;
@@ -10,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import javax.imageio.ImageIO;
 
@@ -26,11 +26,14 @@ import com.dentalmoovi.website.models.cart.CartResponse;
 import com.dentalmoovi.website.models.dtos.ImagesDTO;
 import com.dentalmoovi.website.models.dtos.MessageDTO;
 import com.dentalmoovi.website.models.dtos.ProductsDTO;
+import com.dentalmoovi.website.models.entities.ActivityLogs;
 import com.dentalmoovi.website.models.entities.Categories;
 import com.dentalmoovi.website.models.entities.Images;
 import com.dentalmoovi.website.models.entities.Products;
+import com.dentalmoovi.website.models.entities.Users;
 import com.dentalmoovi.website.models.exceptions.IncorrectException;
 import com.dentalmoovi.website.models.responses.ProductsResponse;
+import com.dentalmoovi.website.repositories.ActivityLogsRep;
 import com.dentalmoovi.website.repositories.CategoriesRep;
 import com.dentalmoovi.website.repositories.ImgRep;
 import com.dentalmoovi.website.repositories.ProductsRep;
@@ -41,11 +44,16 @@ public class ProductsSer {
     private final ProductsRep productsRep;
     private final CategoriesRep categoriesRep;
     private final ImgRep imagesRep;
+    private final ActivityLogsRep activityLogsRep;
+    private final UserSer userSer;
 
-    public ProductsSer(ProductsRep productsRep, CategoriesRep categoriesRep, ImgRep imagesRep) {
+
+    public ProductsSer(ProductsRep productsRep, CategoriesRep categoriesRep, ImgRep imagesRep, ActivityLogsRep activityLogsRep, UserSer userSer) {
         this.productsRep = productsRep;
         this.categoriesRep = categoriesRep;
         this.imagesRep = imagesRep;
+        this.activityLogsRep = activityLogsRep;
+        this.userSer = userSer;
     }
 
     private String categoryNotFound = "Category not found";
@@ -72,9 +80,6 @@ public class ProductsSer {
                 listAllSubCategories.stream().forEach(categoryName ->
                     allProducts.addAll(productsRep.findByCategoryName(categoryName))
                 );
-                
-                //We have all products but unorganized, we organize them alphabetical
-                Collections.sort(allProducts, (product1, product2) -> product1.name().compareTo(product2.name()));
 
                 /*We cannot show the costumer N amount of products if N is a high number,
                 so we need to do pagination*/
@@ -133,7 +138,9 @@ public class ProductsSer {
 
                 if (admin && !product.openToPublic()) hidden = "yes";
 
-                return new ProductsDTO(product.id() , name, product.unitPrice(), product.description(), 
+                double unitPrice = product.showPrice() || admin ? product.unitPrice() : 0;
+
+                return new ProductsDTO(product.id() , name, unitPrice, product.description(), 
                     product.shortDescription(), product.stock(), productImagesDTO, location, hidden, category.name());
             }
 
@@ -187,7 +194,13 @@ public class ProductsSer {
     public MessageDTO updateMainImage(long idImage, String productName){
         Products product = productsRep.findByName(productName)
             .orElseThrow(() -> new RuntimeException(productNotFound));
-        productsRep.save(new Products(product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), product.stock(), product.openToPublic(), idImage, product.idCategory()));
+        productsRep.save(new Products(product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), product.stock(), product.openToPublic(), product.showPrice(), idImage, product.idCategory()));
+
+        Users user = userSer.getUserAuthenticated();
+
+        ActivityLogs log = new ActivityLogs(null, "El usuario actualizo la foto principal del producto "+productName+" "+product.id(), LocalDateTime.now(), user.id());
+        activityLogsRep.save(log);
+
         return new MessageDTO("Main product image updated");
     }
 
@@ -219,15 +232,20 @@ public class ProductsSer {
                 
                 // Calculate new image size
                 if (originalImage.getWidth() > originalImage.getHeight()) {
-                    newWidth = maxWidth;
-                    newHeight = (originalImage.getHeight() * maxWidth) / originalImage.getWidth();
-                } else {
                     newHeight = maxHeight;
                     newWidth = (originalImage.getWidth() * maxHeight) / originalImage.getHeight();
+                } else {
+                    newWidth = maxWidth;
+                    newHeight = (originalImage.getHeight() * maxWidth) / originalImage.getWidth();
                 }
                 
                 byte[] resizedImageData = rescaleAndConvert(originalImage, newWidth, newHeight);
-        
+
+                Users user = userSer.getUserAuthenticated();
+
+                ActivityLogs log = new ActivityLogs(null, "El usuario agrego una nueva foto al producto "+product.name()+" "+product.id(), LocalDateTime.now(), user.id());
+                activityLogsRep.save(log);
+                
                 // Create and save the new image
                 return createImage(file, product, resizedImageData);
             }
@@ -250,24 +268,40 @@ public class ProductsSer {
                     productsRep.save(
                         new Products(
                             product.id(), product.name(), product.description(), product.shortDescription(), 
-                            product.unitPrice(), product.stock(), product.openToPublic(), newImage.id(), product.idCategory()));
+                            product.unitPrice(), product.stock(), product.openToPublic(), product.showPrice(), newImage.id(), product.idCategory()));
                 }
                 return new MessageDTO("Image created");
             }
 
-            private byte[] rescaleAndConvert(BufferedImage originalImage, int newWidth, int newHeight) throws IOException{
-                // Rescale the image to the new size
+            private byte[] rescaleAndConvert(BufferedImage originalImage, int newWidth, int newHeight) throws IOException {
+                // Rescale the image to fit within newWidth and newHeight
                 Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
                 BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+            
+                // Create graphics object and draw the scaled image onto the resized image
                 Graphics2D graphics2D = resizedImage.createGraphics();
                 graphics2D.drawImage(scaledImage, 0, 0, null);
                 graphics2D.dispose();
-        
-                // Convert resized image to bytes
+            
+                // Determine the coordinates to center-crop the image to 600x600
+                int x = 0;
+                int y = 0;
+                if (resizedImage.getWidth() > 600) {
+                    x = (resizedImage.getWidth() - 600) / 2;
+                }
+                if (resizedImage.getHeight() > 600) {
+                    y = (resizedImage.getHeight() - 600) / 2;
+                }
+            
+                // Create a final cropped image of 600x600
+                BufferedImage croppedImage = resizedImage.getSubimage(x, y, 600, 600);
+            
+                // Convert cropped image to bytes
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                ImageIO.write(resizedImage, "jpg", outputStream);
+                ImageIO.write(croppedImage, "jpg", outputStream);
                 byte[] resizedImageData = outputStream.toByteArray();
                 outputStream.close();
+            
                 return resizedImageData;
             }
         }
@@ -279,6 +313,9 @@ public class ProductsSer {
         cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, 
         allEntries = true)
     public MessageDTO deleteImage(String parameter){
+
+        Users user = userSer.getUserAuthenticated();
+
         if (parameter.matches(".*[a-zA-Z].*")) {
             Products product = productsRep.findByName(parameter)
                 .orElseThrow(() -> new RuntimeException(productNotFound));
@@ -286,10 +323,24 @@ public class ProductsSer {
             productsRep.save(
                 new Products(
                     product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
-                    product.stock(), product.openToPublic(), null, product.idCategory()));
+                    product.stock(), product.openToPublic(), product.showPrice(), null, product.idCategory()));
             imagesRep.deleteById(idImage);
+
+            ActivityLogs log = new ActivityLogs(null, "El usuario elimino la foto principal del producto "+product.name()+" "+product.id(), LocalDateTime.now(), user.id());
+            activityLogsRep.save(log);
+
         }else{
             long idImage = Long.parseLong(parameter);
+
+            Images img = imagesRep.findById(idImage)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+            
+            Products product = productsRep.findById(img.idProduct())
+                .orElseThrow(() -> new RuntimeException(productNotFound));
+
+            ActivityLogs log = new ActivityLogs(null, "El usuario elimino una foto del producto "+product.name()+" "+product.id(), LocalDateTime.now(), user.id());
+            activityLogsRep.save(log);
+
             imagesRep.deleteById(idImage);
         }
 
@@ -300,11 +351,17 @@ public class ProductsSer {
         cacheNames = {"getProducsByContaining", "getProduct", "productsByCategory"}, 
         allEntries = true)
     public MessageDTO hideOrShowProduct(boolean visibility, String productName){
+
         Products product = productsRep.findByName(productName)
             .orElseThrow(() -> new RuntimeException(productNotFound));
+
+        Users user = userSer.getUserAuthenticated();
+        ActivityLogs log = new ActivityLogs(null, "El usuario cambio la visibilidad del producto: "+product.name()+" "+product.id()+" "+visibility, LocalDateTime.now(), user.id());
+        activityLogsRep.save(log);
+
         productsRep.save(new Products(
             product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
-            product.stock(), visibility, product.idMainImage(), product.idCategory()));
+            product.stock(), visibility, product.showPrice(), product.idMainImage(), product.idCategory()));
         return new MessageDTO("Product Updated");
     }
 
@@ -316,42 +373,74 @@ public class ProductsSer {
         Products product = productsRep.findByName(nameProduct)
             .orElseThrow(() -> new RuntimeException(productNotFound));
 
+        Users user = userSer.getUserAuthenticated();
+        String logMessage = "";
         
         switch (option) {
             case 0:
+                logMessage = "El usuario cambio el nombre del producto de "
+                +product.name()+" a "+newInfo+ " "+product.id();
+
                 productsRep.save(new Products(
                     product.id(), newInfo, product.description(), product.shortDescription(), product.unitPrice(), 
-                    product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
+                    product.stock(), product.openToPublic(), product.showPrice(), product.idMainImage(), product.idCategory()));
+                    
             break;
             case 1:
+                logMessage = "El usuario cambio el precio del producto: "
+                +product.name()+" "+product.id()+" de "+product.unitPrice()+" a "+newInfo;
+
                 productsRep.save(new Products(
                     product.id(), product.name(), product.description(), product.shortDescription(), Double.parseDouble(newInfo), 
-                    product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
+                    product.stock(), product.openToPublic(), product.showPrice(), product.idMainImage(), product.idCategory()));
             break;
             case 2:
+                logMessage = "El usuario cambio la descripcion del producto: "
+                +product.name()+" "+product.id()+" de "+product.description()+" a "+newInfo;
+
                 productsRep.save(new Products(
                     product.id(), product.name(), newInfo, product.shortDescription(), product.unitPrice(), 
-                    product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
+                    product.stock(), product.openToPublic(), product.showPrice(), product.idMainImage(), product.idCategory()));
             break;
             case 3:
+                logMessage = "El usuario cambio el stock del producto: "
+                +product.name()+" "+product.id()+" de "+product.stock()+" a "+newInfo;
+
                 productsRep.save(new Products(
                     product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
-                    Integer.parseInt(newInfo), product.openToPublic(), product.idMainImage(), product.idCategory()));
+                    Integer.parseInt(newInfo), product.openToPublic(), product.showPrice(), product.idMainImage(), product.idCategory()));
             break;
             case 4:
+                logMessage = "El usuario cambio la descripcion corta del producto: "
+                +product.name()+" "+product.id()+" de "+product.shortDescription()+" a "+newInfo;
+
                 productsRep.save(new Products(
                     product.id(), product.name(), product.description(), newInfo, product.unitPrice(), 
-                    product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory()));
+                    product.stock(), product.openToPublic(), product.showPrice(), product.idMainImage(), product.idCategory()));
             break;
             case 5:
+
+                String currentCategory = categoriesRep.findById(Long.valueOf(newInfo))
+                    .orElseThrow(() -> new RuntimeException(productNotFound)).name();
+
+                String newCategory = categoriesRep.findById(Long.valueOf(newInfo))
+                    .orElseThrow(() -> new RuntimeException(productNotFound)).name();
+
+                logMessage = "El usuario cambio la descripcion corta del producto: "
+                +product.name()+" "+product.id()+" de "+currentCategory+" a "+newCategory;
+
                 productsRep.save(new Products(
                     product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
-                    product.stock(), product.openToPublic(), product.idMainImage(), Long.valueOf(newInfo)));
+                    product.stock(), product.openToPublic(), product.showPrice(), product.idMainImage(), Long.valueOf(newInfo)));
             break;
         
             default:
                 throw new IncorrectException("Invalid option");
         }
+
+        ActivityLogs log = new ActivityLogs(null, logMessage, LocalDateTime.now(), user.id());
+        activityLogsRep.save(log);
+
         return new MessageDTO("Info updated");
     }
 
@@ -368,13 +457,13 @@ public class ProductsSer {
                 .orElseThrow(() -> new RuntimeException(productNotFound));
             productsRep.save(new Products(
                     product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
-                    product.stock(), product.openToPublic(), product.idMainImage(), category.id()));
+                    product.stock(), product.openToPublic(), product.showPrice(), product.idMainImage(), category.id()));
             return false;
         }
 
         productsRep.save(new Products(
             null, nameProduct, "Descripción del nuevo producto", "descripción corta del nuevo producto", 0, 
-            0, false, null, category.id()));
+            0, false, true, null, category.id()));
             
         return true;
     }
@@ -393,7 +482,7 @@ public class ProductsSer {
             
             if (admin) product = new Products(
                 product.id(), product.name(), product.description(), product.shortDescription(), product.unitPrice(), 
-                product.stock(), product.openToPublic(), product.idMainImage(), product.idCategory());
+                product.stock(), product.openToPublic(), product.showPrice(), product.idMainImage(), product.idCategory());
 
             if (!product.openToPublic() && !admin)
                 throw new NoSuchElementException("That product does not exist");
@@ -444,7 +533,9 @@ public class ProductsSer {
                     String hidden = null;
                     
                     if (!product.openToPublic()) hidden = "Yes";
-                    ProductsDTO productDTO = new ProductsDTO(product.id() , product.name(), product.unitPrice(), 
+                    double unitPrice = product.showPrice() || all ? product.unitPrice() : 0;
+
+                    ProductsDTO productDTO = new ProductsDTO(product.id() , product.name(), unitPrice, 
                         product.description(), product.shortDescription(), product.stock(), productImagesDTO, null, hidden, null);
                     productsDTOList.add(productDTO);
                 }

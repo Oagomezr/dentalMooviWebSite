@@ -10,6 +10,7 @@ public record Products(
     double unitPrice,
     int stock,
     boolean openToPublic,
+    boolean showPrice,
     Long idMainImage,
     Long idCategory
 ) {}

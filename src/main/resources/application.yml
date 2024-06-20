@@ -1,14 +1,10 @@
 spring:
 
-    config:
-        #change the extraInfoExample to extraInfo with its credentials
-        import: optional:extraInfo.yml 
-
     datasource:
-        url: jdbc:mysql://localhost:3306/dental_moovi?useUnicode=true&characterEncoding=UTF-8
-        username: root
-        password: ${dataBasePasswordMySQL}
-        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PW}
+        driver-class-name: ${JDBC_DRIVER}
 
     sql:
         init:
@@ -16,12 +12,12 @@ spring:
             continue-on-error: false
 
     mail:
-        host: ${mailHost}
-        port: 587
+        host: ${MAIL_HOST}
+        port: ${MAIL_PORT}
         protocol: smtp
-        username: ${email}
-        password: ${mailPassword}
-        otherPassword: ${OtherMailPassword}
+        username: ${EMAIL}
+        password: ${MAIL_PW}
+        otherPassword: ${MAIL_PW_2}
         properties:
             mail:
                 smtp:
@@ -42,19 +38,18 @@ spring:
             max-request-size: 10MB
 
 server:
-    port: 8087
+    port: ${SPRING_PORT_SERVER}
+    frontUrl: ${FRONT_URL}
     servlet:
         session:
             cookie:
                 http-only: true
             timeout: 20m
-    error:
-        include-message: always
 
 jwt:
-    secret: ${jwtSecret}
-    expiration: ${expirationJWT}
-    accessTokenByCookieName: ${jwtCookie}
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_TIME}
+    accessTokenByCookieName: ${JWT_COOKIE}
 
 logging:
     level:

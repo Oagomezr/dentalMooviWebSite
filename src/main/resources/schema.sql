@@ -1,8 +1,8 @@
-/* USE prueba;
+USE prueba;
 DROP DATABASE dental_moovi;
 CREATE DATABASE dental_moovi;
 
-USE dental_moovi; */
+USE dental_moovi;
 
 CREATE TABLE IF NOT EXISTS categories (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -26,12 +26,13 @@ CREATE TABLE IF NOT EXISTS products (
     unit_price DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL,
     open_to_public BOOLEAN NOT NULL,
+    show_price BOOLEAN NOT NULL,
     id_category BIGINT NOT NULL, FOREIGN KEY (id_category) REFERENCES categories(id),
     id_main_image BIGINT, FOREIGN KEY (id_main_image) REFERENCES images(id)
 );
 
-/* ALTER TABLE images
-ADD CONSTRAINT fk_images_product_id FOREIGN KEY (id_product) REFERENCES products(id); */
+ALTER TABLE images
+ADD CONSTRAINT fk_images_product_id FOREIGN KEY (id_product) REFERENCES products(id);
 
 CREATE TABLE IF NOT EXISTS users(
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -42,6 +43,14 @@ CREATE TABLE IF NOT EXISTS users(
     birthdate DATE,
     gender ENUM('FEMALE', 'MALE', 'OTHER', 'UNDEFINED') NOT NULL,
     password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS activity_logs(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(255) NOT NULL,
+    date DATETIME NOT NULL,
+    id_user BIGINT,
+    FOREIGN KEY (id_user) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS roles(
@@ -88,6 +97,7 @@ CREATE TABLE IF NOT EXISTS orders(
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_file LONGBLOB,
     status ENUM('COMPLETE', 'CANCEL', 'PENDING') NOT NULL,
+    date DATETIME NOT NULL,
     id_user BIGINT NOT NULL, FOREIGN KEY (id_user) REFERENCES users(id),
     id_address BIGINT NOT NULL, FOREIGN KEY (id_address) REFERENCES addresses(id)
 );

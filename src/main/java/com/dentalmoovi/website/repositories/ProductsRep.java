@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import com.dentalmoovi.website.models.entities.Products;
 
 public interface ProductsRep extends CrudRepository<Products,Long>{
-    @Query("SELECT p.* FROM products p JOIN categories c ON p.id_category = c.id WHERE c.name = :categoryName")
+    @Query("SELECT p.* FROM products p JOIN categories c ON p.id_category = c.id WHERE c.name = :categoryName ORDER BY p.name")
     List<Products> findByCategoryName(@Param("categoryName") String categoryName);
 
     @Query("SELECT * FROM products WHERE name = :nameProduct")
