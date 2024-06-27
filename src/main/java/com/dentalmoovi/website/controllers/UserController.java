@@ -29,7 +29,7 @@ public class UserController {
         this.userSer = userSer;
     }
 
-    @PostMapping("/public/create")
+    @PostMapping("/api/public/create")
     public ResponseEntity<Void> createUser(@RequestBody UserDTO userDTO){
         try {
             userSer.createUser(userDTO);
@@ -39,7 +39,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/public/sendEmail")
+    @PostMapping("/api/public/sendEmail")
     public void sendMessage(@RequestBody String email){
         String subject = "Codigo de confirmación";
         String body = "Dental Moovi recibió una solicitud.\n\n"+
@@ -47,12 +47,12 @@ public class UserController {
         userSer.sendEmailNotification(email, subject, body);
     }
 
-    @GetMapping("/public/{email}/{signup}")
+    @GetMapping("/api/public/{email}/{signup}")
     public boolean checkEmailExists(@PathVariable String email, @PathVariable boolean signup) {
         return userSer.checkEmailExists(email, signup);
     }
     
-    @GetMapping("/user/getUser")
+    @GetMapping("/api/user/getUser")
     public ResponseEntity<UserDTO> getUserAuthenticated(){
         try {
             UserDTO userDTO = userSer.getUserAuthDTO();
@@ -62,7 +62,7 @@ public class UserController {
         }
     }
     
-    @PutMapping("/user/update")
+    @PutMapping("/api/user/update")
     public ResponseEntity<MessageDTO> updateUser(@RequestBody UserDTO userDTO){
         try {
             return ResponseEntity.ok(userSer.updateUserInfo(userDTO));
@@ -71,7 +71,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/addAddress")
+    @PostMapping("/api/user/addAddress")
     public ResponseEntity<MessageDTO> createAddress(@RequestBody AddressesDTO addressDTO){
         try {
             userSer.createAddress(addressDTO);
@@ -81,7 +81,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/getAddresses")
+    @GetMapping("/api/user/getAddresses")
     public ResponseEntity<AddressesResponse> getAddresses(){
         try {
             return ResponseEntity.ok(userSer.getAddresses());
@@ -90,7 +90,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/user/updateAddress")
+    @PutMapping("/api/user/updateAddress")
     public ResponseEntity<MessageDTO> updateAddress(@RequestBody AddressesDTO addressDTO){
         try {
             return ResponseEntity.ok(userSer.updateAddress(addressDTO));
@@ -99,7 +99,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/user/deleteAddress/{id}")
+    @DeleteMapping("/api/user/deleteAddress/{id}")
     public ResponseEntity<MessageDTO> deleteAddress(@PathVariable long id){
         try{
             return ResponseEntity.ok(userSer.deleteAddress(id));
@@ -108,12 +108,12 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/name")
+    @GetMapping("/api/user/name")
     public ResponseEntity<MessageDTO> getName(){
         return ResponseEntity.ok(userSer.getName());
     }
 
-    @PutMapping("/user/upw")
+    @PutMapping("/api/user/upw")
     public ResponseEntity<MessageDTO> updatePw(
         @RequestBody PwDTO pwDto){
         try {
@@ -123,7 +123,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/public/rpw")
+    @PutMapping("/api/public/rpw")
     public ResponseEntity<MessageDTO> rememberPw(
         @RequestBody LoginDTO userCredentials){
         try {

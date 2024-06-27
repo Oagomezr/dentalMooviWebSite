@@ -27,7 +27,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/public")
+@RequestMapping("/api/public")
 public class AuthController {
     private final JWTprovider jWTprovider;
     private final UserSer userSer;
@@ -42,6 +42,9 @@ public class AuthController {
 
     @Value("${jwt.accessTokenByCookieName}")
     private String cookieName;
+
+    @Value("${server.domainName}")
+    private String domain;
 
     @PostMapping("/isAuthorized")
     public ResponseEntity<Boolean> checkRole(@RequestBody LoginDTO loginUser) {
@@ -85,7 +88,7 @@ public class AuthController {
             Authentication auth = getAuth(loginUser.userName(), loginUser.password());
             SecurityContextHolder.getContext().setAuthentication(auth);
             String jwt = jWTprovider.generateToken(auth);
-            Utils.createCookie(hsr, cookieName, jwt, false, -1, "localhost");
+            Utils.createCookie(hsr, cookieName, jwt, false, -1, domain);
             return ResponseEntity.ok(new MessageDTO(userDetails.substring(1)));
         } catch (Exception e) {
             logger.error("Error to login: {}", e.getMessage());

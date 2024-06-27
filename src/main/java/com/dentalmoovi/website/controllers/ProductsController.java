@@ -35,7 +35,7 @@ public class ProductsController {
 
     private static Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
-    @GetMapping("/public/products/search/{name}/{limit}/{pageNumber}/{pageSize}")
+    @GetMapping("/api/public/products/search/{name}/{limit}/{pageNumber}/{pageSize}")
     public ResponseEntity<ProductsResponse> getProductsByContaining(@PathVariable String name, @PathVariable boolean limit, @PathVariable int pageNumber, @PathVariable int pageSize){
         try {
             ProductsResponse products = productsSer.getProductsByContaining(name, limit, pageNumber, pageSize, false);
@@ -45,7 +45,7 @@ public class ProductsController {
         }
     }
 
-    @GetMapping("/public/products/{name}")
+    @GetMapping("/api/public/products/{name}")
     public ResponseEntity<ProductsDTO> getProduct(@PathVariable String name){
         try {
             ProductsDTO products = productsSer.getProduct(name, false);
@@ -55,7 +55,7 @@ public class ProductsController {
         }
     }
 
-    @GetMapping("/public/products/category/{name}/{pageNumber}/{pageSize}")
+    @GetMapping("/api/public/products/category/{name}/{pageNumber}/{pageSize}")
     public ResponseEntity<ProductsResponse> getProductsByCategory(
         @PathVariable String name, @PathVariable int pageNumber, @PathVariable int pageSize){
         try {
@@ -66,7 +66,7 @@ public class ProductsController {
         }
     }
 
-    @PutMapping("/admin/products/updateMainImage/{productName}")
+    @PutMapping("/api/admin/products/updateMainImage/{productName}")
     public ResponseEntity<MessageDTO> updateMainImage(@PathVariable String productName, @RequestBody long idImage) {
         try{
             return ResponseEntity.ok(productsSer.updateMainImage(idImage, productName));
@@ -75,7 +75,7 @@ public class ProductsController {
         }
     }
 
-    @PostMapping("/admin/products/uploadImage/{productName}")
+    @PostMapping("/api/admin/products/uploadImage/{productName}")
     public ResponseEntity<MessageDTO> handleFileUpload(@RequestPart("file") MultipartFile file, @PathVariable String productName) throws java.io.IOException {
         if (file.isEmpty()) {
             logger.info("Archivo vacío");
@@ -89,7 +89,7 @@ public class ProductsController {
         }
     }
 
-    @DeleteMapping("/admin/products/deleteImage/{parameter}")
+    @DeleteMapping("/api/admin/products/deleteImage/{parameter}")
     public ResponseEntity<MessageDTO> deleteImage(@PathVariable String parameter) {
         try{
             return ResponseEntity.ok(productsSer.deleteImage(parameter));
@@ -98,7 +98,7 @@ public class ProductsController {
         }
     }
 
-    @PutMapping("/admin/products/visibility/{productName}")
+    @PutMapping("/api/admin/products/visibility/{productName}")
     public ResponseEntity<MessageDTO> changeVisibilityProduct(@PathVariable String productName, @RequestBody boolean visibility) {
         try{
             return ResponseEntity.ok(productsSer.hideOrShowProduct(visibility, productName));
@@ -107,7 +107,7 @@ public class ProductsController {
         }
     }
 
-    @PutMapping("/admin/products/updateProductInfo/{productName}/{option}")
+    @PutMapping("/api/admin/products/updateProductInfo/{productName}/{option}")
     public ResponseEntity<MessageDTO> updateProductInfo(@PathVariable String productName, @PathVariable int option, @RequestBody String newInfo) {
         try{
             return ResponseEntity.ok(productsSer.updateProductInfo(option, productName, newInfo));
@@ -116,7 +116,7 @@ public class ProductsController {
         }
     }
 
-    @PostMapping("/admin/products/createProduct")
+    @PostMapping("/api/admin/products/createProduct")
     public ResponseEntity<Boolean> createProduct(@RequestBody String categoryName) {
         try{
             productsSer.createProduct(categoryName);
@@ -126,7 +126,7 @@ public class ProductsController {
         }
     }
     
-    @GetMapping("/admin/products/search/{name}/{limit}/{pageNumber}/{pageSize}")
+    @GetMapping("/api/admin/products/search/{name}/{limit}/{pageNumber}/{pageSize}")
     public ResponseEntity<ProductsResponse> getProductsByContainingA(@PathVariable String name, @PathVariable boolean limit, @PathVariable int pageNumber, @PathVariable int pageSize){
         try {
             ProductsResponse products = productsSer.getProductsByContaining(name, limit, pageNumber, pageSize, true);
@@ -136,7 +136,7 @@ public class ProductsController {
         }
     }
 
-    @GetMapping("/admin/products/{name}")
+    @GetMapping("/api/admin/products/{name}")
     public ResponseEntity<ProductsDTO> getProductA(@PathVariable String name){
         try {
             ProductsDTO products = productsSer.getProduct(name, true);
@@ -146,7 +146,7 @@ public class ProductsController {
         }
     }
 
-    @GetMapping("/admin/products/category/{name}/{pageNumber}/{pageSize}")
+    @GetMapping("/api/admin/products/category/{name}/{pageNumber}/{pageSize}")
     public ResponseEntity<ProductsResponse> getProductsByCategoryA(
         @PathVariable String name, @PathVariable int pageNumber, @PathVariable int pageSize){
         try {
@@ -157,7 +157,7 @@ public class ProductsController {
         }
     }
 
-    @PostMapping("/public/shoppingCart")
+    @PostMapping("/api/public/shoppingCart")
     public ResponseEntity<CartResponse> getShoppingCartProducts(@RequestBody CartRequest req){
         try{
             return ResponseEntity.ok(productsSer.getShoppingCartProducts(req, false, false));
@@ -166,7 +166,7 @@ public class ProductsController {
         }
     }
 
-    @PostMapping("/admin/shoppingCart")
+    @PostMapping("/api/admin/shoppingCart")
     public ResponseEntity<CartResponse> getShoppingCartProductsA(@RequestBody CartRequest req){
         try{
             return ResponseEntity.ok(productsSer.getShoppingCartProducts(req, true, false));

@@ -14,7 +14,7 @@ public class EnumController {
 
     private final EnumSer enumSer;
 
-    @GetMapping("/user/departaments/{name}")
+    @GetMapping("/api/user/departaments/{name}")
     public ResponseEntity<Object> getDepartamentsByContaining(@PathVariable String name){
         try{
             return ResponseEntity.ok(enumSer.getDepartamentsByContaining(name));
@@ -23,7 +23,7 @@ public class EnumController {
         }
     } 
 
-    @GetMapping("/user/municipalies/{name}/{id}")
+    @GetMapping("/api/user/municipalies/{name}/{id}")
     public ResponseEntity<Object> getLineasVehiculo(@PathVariable String name, @PathVariable int id) {
         try{
             return ResponseEntity.ok(enumSer.getMunicipalyByContaining(name, id));
@@ -32,7 +32,7 @@ public class EnumController {
         }
     }
 
-    @GetMapping("/admin/categories/{name}")
+    @GetMapping("/api/admin/categories/{name}")
     public ResponseEntity<Object> getCategoriesByAdmin(@PathVariable String name) {
         try{
             return ResponseEntity.ok(enumSer.getCategoriesAdmin(name));

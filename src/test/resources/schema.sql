@@ -1,6 +1,6 @@
 USE dental_moovi;
-DROP DATABASE prueba;
-CREATE DATABASE prueba;
+DROP DATABASE IF EXISTS prueba;
+CREATE DATABASE IF NOT EXISTS prueba;
 USE prueba;
 
 CREATE TABLE categories (

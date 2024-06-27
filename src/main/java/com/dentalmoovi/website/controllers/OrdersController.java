@@ -30,16 +30,16 @@ public class OrdersController {
         this.ordersSer = ordersSer;
     }
 
-    @PostMapping("/user/generateOrder/{idAddress}")
+    @PostMapping("/api/user/generateOrder/{idAddress}")
     public void generateOrderByUser(@RequestBody CartRequest req, @PathVariable long idAddress, HttpServletResponse response) {
         ordersSer.downloadOrder(req, idAddress, false, response);
     }
 
-    @PostMapping("/admin/generateOrder/{idAddress}")
+    @PostMapping("/api/admin/generateOrder/{idAddress}")
     public void generateOrderByAdmin(@RequestBody CartRequest req, @PathVariable long idAddress, HttpServletResponse response) {
         ordersSer.downloadOrder(req, idAddress, true, response);
     }
-    @GetMapping("/admin/order/{status}/{orderBy}")
+    @GetMapping("/api/admin/order/{status}/{orderBy}")
     public ResponseEntity<OrdersResponse> getOrdersA(@PathVariable StatusOrderList status, @PathVariable boolean orderBy){
         try{
             return ResponseEntity.ok(ordersSer.getAllOrders(true));
@@ -48,7 +48,7 @@ public class OrdersController {
         }
     }
 
-    @GetMapping("/user/order/{status}/{orderBy}")
+    @GetMapping("/api/user/order/{status}/{orderBy}")
     public ResponseEntity<OrdersResponse> getOrdersU(@PathVariable StatusOrderList status, @PathVariable boolean orderBy){
         try{
             return ResponseEntity.ok(ordersSer.getAllOrders(false));
@@ -57,7 +57,7 @@ public class OrdersController {
         }
     }
 
-    @GetMapping("/admin/order/{idOrder}")
+    @GetMapping("/api/admin/order/{idOrder}")
     public ResponseEntity<Resource> getPdfByAdmin(@PathVariable long idOrder){
         byte[] pdfBytes = ordersSer.getPdfOrder(idOrder, true);
         ByteArrayResource resource = new ByteArrayResource(pdfBytes);
@@ -69,7 +69,7 @@ public class OrdersController {
                 .body(resource);
     }
 
-    @GetMapping("/user/order/{idOrder}")
+    @GetMapping("/api/user/order/{idOrder}")
     public ResponseEntity<Resource> getPdf(@PathVariable long idOrder){
         byte[] pdfBytes = ordersSer.getPdfOrder(idOrder, false);
         ByteArrayResource resource = new ByteArrayResource(pdfBytes);

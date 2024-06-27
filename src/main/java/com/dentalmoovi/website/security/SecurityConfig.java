@@ -31,8 +31,8 @@ public class SecurityConfig {
 
     private final JWTentryPoint jWTentryPoint;
     
-    @Value("${server.frontUrl}")
-    private String urlFront;
+    @Value("${server.domainUrl}")
+    private String urlDomain;
     
     public SecurityConfig(JWTentryPoint jWTentryPoint) {
         this.jWTentryPoint = jWTentryPoint;
@@ -46,7 +46,7 @@ public class SecurityConfig {
             .cors(cors ->
                 cors.configurationSource(request-> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of(urlFront));
+                    config.setAllowedOrigins(List.of(urlDomain));
                     config.setAllowedMethods(List.of("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH","OPTIONS"));
                     config.setAllowCredentials(true);
                     config.addExposedHeader("Message");
@@ -57,9 +57,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authRequest ->authRequest
                     .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                     .requestMatchers("/public/**").permitAll()
+                    .requestMatchers("/api/public/**").permitAll()
                     .requestMatchers("/favicon.ico").permitAll()
-                    .requestMatchers("/user/**").hasAuthority(RolesList.USER_ROLE.name())
-                    .requestMatchers("/admin/**").hasAuthority(RolesList.ADMIN_ROLE.name())
+                    .requestMatchers("/api/user/**").hasAuthority(RolesList.USER_ROLE.name())
+                    .requestMatchers("/api/admin/**").hasAuthority(RolesList.ADMIN_ROLE.name())
                     //.anyRequest().authenticated()
             )
             .exceptionHandling(exception ->

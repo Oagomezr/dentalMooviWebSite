@@ -39,7 +39,9 @@ spring:
 
 server:
     port: ${SPRING_PORT_SERVER}
-    frontUrl: ${FRONT_URL}
+    address: ${SPRING_ADDRESS_SERVER}
+    domainUrl: ${DOMAIN_URL}
+    domainName: ${DOMAIN}
     servlet:
         session:
             cookie:

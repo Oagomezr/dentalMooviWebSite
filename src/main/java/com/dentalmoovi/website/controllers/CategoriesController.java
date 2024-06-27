@@ -34,7 +34,16 @@ public class CategoriesController {
         }
     }
 
-    @PutMapping("/admin/categories/updateName/{categoryName}")
+    @GetMapping("/api/public/categories")
+    public ResponseEntity<CategoriesResponse> getAllCategories2() {
+        try{
+            return ResponseEntity.ok(categoriesSer.getAllCategories());
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/api/admin/categories/updateName/{categoryName}")
     public ResponseEntity<MessageDTO> updateCategoryName(@PathVariable String categoryName, @RequestBody String newName) {
         try{
             return ResponseEntity.ok(categoriesSer.updateCategoryName(categoryName, newName));
@@ -43,7 +52,7 @@ public class CategoriesController {
         }
     }
 
-    @PutMapping("/admin/categories/updateLocation/{categoryName}")
+    @PutMapping("/api/admin/categories/updateLocation/{categoryName}")
     public ResponseEntity<MessageDTO> updateCategoryLocation(@PathVariable String categoryName, @RequestBody String newName) {
         try{
             return ResponseEntity.ok(categoriesSer.updateCategoryPosition(categoryName, newName));
@@ -52,7 +61,7 @@ public class CategoriesController {
         }
     }
 
-    @PostMapping("/admin/categories/create/{parentCategory}")
+    @PostMapping("/api/admin/categories/create/{parentCategory}")
     public ResponseEntity<MessageDTO> createCategory(@PathVariable String parentCategory, @RequestBody String newCategoryName) {
         try{
             return ResponseEntity.ok(categoriesSer.addCategory(parentCategory, newCategoryName));
@@ -61,7 +70,7 @@ public class CategoriesController {
         }
     }
 
-    @DeleteMapping("/admin/categories/delete")
+    @DeleteMapping("/api/admin/categories/delete")
     public ResponseEntity<MessageDTO> deleteCategory(@PathVariable String category) {
         try{
             return ResponseEntity.ok(categoriesSer.deleteCategory(category));

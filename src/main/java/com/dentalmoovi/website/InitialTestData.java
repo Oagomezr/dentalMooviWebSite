@@ -23,7 +23,7 @@ import com.dentalmoovi.website.repositories.UserRep;
 import jakarta.annotation.PostConstruct;
 
 @Component
-//@Profile("test")
+@Profile("test")
 public class InitialTestData {
     private final CategoriesRep categoriesRep;
     private final ProductsRep productsRep;

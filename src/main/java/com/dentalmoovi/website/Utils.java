@@ -30,6 +30,8 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.lang.NonNull;
@@ -39,6 +41,12 @@ public class Utils {
 
     private Utils() {
         throw new IllegalStateException("Utility class");
+    }
+
+    private static Logger logger = LoggerFactory.getLogger(Utils.class);
+
+    public static void showMessage(String message){
+        logger.info(message);
     }
 
     private static Random random = new Random();

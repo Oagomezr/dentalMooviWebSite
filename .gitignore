@@ -37,5 +37,3 @@ out/
 .vscode/
 .env
 /dontused/
-docker-compose.yml
-Dockerfile
