@@ -1,5 +1,6 @@
 package com.dentalmoovi.website.services.cache;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -11,9 +12,9 @@ public class CacheSer {
     private Cache<String, Integer> numberOfTriesCode;
 
     public CacheSer(    
-        Cache<String, String> registrationCodeConfig, 
-        Cache<String, String> replayCodeRestrict,
-        Cache<String, Integer> numberOfTriesCode
+        @Qualifier("registrationCodeConfig") Cache<String, String> registrationCodeConfig, 
+        @Qualifier("replayCodeRestrict") Cache<String, String> replayCodeRestrict,
+        @Qualifier("numberOfTriesCode") Cache<String, Integer> numberOfTriesCode
     ) {
         this.registrationCodeConfig = registrationCodeConfig;
         this.replayCodeRestrict = replayCodeRestrict;

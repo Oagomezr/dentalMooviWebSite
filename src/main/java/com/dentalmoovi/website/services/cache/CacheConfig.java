@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -13,6 +14,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 @EnableCaching
 public class CacheConfig {
     @Bean
+    @Primary
     public Cache<String, String> registrationCodeConfig() {
         return Caffeine.newBuilder()
                 .expireAfterWrite(20, TimeUnit.MINUTES) // Set expiration time
